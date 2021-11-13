@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Dashboard from "../components/Dashboard";
 import { HiOutlineExternalLink } from "react-icons/hi";
@@ -6,50 +6,8 @@ import { FiChevronDown } from "react-icons/fi";
 import ImpressionChart from "../components/ImpressionChart";
 import DatePicker from "react-datepicker";
 import Checkbox from "../components/uiComponents/Checkbox";
-import sub from "date-fns/sub";
-
-const impressionData = [
-  {
-    date: "31/01",
-    impressions: 730,
-    interactions: 240,
-  },
-  {
-    date: "01/02",
-    impressions: 1560,
-    interactions: 350,
-  },
-  {
-    date: "02/02",
-    impressions: 722,
-    interactions: 190,
-  },
-  {
-    date: "03/02",
-    impressions: 3000,
-    interactions: 780,
-  },
-  {
-    date: "04/02",
-    impressions: 750,
-    interactions: 320,
-  },
-  {
-    date: "05/02",
-    impressions: 1510,
-    interactions: 488,
-  },
-  {
-    date: "06/02",
-    impressions: 2880,
-    interactions: 590,
-  },
-  {
-    date: "07/02",
-    impressions: 889,
-    interactions: 286,
-  },
-];
+import { useDateRange } from "../hooks/dateRange";
+import { impressionData } from "../utils/dummyData";
 
 const StatBox = ({
   statName,
@@ -82,17 +40,21 @@ const StatBox = ({
 };
 
 const Overview = () => {
-  const [dateRange, setDateRange] = useState([null, null]);
-  const [startDate, endDate] = dateRange;
-
-  const [totalChecked, setTotalChecked] = useState(false);
+  const [totalChecked, setTotalChecked] = useState(true);
   const [perDayChecked, setPerDayChecked] = useState(false);
 
-  useEffect(() => {
-    const today = new Date();
-    const minus7days = sub(today, { days: 7 });
-    setDateRange([minus7days, today]);
-  }, []);
+  const { startDate, endDate, setDateRange } = useDateRange();
+
+  const handleCheckBoxes = () => {
+    if (totalChecked) {
+      setTotalChecked(false);
+      setPerDayChecked(true);
+    }
+    if (perDayChecked) {
+      setPerDayChecked(false);
+      setTotalChecked(true);
+    }
+  };
 
   return (
     <Dashboard pageTitle="Overview">
@@ -149,14 +111,14 @@ const Overview = () => {
             <div className="flex items-center">
               <Checkbox
                 checked={totalChecked}
-                setChecked={setTotalChecked}
+                handleChange={handleCheckBoxes}
                 name="total"
                 value="Total"
                 iconColor="#4FB81D"
               />
               <Checkbox
                 checked={perDayChecked}
-                setChecked={setPerDayChecked}
+                handleChange={handleCheckBoxes}
                 name="perDay"
                 value="Per day"
                 iconColor="#FF0000"
