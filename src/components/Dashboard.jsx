@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Logo from "../assets/logo.png";
 import SearchInput from "../components/uiComponents/SearchInput";
 import { routes } from "../routes/sidebarRoutes";
@@ -8,24 +8,45 @@ import { FaAngleDown } from "react-icons/fa";
 import Avatar from "../components/uiComponents/Avatar";
 
 const Dashboard = ({ children, pageTitle }) => {
+  const location = useLocation();
+
+  console.log(location.pathname);
+
   return (
     <div className="h-screen max-h-screen overflow-y-hidden">
       <div className="grid grid-cols-5 gap-0 max-h-screen h-screen">
         <div className="h-screen min-h-screen border-r-2 border-247-dark-text bg-247-secondary">
           <img src={Logo} alt="logo" width="160" className="ml-10 mt-10" />
           <ul className="ml-10 mt-20">
-            {routes.map((route) => (
-              <li className="py-5">
-                <Link to={route.link}>
-                  <span className="flex items-center space-x-6">
-                    <route.icon size={22} color="#959698" />
-                    <span className="text-247-inactive-link text-xl font-customRoboto">
-                      {route.label}
-                    </span>
-                  </span>
-                </Link>
-              </li>
-            ))}
+            {routes.map((route) => {
+              if (location.pathname.includes(route.link)) {
+                return (
+                  <li className="py-5">
+                    <Link to={route.link}>
+                      <span className="flex items-center space-x-6">
+                        <route.icon size={22} color="#FF0000" />
+                        <span className="text-white text-xl font-customRoboto">
+                          {route.label}
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                );
+              } else {
+                return (
+                  <li className="py-5">
+                    <Link to={route.link}>
+                      <span className="flex items-center space-x-6">
+                        <route.icon size={22} color="#959698" />
+                        <span className="text-247-inactive-link text-xl font-customRoboto">
+                          {route.label}
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                );
+              }
+            })}
           </ul>
         </div>
         <div className="col-span-4 w-full h-screen min-h-screen bg-247-main px-10 py-10">
