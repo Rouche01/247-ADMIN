@@ -11,6 +11,7 @@ module.exports = {
         "247-error-text": "#FF9494",
         "247-inactive-link": "#959698",
         "247-dark-accent1": "#454545",
+        "247-dark-accent2": "#4C4C4C",
         "247-gray-accent2": "#CACACA",
         "247-gray": "#EBEBEB",
         "247-accent1": "#282C31",

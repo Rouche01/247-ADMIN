@@ -33,6 +33,6 @@ export const routes = [
   {
     label: "Send Notifs",
     icon: RiMessage2Fill,
-    link: "/send-notifs"
+    link: "/send-notifications"
   },
 ];
