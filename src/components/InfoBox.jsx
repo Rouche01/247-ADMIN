@@ -2,7 +2,7 @@ import React from "react";
 
 const InfoBox = ({ infoTitle, infoValue, isCurrency }) => {
   return (
-    <div className="bg-247-accent1 rounded-md border-2 border-247-dark-text px-6 py-4">
+    <div className="bg-247-secondary rounded-md border-2 border-247-dark-text px-6 py-4">
       <h4 className="text-247-gray-accent2 font-customRoboto font-medium text-xl">
         {infoTitle}
       </h4>

@@ -46,7 +46,7 @@ const Drivers = () => {
         <InfoBox infoTitle="Settled Payout" infoValue="820557.45" isCurrency />
         <InfoBox infoTitle="Pending Payout" infoValue="123760.87" isCurrency />
       </div>
-      <div className="mt-10 rounded-md border-2 border-247-dark-text mb-10">
+      <div className="mt-10 bg-247-secondary rounded-md border-2 border-247-dark-text mb-10">
         <TableHeader
           endDate={endDate}
           startDate={startDate}

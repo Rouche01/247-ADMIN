@@ -23,7 +23,7 @@ const Advertisers = () => {
   const { startDate, endDate, setDateRange } = useDateRange();
   const [checkedAdvertisers, setCheckedAdvertisers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [shownRows, setShownRows] = useState(15);
+  const [shownRows, setShownRows] = useState(5);
 
   const { currentList, indexOfFirstItem, indexOfLastItem, pages } =
     usePagination(currentPage, shownRows, advertisers);
@@ -46,7 +46,7 @@ const Advertisers = () => {
         <InfoBox infoTitle="Total Revenue" infoValue={8655247.87} isCurrency />
         <InfoBox infoTitle="Total Impressions" infoValue={27009} />
       </div>
-      <div className="mt-10 rounded-md border-2 border-247-dark-text mb-10">
+      <div className="mt-10 rounded-md bg-247-secondary border-2 border-247-dark-text mb-10">
         <TableHeader
           startDate={startDate}
           endDate={endDate}

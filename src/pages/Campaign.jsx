@@ -47,7 +47,7 @@ const Campaign = () => {
         <InfoBox infoTitle="Active Campaigns" infoValue="84178" />
         <InfoBox infoTitle="Pending Campaigns" infoValue="2455" />
       </div>
-      <div className="mt-10 rounded-md border-2 border-247-dark-text mb-10">
+      <div className="mt-10 bg-247-secondary rounded-md border-2 border-247-dark-text mb-10">
         <TableHeader
           startDate={startDate}
           endDate={endDate}

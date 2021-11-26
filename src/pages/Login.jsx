@@ -55,7 +55,11 @@ const Login = () => {
               name="password"
               errorText={errors.password?.message}
             />
-            <Button className={["mt-20"]} type="submit">
+            <Button
+              fullWidth
+              className={["mt-20", "bg-247-main"]}
+              type="submit"
+            >
               Log In
             </Button>
           </form>

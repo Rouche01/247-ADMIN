@@ -60,7 +60,7 @@ const Overview = () => {
     <Dashboard pageTitle="Overview">
       <div className="grid grid-cols-2 gap-8 mt-16">
         <StatBox
-          statBg="bg-247-accent1"
+          statBg="bg-247-secondary"
           bgVector="bg-subtle-curve"
           statChange="+ 5.23%"
           statInfo="1, 291"
@@ -88,7 +88,7 @@ const Overview = () => {
           statBtn="Schedule"
         />
       </div>
-      <div className="mt-10 mb-20 w-full bg-247-accent1 rounded-md border-2 border-247-dark-text pl-6 pr-10 py-10">
+      <div className="mt-10 mb-20 w-full bg-247-secondary rounded-md border-2 border-247-dark-text pl-6 pr-10 py-10">
         <div className="flex justify-between items-center mb-10">
           <h3 className="text-white font-customRoboto text-2xl font-medium">
             Impressions

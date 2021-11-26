@@ -13,6 +13,8 @@ module.exports = {
         "247-dark-accent1": "#454545",
         "247-dark-accent2": "#4C4C4C",
         "247-gray-accent2": "#CACACA",
+        "247-gray-accent3": "#383B3E",
+        "247-gray-accent4": "#444444",
         "247-gray": "#EBEBEB",
         "247-accent1": "#282C31",
         "247-green": "#4FB81D",

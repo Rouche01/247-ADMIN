@@ -1,15 +1,14 @@
 import React from "react";
 
-const Button = ({ children, type, className }) => {
+const Button = ({ children, type, className, fullWidth }) => {
   return (
     <button
       className={[
         ...className,
-        "bg-247-main",
         "text-white",
-        "w-full",
         "py-4",
         "rounded-md",
+        fullWidth && "w-full",
         "text-lg",
         "font-bold",
         "font-customRoboto",
