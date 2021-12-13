@@ -12,6 +12,8 @@ import Pagination from "../components/uiComponents/Pagination";
 import ColorTag from "../components/uiComponents/ColorTag";
 import Button from "../components/uiComponents/Button";
 import CenterModal from "../components/uiComponents/CenterModal";
+import { Link } from "react-router-dom";
+import history from "../utils/history";
 
 const tableHeaders = [
   "",
@@ -22,12 +24,87 @@ const tableHeaders = [
   "Ad Spend",
 ];
 
+const AdvertiserModal = ({ modalIsOpen, setIsOpen, advertiser }) => {
+  return (
+    <CenterModal modalOpen={modalIsOpen} setModalOpen={setIsOpen}>
+      <h2 className="text-5xl font-bold text-247-gray-accent2">
+        {advertiser.name}
+      </h2>
+      <div className="mt-6">
+        <h4 className="flex items-center text-247-gray-accent2 text-2xl font-bold">
+          Campaigns{" "}
+          <HiOutlineExternalLink
+            onClick={() =>
+              history.push(
+                `/campaigns?advertiser=${advertiser.name
+                  .toLowerCase()
+                  .replace(" ", "-")}`,
+                { advertiser: advertiser.name }
+              )
+            }
+            className="ml-3 cursor-pointer"
+          />
+        </h4>
+        <div className="flex items-center gap-5 mt-2">
+          <ColorTag color="bg-247-green" tagName="Active: " tagValue="12" />
+          <ColorTag color="bg-247-red" tagName="Blocked: " tagValue="4" />
+          <ColorTag
+            color="bg-247-gray-accent5"
+            tagName="Pending: "
+            tagValue="1"
+          />
+        </div>
+      </div>
+      <div className="mt-6">
+        <h4 className="flex items-center text-247-gray-accent2 text-2xl font-bold">
+          Analytics
+        </h4>
+        <div className="flex items-center gap-5 mt-2">
+          <ColorTag
+            tagName="Impressions: "
+            tagValue={Number(advertiser.totalImpressions).toLocaleString(
+              "en-US"
+            )}
+          />
+          <ColorTag
+            tagName="Interactions: "
+            tagValue={Number(advertiser.totalInteractions).toLocaleString(
+              "en-US"
+            )}
+          />
+        </div>
+      </div>
+      <div className="mt-6">
+        <h4 className="flex items-center text-247-gray-accent2 text-2xl font-bold">
+          Total Ad Spend
+        </h4>
+        <p className="mt-2 text-247-gray-accent2 font-bold">
+          {Number(advertiser.adSpend).toLocaleString("en-NG", {
+            style: "currency",
+            currency: "NGN",
+            // minimumFractionDigits: 0,
+            maximumFractionDigits: 2,
+          })}
+        </p>
+      </div>
+      <Button
+        type="submit"
+        className={["bg-247-red", "block", "mt-12", "px-12"]}
+      >
+        Terminate
+      </Button>
+    </CenterModal>
+  );
+};
+
 const Advertisers = () => {
   const { startDate, endDate, setDateRange } = useDateRange();
   const [checkedAdvertisers, setCheckedAdvertisers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [shownRows, setShownRows] = useState(5);
   const [modalIsOpen, setIsOpen] = useState(false);
+
+  const [advertiserDetails, setAdvertiserDetails] = useState({});
 
   const { currentList, indexOfFirstItem, indexOfLastItem, pages } =
     usePagination(currentPage, shownRows, advertisers);
@@ -83,16 +160,29 @@ const Advertisers = () => {
                 <td className="border border-247-dark-text px-6 py-2">
                   <div
                     className="flex items-center hover:text-247-red cursor-pointer"
-                    onClick={() => setIsOpen(true)}
+                    onClick={() => {
+                      setIsOpen(true);
+                      setAdvertiserDetails(advtr);
+                    }}
                   >
                     {advtr.name} <HiOutlineExternalLink className="ml-3" />
                   </div>
                 </td>
                 <td className="border border-247-dark-text px-6 py-2">
-                  <div className="flex items-center hover:text-247-red cursor-pointer">
-                    {Number(advtr.numOfCampaigns).toLocaleString("en-US")}{" "}
-                    <HiOutlineExternalLink className="ml-3" />
-                  </div>
+                  <Link
+                    to={{
+                      pathname: "/campaigns",
+                      search: `?advertiser=${advtr.name
+                        .toLowerCase()
+                        .replace(" ", "-")}`,
+                      state: { advertiser: advtr.name },
+                    }}
+                  >
+                    <div className="flex items-center hover:text-247-red cursor-pointer">
+                      {Number(advtr.numOfCampaigns).toLocaleString("en-US")}{" "}
+                      <HiOutlineExternalLink className="ml-3" />
+                    </div>
+                  </Link>
                 </td>
                 <td className="border border-247-dark-text px-6 py-2">
                   {Number(advtr.totalImpressions).toLocaleString("en-US")}
@@ -125,59 +215,11 @@ const Advertisers = () => {
           />
         </div>
       </Dashboard>
-      <CenterModal modalOpen={modalIsOpen} setModalOpen={setIsOpen}>
-        <h2 className="text-5xl font-bold text-247-gray-accent2">
-          Suya Bistro
-        </h2>
-        <div className="mt-6">
-          <h4 className="flex items-center text-247-gray-accent2 text-2xl font-bold">
-            Campaigns <HiOutlineExternalLink className="ml-3" />
-          </h4>
-          <div className="flex items-center gap-5 mt-2">
-            <ColorTag color="bg-247-green" tagName="Active: " tagValue="12" />
-            <ColorTag color="bg-247-red" tagName="Blocked: " tagValue="4" />
-            <ColorTag
-              color="bg-247-gray-accent5"
-              tagName="Pending: "
-              tagValue="1"
-            />
-          </div>
-        </div>
-        <div className="mt-6">
-          <h4 className="flex items-center text-247-gray-accent2 text-2xl font-bold">
-            Analytics
-          </h4>
-          <div className="flex items-center gap-5 mt-2">
-            <ColorTag
-              tagName="Impressions: "
-              tagValue={Number(166789).toLocaleString("en-US")}
-            />
-            <ColorTag
-              tagName="Interactions: "
-              tagValue={Number(5074).toLocaleString("en-US")}
-            />
-          </div>
-        </div>
-        <div className="mt-6">
-          <h4 className="flex items-center text-247-gray-accent2 text-2xl font-bold">
-            Total Ad Spend
-          </h4>
-          <p className="mt-2 text-247-gray-accent2 font-bold">
-            {Number(412000).toLocaleString("en-NG", {
-              style: "currency",
-              currency: "NGN",
-              // minimumFractionDigits: 0,
-              maximumFractionDigits: 2,
-            })}
-          </p>
-        </div>
-        <Button
-          type="submit"
-          className={["bg-247-red", "block", "mt-12", "px-12"]}
-        >
-          Terminate
-        </Button>
-      </CenterModal>
+      <AdvertiserModal
+        modalIsOpen={modalIsOpen}
+        setIsOpen={setIsOpen}
+        advertiser={advertiserDetails}
+      />
     </>
   );
 };

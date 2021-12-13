@@ -214,7 +214,7 @@ export const campaigns = [
   {
     name: "Airtime Blast",
     status: "pending",
-    id: "30765",
+    id: "30769",
     impressions: 122872,
     interactions: 4782,
     vehicles: 125,

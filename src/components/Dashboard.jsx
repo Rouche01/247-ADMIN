@@ -7,7 +7,7 @@ import { MdNotifications } from "react-icons/md";
 import { FaAngleDown } from "react-icons/fa";
 import Avatar from "../components/uiComponents/Avatar";
 
-const Dashboard = ({ children, pageTitle }) => {
+const Dashboard = ({ children, pageTitle, titleTag }) => {
   const location = useLocation();
 
   console.log(location.pathname);
@@ -52,7 +52,12 @@ const Dashboard = ({ children, pageTitle }) => {
         <div className="col-span-4 w-full h-screen min-h-screen bg-247-main px-10 py-10">
           <div className="flex items-center justify-between pb-4">
             <h1 className="text-white font-customRoboto text-3xl font-bold">
-              {pageTitle}
+              {pageTitle}{" "}
+              {titleTag && (
+                <span className="text-xl text-247-gray-accent2 bg-247-gray-accent3 px-3 py-1 rounded-md">
+                  {titleTag}
+                </span>
+              )}
             </h1>
             <div className="flex space-x-8 items-center">
               <SearchInput />

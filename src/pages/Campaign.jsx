@@ -9,6 +9,7 @@ import { campaigns } from "../utils/dummyData";
 import Checkbox from "../components/uiComponents/Checkbox";
 import { HiOutlineExternalLink } from "react-icons/hi";
 import Pagination from "../components/uiComponents/Pagination";
+import { useLocation } from "react-router";
 
 const tableHeaders = [
   "",
@@ -24,6 +25,9 @@ const Campaign = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [shownRows, setShownRows] = useState(5);
   const [checkedCampaigns, setCheckedCampaigns] = useState([]);
+
+  const { state } = useLocation();
+  console.log(state?.advertiser);
 
   const { startDate, endDate, setDateRange } = useDateRange();
   const { currentList, indexOfFirstItem, indexOfLastItem, pages } =
@@ -41,7 +45,7 @@ const Campaign = () => {
   };
 
   return (
-    <Dashboard pageTitle="Campaigns">
+    <Dashboard pageTitle="Campaigns" titleTag={state?.advertiser}>
       <div className="grid grid-cols-3 gap-6 mt-16">
         <InfoBox infoTitle="Total Campaigns" infoValue="86675" />
         <InfoBox infoTitle="Active Campaigns" infoValue="84178" />
