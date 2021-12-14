@@ -1,16 +1,20 @@
-import React from "react";
+import React, { useContext } from "react";
 import InputField from "../components/uiComponents/InputField";
 import { HiOutlineMail } from "react-icons/hi";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { useForm } from "react-hook-form";
 import Button from "../components/uiComponents/Button";
 import Logo from "../assets/logo.png";
-
+import { Context as AuthContext } from "../context/AuthContext";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useLoginValidation } from "../hooks/validationSchema";
 
 const Login = () => {
   const { validationSchema } = useLoginValidation();
+  const {
+    state: { loading, error },
+    loginAdmin,
+  } = useContext(AuthContext);
 
   const {
     register,
@@ -21,8 +25,10 @@ const Login = () => {
 
   console.log(watch("emailAddress"));
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log(data);
+    const { emailAddress, password } = data;
+    await loginAdmin({ email: emailAddress, password });
   };
 
   return (
