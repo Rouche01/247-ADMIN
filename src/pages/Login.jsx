@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import InputField from "../components/uiComponents/InputField";
 import { HiOutlineMail } from "react-icons/hi";
 import { RiLockPasswordLine } from "react-icons/ri";
@@ -24,6 +24,10 @@ const Login = () => {
   } = useForm({ resolver: yupResolver(validationSchema) });
 
   console.log(watch("emailAddress"));
+
+  useEffect(() => {
+    console.log(loading)
+  }, [loading])
 
   const onSubmit = async (data) => {
     console.log(data);
@@ -65,6 +69,7 @@ const Login = () => {
               fullWidth
               className={["mt-20", "bg-247-main"]}
               type="submit"
+              isLoading={loading}
             >
               Log In
             </Button>

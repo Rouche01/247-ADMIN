@@ -6,6 +6,7 @@ import { OVERVIEW_PAGE } from "../routes/pageUrls";
 const authReducer = (state, action) => {
   switch (action.type) {
     case "set_loading":
+      console.log(action.payload, "--- in dispatch ---");
       return { loading: action.payload, ...state };
     case "signin":
       return {
@@ -37,7 +38,7 @@ const loginAdmin =
         payload: { token, user: response.data.user },
       });
       dispatch({ type: "set_loading", payload: false });
-      history.push(OVERVIEW_PAGE);
+        history.push(OVERVIEW_PAGE);
     } catch (err) {
       dispatch({ type: "set_loading", payload: false });
       console.log(err.response);

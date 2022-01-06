@@ -1,6 +1,6 @@
 import React from "react";
 
-const Button = ({ children, type, className, fullWidth }) => {
+const Button = ({ children, type, className, fullWidth, isLoading }) => {
   return (
     <button
       className={[
@@ -15,7 +15,7 @@ const Button = ({ children, type, className, fullWidth }) => {
       ].join(" ")}
       type={type}
     >
-      {children}
+      {isLoading ? "Loading" : children}
     </button>
   );
 };
