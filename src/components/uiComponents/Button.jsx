@@ -1,4 +1,5 @@
 import React from "react";
+import Spinner from "./Spinner";
 
 const Button = ({ children, type, className, fullWidth, isLoading }) => {
   return (
@@ -15,7 +16,7 @@ const Button = ({ children, type, className, fullWidth, isLoading }) => {
       ].join(" ")}
       type={type}
     >
-      {isLoading ? "Loading" : children}
+      {isLoading ? <Spinner /> : children}
     </button>
   );
 };

@@ -1,4 +1,5 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
+import { useLocation } from "react-router-dom";
 import InputField from "../components/uiComponents/InputField";
 import { HiOutlineMail } from "react-icons/hi";
 import { RiLockPasswordLine } from "react-icons/ri";
@@ -8,31 +9,30 @@ import Logo from "../assets/logo.png";
 import { Context as AuthContext } from "../context/AuthContext";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useLoginValidation } from "../hooks/validationSchema";
+import { OVERVIEW_PAGE } from "../routes/pageUrls";
 
 const Login = () => {
   const { validationSchema } = useLoginValidation();
+  const { state } = useLocation();
+
   const {
-    state: { loading, error },
+    state: { loading: authLoading, error: authError },
     loginAdmin,
+    clearError,
   } = useContext(AuthContext);
 
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm({ resolver: yupResolver(validationSchema) });
 
-  console.log(watch("emailAddress"));
-
-  useEffect(() => {
-    console.log(loading)
-  }, [loading])
-
   const onSubmit = async (data) => {
     console.log(data);
+    clearError();
     const { emailAddress, password } = data;
-    await loginAdmin({ email: emailAddress, password });
+    const forwardedPath = state?.from || OVERVIEW_PAGE;
+    await loginAdmin({ email: emailAddress, password }, forwardedPath);
   };
 
   return (
@@ -49,6 +49,9 @@ const Login = () => {
             Welcome Back
           </p>
           <form className="mt-20" onSubmit={handleSubmit(onSubmit)}>
+            {authError && (
+              <p className="font-semibold text-247-error-text">{authError}</p>
+            )}
             <InputField
               placeholder="Email Address"
               type="email"
@@ -69,7 +72,7 @@ const Login = () => {
               fullWidth
               className={["mt-20", "bg-247-main"]}
               type="submit"
-              isLoading={loading}
+              isLoading={authLoading}
             >
               Log In
             </Button>

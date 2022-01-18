@@ -17,6 +17,7 @@ import Drivers from "./pages/Drivers";
 import Campaign from "./pages/Campaign";
 import AdPlaylists from "./pages/AdPlaylists";
 import SendNotifs from "./pages/SendNotifs";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
   return (
@@ -24,12 +25,42 @@ function App() {
       <Router history={history}>
         <Switch>
           <Route path={LOGIN_PAGE} component={Login} />
-          <Route path={OVERVIEW_PAGE} component={Overview} />
-          <Route path={ADVERTISERS_PAGE} component={Advertisers} />
-          <Route path={DRIVERS_PAGE} component={Drivers} />
-          <Route path={CAMPAIGN_PAGE} component={Campaign} />
-          <Route path={AD_PLAYLIST} component={AdPlaylists} />
-          <Route path={NOTIF_PAGE} component={SendNotifs} />
+          <ProtectedRoute
+            exact
+            userType="admin"
+            path={OVERVIEW_PAGE}
+            component={Overview}
+          />
+          <ProtectedRoute
+            path={ADVERTISERS_PAGE}
+            exact
+            userType="admin"
+            component={Advertisers}
+          />
+          <ProtectedRoute
+            path={DRIVERS_PAGE}
+            exact
+            userType="admin"
+            component={Drivers}
+          />
+          <ProtectedRoute
+            path={CAMPAIGN_PAGE}
+            exact
+            userType="admin"
+            component={Campaign}
+          />
+          <ProtectedRoute
+            path={AD_PLAYLIST}
+            exact
+            userType="admin"
+            component={AdPlaylists}
+          />
+          <ProtectedRoute
+            path={NOTIF_PAGE}
+            exact
+            userType="admin"
+            component={SendNotifs}
+          />
         </Switch>
       </Router>
     </div>

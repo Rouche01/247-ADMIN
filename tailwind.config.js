@@ -8,7 +8,7 @@ module.exports = {
         "247-secondary": "#282C31",
         "247-transparent": "#FFFFFF",
         "247-dark-text": "#4D4D4D",
-        "247-error-text": "#FF9494",
+        "247-error-text": "rgb(212, 5, 17)",
         "247-inactive-link": "#959698",
         "247-dark-accent1": "#454545",
         "247-dark-accent2": "#4C4C4C",
