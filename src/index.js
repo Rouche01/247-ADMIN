@@ -1,5 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { Router } from "react-router-dom";
+import history from "./utils/history";
 import "./index.css";
 import App from "./App";
 import { Provider as AuthProvider } from "../src/context/AuthContext";
@@ -8,7 +10,9 @@ import reportWebVitals from "./reportWebVitals";
 ReactDOM.render(
   <React.StrictMode>
     <AuthProvider>
-      <App />
+      <Router history={history}>
+        <App />
+      </Router>
     </AuthProvider>
   </React.StrictMode>,
   document.getElementById("root")

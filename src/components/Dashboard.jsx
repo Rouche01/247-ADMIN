@@ -13,8 +13,6 @@ import { Context as AuthContext } from "../context/AuthContext";
 const Dashboard = forwardRef(
   ({ children, pageTitle, titleTag, open, setOpen }, ref) => {
     const location = useLocation();
-
-    console.log(location.pathname);
     const { logout } = useContext(AuthContext);
 
     const toggleDropdown = () => {

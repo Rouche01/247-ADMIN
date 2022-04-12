@@ -6,7 +6,6 @@ import { LOGIN_PAGE } from "../routes/pageUrls";
 const authReducer = (state, action) => {
   switch (action.type) {
     case "set_loading":
-      console.log(action.payload, "--- in dispatch ---");
       return { ...state, loading: action.payload };
     case "signin":
       return {
@@ -14,6 +13,13 @@ const authReducer = (state, action) => {
         token: action.payload.token,
         user: action.payload.user,
         loggedIn: true,
+      };
+    case "signout":
+      return {
+        ...state,
+        token: null,
+        user: null,
+        loggedIn: false,
       };
     case "set_error":
       return { ...state, error: action.payload };
@@ -59,6 +65,7 @@ const loginAdmin =
 
 const logout = (dispatch) => () => {
   localStorage.removeItem("247auth");
+  dispatch({ type: "signout" });
   history.push(LOGIN_PAGE);
 };
 

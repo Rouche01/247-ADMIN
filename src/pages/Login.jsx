@@ -10,13 +10,16 @@ import { Context as AuthContext } from "../context/AuthContext";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useLoginValidation } from "../hooks/validationSchema";
 import { OVERVIEW_PAGE } from "../routes/pageUrls";
+import { Redirect } from "react-router-dom";
 
 const Login = () => {
   const { validationSchema } = useLoginValidation();
   const { state } = useLocation();
 
+  console.log(state);
+
   const {
-    state: { loading: authLoading, error: authError },
+    state: { loading: authLoading, error: authError, loggedIn },
     loginAdmin,
     clearError,
   } = useContext(AuthContext);
@@ -28,12 +31,15 @@ const Login = () => {
   } = useForm({ resolver: yupResolver(validationSchema) });
 
   const onSubmit = async (data) => {
-    console.log(data);
     clearError();
     const { emailAddress, password } = data;
     const forwardedPath = state?.from || OVERVIEW_PAGE;
     await loginAdmin({ email: emailAddress, password }, forwardedPath);
   };
+
+  if (loggedIn) {
+    return <Redirect to={OVERVIEW_PAGE} />
+  }
 
   return (
     <div className="grid grid-cols-6 gap-0 h-screen min-h-screen">
