@@ -1,40 +1,52 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import Dashboard from "../components/Dashboard";
-import { HiOutlineExternalLink } from "react-icons/hi";
 import { FiChevronDown } from "react-icons/fi";
+import { MdOutlineArrowUpward, MdOutlineArrowDownward } from "react-icons/md";
 import ImpressionChart from "../components/ImpressionChart";
 import DatePicker from "react-datepicker";
 import Checkbox from "../components/uiComponents/Checkbox";
 import { useDateRange } from "../hooks/dateRange";
 import { impressionData } from "../utils/dummyData";
+import { formatNum } from "../utils/numFormatter";
+import ChartUpIndicator from "../components/uiComponents/ChartUpIndicator";
+import ChartDownIndicator from "../components/uiComponents/ChartDownIndicator";
 
 const StatBox = ({
   statName,
-  statChange,
   statInfo,
-  statBg,
-  bgVector,
-  statBtn,
+  bgColor,
+  statChange,
+  indicatorColor,
 }) => {
   return (
     <div
-      className={`px-8 py-6 w-full bg-bottom ${bgVector} bg-cover rounded-md ${statBg} border-2 border-247-dark-text col-span-1`}
+      className={`px-9 py-8 w-full bg-bottom ${bgColor} bg-cover rounded-md border border-247-box-border col-span-1 relative`}
     >
-      <div className="flex justify-between items-center">
-        <h3 className="text-white font-customRoboto text-2xl">{statName}</h3>
-        <p className="text-white text-lg text-opacity-40">{statChange}</p>
+      <h3 className="text-white font-customRoboto text-2xl">{statName}</h3>
+      <div className="mt-12 flex relative items-center">
+        <h2 className="text-white font-bold text-5xl">{statInfo}</h2>
+        {statChange > 0 ? (
+          <MdOutlineArrowUpward
+            className="absolute left-56 text-247-increment-green"
+            size={48}
+          />
+        ) : (
+          <MdOutlineArrowDownward
+            className="absolute left-56 text-247-decrement-red"
+            size={48}
+          />
+        )}
       </div>
-      {statBtn ? (
-        <Link className="bg-247-dark-accent1 text-white px-8 py-2 mt-8 inline-flex items-center rounded-md text-xl border border-247-dark-text">
-          {statBtn}
-          <span className="ml-2">
-            <HiOutlineExternalLink />
-          </span>
-        </Link>
-      ) : (
-        <h2 className="text-4xl mt-8 text-white font-bold">{statInfo}</h2>
-      )}
+      <div
+        className="absolute top-1/2 right-10 mt-2"
+        style={{ transform: "translateY(-50%)" }}
+      >
+        {statChange > 0 ? (
+          <ChartUpIndicator color={indicatorColor} />
+        ) : (
+          <ChartDownIndicator color={indicatorColor} />
+        )}
+      </div>
     </div>
   );
 };
@@ -60,32 +72,32 @@ const Overview = () => {
     <Dashboard pageTitle="Overview">
       <div className="grid grid-cols-2 gap-8 mt-16">
         <StatBox
-          statBg="bg-247-secondary"
-          bgVector="bg-subtle-curve"
-          statChange="+ 5.23%"
-          statInfo="1, 291"
-          statName="Advertisers"
+          indicatorColor="#045684"
+          bgColor="bg-blue-gradient"
+          statChange={5.23}
+          statInfo={formatNum(1200)}
+          statName="Total Campaigns"
         />
         <StatBox
-          statBg="bg-247-accent1"
-          bgVector="bg-subtle-curve"
-          statChange="+ 1.08%"
-          statInfo="197, 291"
-          statName="Drivers"
+          indicatorColor="#035524"
+          bgColor="bg-green-gradient"
+          statChange={-1.08}
+          statInfo={formatNum(680)}
+          statName="Active Campaigns"
         />
         <StatBox
-          statBg="bg-247-accent1"
-          bgVector="bg-subtle-curve"
-          statChange="- 1.75%"
-          statInfo="86, 675"
-          statName="Campaigns"
+          indicatorColor="#000000"
+          bgColor="bg-yellow-gradient"
+          statChange={1.75}
+          statInfo={formatNum(800)}
+          statName="Active Drivers"
         />
         <StatBox
-          statBg="bg-247-red"
-          bgVector="bg-subtle-red-curve"
-          statInfo="86, 675"
-          statName="Schedule Ad Play"
-          statBtn="Schedule"
+          indicatorColor="#21A0AA"
+          bgColor="bg-orange-gradient"
+          statChange={1.75}
+          statInfo={formatNum(12850000, true)}
+          statName="Total Revenue"
         />
       </div>
       <div className="mt-10 mb-20 w-full bg-247-secondary rounded-md border-2 border-247-dark-text pl-6 pr-10 py-10">
