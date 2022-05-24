@@ -6,7 +6,7 @@ const InputField = (props) => {
     props;
 
   return (
-    <>
+    <div>
       <div className="relative mt-8">
         {label && (
           <label className="text-base mb-2 font-medium inline-block text-white">
@@ -38,7 +38,7 @@ const InputField = (props) => {
       {errorText && (
         <p className="text-sm mt-1 ml-2 text-247-error-text">{errorText}</p>
       )}
-    </>
+    </div>
   );
 };
 

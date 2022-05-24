@@ -33,7 +33,7 @@ const PlaylistBox = ({ selected, selectFn, title, playlistId }) => {
   );
 };
 
-const AdPlaylists = () => {
+const PlaylistManager = () => {
   const [selectedPlaylists, setSelectedPlaylists] = useState([]);
 
   const handlePlaylistSelect = (id) => {
@@ -70,4 +70,4 @@ const AdPlaylists = () => {
   );
 };
 
-export default AdPlaylists;
+export default PlaylistManager;

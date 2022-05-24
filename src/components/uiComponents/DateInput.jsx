@@ -10,6 +10,7 @@ const DateInput = ({
   startDate,
   endDate,
   handleChange,
+  errorText
 }) => {
   return (
     <div className="mt-8">
@@ -38,6 +39,9 @@ const DateInput = ({
           color="#DFDFDF"
         />
       </div>
+      {errorText && (
+        <p className="text-sm mt-1 ml-2 text-247-error-text">{errorText}</p>
+      )}
     </div>
   );
 };

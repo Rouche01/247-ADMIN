@@ -18,10 +18,8 @@ export const useCampaignFormValidation = () => {
     duration: Yup.array()
       .length(2, "select start and end duration")
       .required("Campaign duration is required"),
-    adSpend: Yup.number()
-      .min(500, "Ad Spend can't be less than #500")
-      .required("Ad Spend is required"),
-    adType: Yup.string().required("Ad type is required"),
+    adSpend: Yup.string().required("Ad Spend is required"),
+    adType: Yup.object().required("Ad type is required"),
   });
 
   return { validationSchema };

@@ -99,6 +99,9 @@ const SelectInput = ({
           Option: CustomOption,
         }}
       />
+      {errorText && (
+        <p className="text-sm mt-1 ml-2 text-247-error-text">{errorText}</p>
+      )}
     </div>
   );
 };

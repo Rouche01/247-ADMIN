@@ -66,6 +66,7 @@ const CreateCampaignModal = ({ modalIsOpen, setIsOpen, modalWidth }) => {
             name="duration"
             control={control}
             render={({ field }) => {
+              console.log(field.value)
               console.log((field.value && field?.value[0]) || null);
               return (
                 <DateInput
@@ -73,7 +74,7 @@ const CreateCampaignModal = ({ modalIsOpen, setIsOpen, modalWidth }) => {
                   darkMode
                   placeholder="Select campaign duration"
                   startDate={(field.value && field?.value[0]) || null}
-                  endDate={(field.value && field?.value[0]) || null}
+                  endDate={(field.value && field?.value[1]) || null}
                   handleChange={(date) => field.onChange(date)}
                   errorText={errors.duration?.message}
                 />
@@ -86,7 +87,7 @@ const CreateCampaignModal = ({ modalIsOpen, setIsOpen, modalWidth }) => {
             label="Ad Spend"
             darkMode={true}
             placeholder="enter campaign spend"
-            type="text"
+            type="string"
             registerFn={register}
             name="adSpend"
             errorText={errors.adSpend?.message}
@@ -107,6 +108,7 @@ const CreateCampaignModal = ({ modalIsOpen, setIsOpen, modalWidth }) => {
                   placeholderText="select ad type"
                   value={field.value}
                   handleChange={(value) => field.onChange(value)}
+                  errorText={errors.adType?.message}
                 />
               );
             }}
