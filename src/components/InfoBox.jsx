@@ -1,21 +1,28 @@
 import React from "react";
+import { MdOutlineArrowUpward, MdOutlineArrowDownward } from "react-icons/md";
 
-const InfoBox = ({ infoTitle, infoValue, isCurrency }) => {
+const InfoBox = ({ infoTitle, infoValue, bgColor, statChange }) => {
   return (
-    <div className="bg-247-secondary rounded-md border-2 border-247-dark-text px-6 py-4">
-      <h4 className="text-247-gray-accent2 font-customRoboto font-medium text-xl">
+    <div className={`${bgColor} rounded-md border-2 border-247-dark-text p-7`}>
+      <h4 className="text-white font-customRoboto font-medium text-lg">
         {infoTitle}
       </h4>
-      <h2 className="mt-4 font-customRoboto text-247-gray-accent2 text-3xl font-bold">
-        {isCurrency
-          ? Number(infoValue).toLocaleString("en-NG", {
-              style: "currency",
-              currency: "NGN",
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
-          : Number(infoValue).toLocaleString("en-US")}
-      </h2>
+      <div className="mt-4 flex items-center relative">
+        <h2 className="font-customRoboto text-white text-3xl font-medium">
+          {infoValue}
+        </h2>
+        {statChange > 0 ? (
+          <MdOutlineArrowUpward
+            className="absolute left-48 text-247-increment-green"
+            size={40}
+          />
+        ) : (
+          <MdOutlineArrowDownward
+            className="absolute left-48 text-247-decrement-red"
+            size={40}
+          />
+        )}
+      </div>
     </div>
   );
 };

@@ -10,6 +10,7 @@ import Checkbox from "../components/uiComponents/Checkbox";
 import { HiOutlineExternalLink } from "react-icons/hi";
 import Pagination from "../components/uiComponents/Pagination";
 import { useLocation } from "react-router";
+import { formatNum } from "../utils/numFormatter";
 
 const tableHeaders = [
   "",
@@ -47,9 +48,24 @@ const Campaign = () => {
   return (
     <Dashboard pageTitle="Campaigns" titleTag={state?.advertiser}>
       <div className="grid grid-cols-3 gap-6 mt-16">
-        <InfoBox infoTitle="Total Campaigns" infoValue="86675" />
-        <InfoBox infoTitle="Active Campaigns" infoValue="84178" />
-        <InfoBox infoTitle="Pending Campaigns" infoValue="2455" />
+        <InfoBox
+          bgColor="bg-blue-gradient"
+          infoTitle="Total Revenue"
+          infoValue={formatNum(12850000, true)}
+          statChange={2.4}
+        />
+        <InfoBox
+          infoTitle="Active Campaigns"
+          infoValue={formatNum(5500)}
+          bgColor="bg-green-gradient"
+          statChange={-2.5}
+        />
+        <InfoBox
+          infoTitle="Total Campaigns"
+          infoValue={formatNum(1200)}
+          bgColor="bg-yellow-gradient"
+          statChange={2.4}
+        />
       </div>
       <div className="mt-10 bg-247-secondary rounded-md border-2 border-247-dark-text mb-10">
         <TableHeader

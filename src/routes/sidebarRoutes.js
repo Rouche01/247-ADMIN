@@ -3,6 +3,7 @@ import { HiUsers } from "react-icons/hi";
 import { GiSteeringWheel } from "react-icons/gi";
 import { BsPlayFill } from "react-icons/bs";
 import { RiMessage2Fill } from "react-icons/ri";
+import { MdVideoLibrary, MdQuiz } from "react-icons/md";
 
 export const routes = [
   {
@@ -27,7 +28,7 @@ export const routes = [
   },
   {
     label: "Content Library",
-    icon: BsPlayFill,
+    icon: MdVideoLibrary,
     link: "/content-library",
   },
   {
@@ -37,7 +38,7 @@ export const routes = [
   },
   {
     label: "Quiz Centre",
-    icon: BsPlayFill,
+    icon: MdQuiz,
     link: "/quiz-centre",
   },
   {
