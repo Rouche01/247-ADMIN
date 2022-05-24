@@ -5,7 +5,6 @@ const Button = ({ children, type, className, fullWidth, isLoading }) => {
   return (
     <button
       className={[
-        ...className,
         "text-white",
         "py-4",
         "rounded-md",
@@ -13,6 +12,7 @@ const Button = ({ children, type, className, fullWidth, isLoading }) => {
         "text-lg",
         "font-bold",
         "font-customRoboto",
+        ...className,
       ].join(" ")}
       type={type}
     >

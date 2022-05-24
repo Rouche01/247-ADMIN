@@ -8,11 +8,52 @@
   background-color: transparent;
   border: 1px solid #4d4d4d;
   color: #cacaca;
-  font-size: 1.2rem;
-  padding: 8px 32px 8px 12px;
+  font-size: 1.125rem;
+  padding: 12px 22px 12px 52px;
   border-radius: 6px;
 }
 
 .react-datepicker__input-container input:focus {
   outline: none;
+}
+
+.daterangepicker .drp-calendar.left .calendar-table {
+  padding-right: 10px !important;
+}
+
+.daterangepicker .drp-calendar.right .calendar-table {
+  padding-left: 10px !important;
+}
+
+.daterangepicker .calendar-table th,
+.daterangepicker .calendar-table td {
+  font-size: 14px !important;
+  width: 36px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+}
+
+.daterangepicker .ranges li {
+  font-size: 14px !important;
+}
+
+.daterangepicker .drp-selected {
+  font-size: 15px !important;
+}
+
+.daterangepicker .drp-buttons .btn {
+  font-size: 15px !important;
+}
+
+.daterangepicker .drp-buttons .range-apply-btn {
+  background-color: #357ebd;
+  border-radius: 4px;
+  color: #fff;
+  padding: 6px 10px !important;
+}
+
+.daterangepicker .drp-buttons .cancelBtn {
+  background-color: #F8F7FA !important;
+  padding: 6px 10px !important;
+  border-radius: 4px;
 }

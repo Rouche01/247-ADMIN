@@ -1,15 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import "daterangepicker";
+import "daterangepicker/daterangepicker.css";
 import Dashboard from "../components/Dashboard";
-import { FiChevronDown } from "react-icons/fi";
-import { MdOutlineArrowUpward, MdOutlineArrowDownward } from "react-icons/md";
+import {
+  MdOutlineArrowUpward,
+  MdOutlineArrowDownward,
+  MdOutlineCalendarToday,
+} from "react-icons/md";
 import ImpressionChart from "../components/ImpressionChart";
-import DatePicker from "react-datepicker";
 import Checkbox from "../components/uiComponents/Checkbox";
-import { useDateRange } from "../hooks/dateRange";
 import { impressionData } from "../utils/dummyData";
 import { formatNum } from "../utils/numFormatter";
 import ChartUpIndicator from "../components/uiComponents/ChartUpIndicator";
 import ChartDownIndicator from "../components/uiComponents/ChartDownIndicator";
+import $ from "jquery";
+import moment from "moment";
 
 const StatBox = ({
   statName,
@@ -55,7 +60,10 @@ const Overview = () => {
   const [totalChecked, setTotalChecked] = useState(true);
   const [perDayChecked, setPerDayChecked] = useState(false);
 
-  const { startDate, endDate, setDateRange } = useDateRange();
+  const [dateRange, setDateRange] = useState([
+    moment().subtract(12, "M"),
+    moment(),
+  ]);
 
   const handleCheckBoxes = () => {
     if (totalChecked) {
@@ -68,9 +76,48 @@ const Overview = () => {
     }
   };
 
+  $('button[name="daterange"]').daterangepicker(
+    {
+      opens: "left",
+      ranges: {
+        "Last 7 Days": [moment().subtract(6, "days"), moment()],
+        "Last 14 Days": [moment().subtract(13, "days"), moment()],
+        "Last 30 Days": [moment().subtract(29, "days"), moment()],
+        "Last 3 months": [moment().subtract(3, "M"), moment()],
+        "Last 12 months": [moment().subtract(12, "M"), moment()],
+        "Month to date": [moment().startOf("month"), moment()],
+        "All time": [moment().subtract(2, "Y"), moment()],
+      },
+      startDate: dateRange[0],
+      endDate: dateRange[1],
+      alwaysShowCalendars: true,
+      applyButtonClasses: "range-apply-btn",
+    },
+    (start, end, _label) => {
+      setDateRange([start, end]);
+    }
+  );
+
+  useEffect(() => {
+    console.log(dateRange);
+  }, [dateRange]);
+
   return (
     <Dashboard pageTitle="Overview">
-      <div className="grid grid-cols-2 gap-8 mt-16">
+      <div className="flex items-center w-full justify-between">
+        <div className="mt-16 mb-8">
+          <h2 className="text-4xl text-white">Hello, Welcome back</h2>
+          <p className="text-white text-base">Today is Sunday, 22 February</p>
+        </div>
+        <button
+          className="bg-transparent px-5 py-3 rounded-md text-white border border-white flex items-center text-base"
+          name="daterange"
+        >
+          <MdOutlineCalendarToday size={20} className="mr-3" />
+          Set Date Filter
+        </button>
+      </div>
+      <div className="grid grid-cols-2 gap-8">
         <StatBox
           indicatorColor="#045684"
           bgColor="bg-blue-gradient"
@@ -106,20 +153,6 @@ const Overview = () => {
             Impressions
           </h3>
           <div className="flex items-center">
-            <div className="relative mr-8">
-              <DatePicker
-                className="z-20"
-                selectsRange={true}
-                startDate={startDate}
-                endDate={endDate}
-                onChange={(update) => setDateRange(update)}
-              />
-              <FiChevronDown
-                className="absolute top-1/4 right-3 cursor-pointer z-0"
-                size={20}
-                color="#979797"
-              />
-            </div>
             <div className="flex items-center">
               <Checkbox
                 checked={totalChecked}

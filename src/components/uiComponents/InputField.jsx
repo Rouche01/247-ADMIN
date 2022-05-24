@@ -2,11 +2,17 @@ import React from "react";
 import classNames from "classnames/bind";
 
 const InputField = (props) => {
-  const { inputIcon, registerFn, errorText, ...inputProps } = props;
+  const { inputIcon, registerFn, errorText, label, darkMode, ...inputProps } =
+    props;
 
   return (
     <>
       <div className="relative mt-8">
+        {label && (
+          <label className="text-base mb-2 font-medium inline-block text-white">
+            {label}
+          </label>
+        )}
         <input
           {...inputProps}
           {...registerFn(props.name)}
@@ -19,7 +25,10 @@ const InputField = (props) => {
             { "border-247-error-text": !!errorText },
             "rounded-md",
             "text-lg",
-            "font-customRoboto"
+            { "bg-247-dark-mode-input-bg": darkMode },
+            "font-customRoboto",
+            { "text-white": darkMode },
+            "outline-none"
           )}
         />
         <span className="absolute top-1/4 right-5">

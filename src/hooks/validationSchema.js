@@ -10,3 +10,19 @@ export const useLoginValidation = () => {
 
   return { validationSchema };
 };
+
+export const useCampaignFormValidation = () => {
+  const validationSchema = Yup.object({
+    campaignName: Yup.string().required("Campaign name is required"),
+    advertiserName: Yup.string().required("Advertiser name is required"),
+    duration: Yup.array()
+      .length(2, "select start and end duration")
+      .required("Campaign duration is required"),
+    adSpend: Yup.number()
+      .min(500, "Ad Spend can't be less than #500")
+      .required("Ad Spend is required"),
+    adType: Yup.string().required("Ad type is required"),
+  });
+
+  return { validationSchema };
+};

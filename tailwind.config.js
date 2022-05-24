@@ -23,6 +23,13 @@ module.exports = {
         "247-increment-green": "#028307",
         "247-decrement-red": "#A00000",
         "247-red": "rgba(255, 0, 0, 0.6)",
+        "247-red-straight": "#FF0000",
+        "247-red-shade": "#FE0000",
+        "247-dark-mode-input-bg": "rgba(0, 0, 0, 0.25)",
+        "247-dotted-border": "rgba(196, 226, 250, 0.24)",
+        "247-upload-bg": "rgba(247, 247, 247, 0.1)",
+        "247-placeholder-shade": "#DFDFDF",
+        "247-overlay": "rgba(0, 0, 0, 0.75)"
       },
       backgroundImage: {
         "subtle-curve": "url('/src/assets/subtle-curve.svg')",
