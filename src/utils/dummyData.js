@@ -47,77 +47,88 @@ export const advertisers = [
     numOfCampaigns: 122,
     totalImpressions: 166789,
     totalInteractions: 5074,
-    adSpend: 412000,
+    totalSpend: 412000,
+    totalDuration: "193:54:30"
   },
   {
     name: "CocaCola",
     numOfCampaigns: 265,
     totalImpressions: 575890,
     totalInteractions: 10978,
-    adSpend: 909872,
+    totalSpend: 909872,
+    totalDuration: "50:25:30"
   },
   {
     name: "Spinneys Mart",
     numOfCampaigns: 10,
     totalImpressions: 54871,
     totalInteractions: 992,
-    adSpend: 74827,
+    totalSpend: 74827,
+    totalDuration: "30:20:50"
   },
   {
     name: "Lifemate Inc.",
     numOfCampaigns: 65,
     totalImpressions: 72989,
     totalInteractions: 1077,
-    adSpend: 106299,
+    totalSpend: 106299,
+    totalDuration: "25:45:30"
   },
   {
     name: "Gold Circle",
     numOfCampaigns: 50,
     totalImpressions: 144282,
     totalInteractions: 2217,
-    adSpend: 331117,
+    totalSpend: 331117,
+    totalDuration: "20:37:54"
   },
   {
     name: "GTBank",
     numOfCampaigns: 72,
     totalImpressions: 172949,
     totalInteractions: 600,
-    adSpend: 500186,
+    totalSpend: 500186,
+    totalDuration: "98:44:37"
   },
   {
     name: "Cowrywise",
     numOfCampaigns: 5,
     totalImpressions: 14285,
     totalInteractions: 727,
-    adSpend: 92168,
+    totalSpend: 92168,
+    totalDuration: "88:54:30"
   },
   {
     name: "Mikano",
     numOfCampaigns: 36,
     totalImpressions: 22989,
     totalInteractions: 25,
-    adSpend: 266667,
+    totalSpend: 266667,
+    totalDuration: "55:39:38"
   },
   {
     name: "Dangote",
     numOfCampaigns: 45,
     totalImpressions: 472199,
     totalInteractions: 172,
-    adSpend: 822982,
+    totalSpend: 822982,
+    totalDuration: "120:54:45"
   },
   {
     name: "Betsmart",
     numOfCampaigns: 3,
     totalImpressions: 66889,
     totalInteractions: 691,
-    adSpend: 49575,
+    totalSpend: 49575,
+    totalDuration: "15:55:30"
   },
   {
     name: "Abeg",
     numOfCampaigns: 20,
     totalImpressions: 199657,
     totalInteractions: 300,
-    adSpend: 230789,
+    totalSpend: 230789,
+    totalDuration: "65:12:30"
   },
 ];
 
