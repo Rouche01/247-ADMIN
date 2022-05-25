@@ -10,6 +10,7 @@ import Checkbox from "../components/uiComponents/Checkbox";
 import Pagination from "../components/uiComponents/Pagination";
 import { useLocation } from "react-router";
 import { formatNum } from "../utils/numFormatter";
+import { typeFilters, statusFilters } from "../utils/constants";
 import classNames from "classnames";
 import startCase from "lodash/startCase";
 import kebabCase from "lodash/kebabCase";
@@ -23,19 +24,6 @@ const tableHeaders = [
   "Impressions",
   "Duration",
   "Ad Spend",
-];
-
-const statusFilters = [
-  { label: "All", id: "all" },
-  { label: "Active", id: "active" },
-  { label: "Closed", id: "closed" },
-  { label: "Paused", id: "paused" },
-];
-
-const typeFilters = [
-  { label: "All Types", value: "all types" },
-  { label: "Image", value: "image" },
-  { label: "Video", value: "video" },
 ];
 
 const Campaign = () => {
@@ -173,7 +161,7 @@ const Campaign = () => {
       <div className="flex items-center justify-end mb-20">
         <Pagination
           activePage={currentPage}
-          dataLength={campaigns.length}
+          dataLength={filteredList.length}
           firstItem={indexOfFirstItem + 1}
           lastItem={indexOfLastItem}
           pages={pages}

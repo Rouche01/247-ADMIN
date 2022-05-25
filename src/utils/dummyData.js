@@ -48,7 +48,25 @@ export const advertisers = [
     totalImpressions: 166789,
     totalInteractions: 5074,
     totalSpend: 412000,
-    totalDuration: "193:54:30"
+    totalDuration: "193:54:30",
+    campaigns: [
+      {
+        id: "30678",
+        name: "Tell Tello",
+        status: "active",
+        impressions: 14598,
+        duration: "10 days",
+        adSpend: 98000,
+      },
+      {
+        id: "30679",
+        name: "Limited Day Promo",
+        status: "closed",
+        impressions: 5698,
+        duration: "4 days",
+        adSpend: 36790,
+      },
+    ],
   },
   {
     name: "CocaCola",
@@ -56,7 +74,49 @@ export const advertisers = [
     totalImpressions: 575890,
     totalInteractions: 10978,
     totalSpend: 909872,
-    totalDuration: "50:25:30"
+    totalDuration: "50:25:30",
+    campaigns: [
+      {
+        id: "30680",
+        name: "Share Happiness",
+        status: "active",
+        impressions: 600750,
+        duration: "90 days",
+        adSpend: 350700,
+      },
+      {
+        id: "30681",
+        name: "Taste the Feeling",
+        status: "closed",
+        impressions: 366120,
+        duration: "30 days",
+        adSpend: 150250,
+      },
+      {
+        id: "30682",
+        name: "Issa Goal",
+        status: "active",
+        impressions: 400250,
+        duration: "45 days",
+        adSpend: 275778,
+      },
+      {
+        id: "30683",
+        name: "Share a Coke",
+        status: "active",
+        impressions: 1000086,
+        duration: "180 days",
+        adSpend: 2889986,
+      },
+      {
+        id: "30684",
+        name: "Diet Coke",
+        status: "paused",
+        impressions: 450725,
+        duration: "120 days",
+        adSpend: 1889976,
+      },
+    ],
   },
   {
     name: "Spinneys Mart",
@@ -64,7 +124,25 @@ export const advertisers = [
     totalImpressions: 54871,
     totalInteractions: 992,
     totalSpend: 74827,
-    totalDuration: "30:20:50"
+    totalDuration: "30:20:50",
+    campaigns: [
+      {
+        id: "30685",
+        name: "Black Friday Prices",
+        status: "closed",
+        impressions: 57890,
+        duration: "22 days",
+        adSpend: 145000,
+      },
+      {
+        id: "30686",
+        name: "Bar Now Open",
+        status: "active",
+        impressions: 7698,
+        duration: "20 days",
+        adSpend: 43790,
+      },
+    ],
   },
   {
     name: "Lifemate Inc.",
@@ -72,7 +150,17 @@ export const advertisers = [
     totalImpressions: 72989,
     totalInteractions: 1077,
     totalSpend: 106299,
-    totalDuration: "25:45:30"
+    totalDuration: "25:45:30",
+    campaigns: [
+      {
+        id: "30687",
+        name: "Ante-natal",
+        status: "active",
+        impressions: 157890,
+        duration: "45 days",
+        adSpend: 224890,
+      },
+    ],
   },
   {
     name: "Gold Circle",
@@ -80,7 +168,17 @@ export const advertisers = [
     totalImpressions: 144282,
     totalInteractions: 2217,
     totalSpend: 331117,
-    totalDuration: "20:37:54"
+    totalDuration: "20:37:54",
+    campaigns: [
+      {
+        id: "30688",
+        name: "Scratch & Win",
+        status: "closed",
+        impressions: 112299,
+        duration: "20 days",
+        adSpend: 331117,
+      },
+    ],
   },
   {
     name: "GTBank",
@@ -88,7 +186,7 @@ export const advertisers = [
     totalImpressions: 172949,
     totalInteractions: 600,
     totalSpend: 500186,
-    totalDuration: "98:44:37"
+    totalDuration: "98:44:37",
   },
   {
     name: "Cowrywise",
@@ -96,7 +194,7 @@ export const advertisers = [
     totalImpressions: 14285,
     totalInteractions: 727,
     totalSpend: 92168,
-    totalDuration: "88:54:30"
+    totalDuration: "88:54:30",
   },
   {
     name: "Mikano",
@@ -104,7 +202,7 @@ export const advertisers = [
     totalImpressions: 22989,
     totalInteractions: 25,
     totalSpend: 266667,
-    totalDuration: "55:39:38"
+    totalDuration: "55:39:38",
   },
   {
     name: "Dangote",
@@ -112,7 +210,7 @@ export const advertisers = [
     totalImpressions: 472199,
     totalInteractions: 172,
     totalSpend: 822982,
-    totalDuration: "120:54:45"
+    totalDuration: "120:54:45",
   },
   {
     name: "Betsmart",
@@ -120,7 +218,7 @@ export const advertisers = [
     totalImpressions: 66889,
     totalInteractions: 691,
     totalSpend: 49575,
-    totalDuration: "15:55:30"
+    totalDuration: "15:55:30",
   },
   {
     name: "Abeg",
@@ -128,7 +226,7 @@ export const advertisers = [
     totalImpressions: 199657,
     totalInteractions: 300,
     totalSpend: 230789,
-    totalDuration: "65:12:30"
+    totalDuration: "65:12:30",
   },
 ];
 
@@ -215,7 +313,7 @@ export const campaigns = [
     vehicles: 22,
     advertiser: "CocaCola",
     duration: "90 days",
-    adSpend: 412000
+    adSpend: 412000,
   },
   {
     name: "Black Friday",
@@ -226,7 +324,7 @@ export const campaigns = [
     vehicles: 415,
     advertiser: "Jumia",
     duration: "30 days",
-    adSpend: 150250
+    adSpend: 150250,
   },
   {
     name: "Airtime Blast",
@@ -237,7 +335,7 @@ export const campaigns = [
     vehicles: 125,
     advertiser: "Airtel",
     duration: "45 days",
-    adSpend: 275778
+    adSpend: 275778,
   },
   {
     name: "Savings Promo",
@@ -248,7 +346,7 @@ export const campaigns = [
     vehicles: 124,
     advertiser: "Stanbic IBTC",
     duration: "180 days",
-    adSpend: 2889976
+    adSpend: 2889976,
   },
   {
     name: "Magic Moment",
@@ -259,7 +357,7 @@ export const campaigns = [
     vehicles: 122,
     advertiser: "Africa Magic",
     duration: "120 days",
-    adSpend: 1889976
+    adSpend: 1889976,
   },
   {
     name: "Scratch & Win",
@@ -270,7 +368,7 @@ export const campaigns = [
     vehicles: 87,
     advertiser: "Gold Circle",
     duration: "20 days",
-    adSpend: 331117
+    adSpend: 331117,
   },
   {
     name: "New Line Launch",
@@ -281,7 +379,7 @@ export const campaigns = [
     vehicles: 98,
     advertiser: "Bottega Men",
     duration: "113 days",
-    adSpend: 106299
+    adSpend: 106299,
   },
   {
     name: "Tell Tello",
@@ -292,7 +390,7 @@ export const campaigns = [
     vehicles: 166,
     advertiser: "Suya Bistro",
     duration: "24 days",
-    adSpend: 92168
+    adSpend: 92168,
   },
   {
     name: "Yello Day",
@@ -303,7 +401,7 @@ export const campaigns = [
     vehicles: 908,
     advertiser: "MTN",
     duration: "220 days",
-    adSpend: 909872
+    adSpend: 909872,
   },
   {
     name: "Ante-natal",
@@ -314,6 +412,6 @@ export const campaigns = [
     vehicles: 876,
     advertiser: "Lifemate Inc.",
     duration: "38 days",
-    adSpend: 266667
+    adSpend: 266667,
   },
 ];

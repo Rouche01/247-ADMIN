@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import Dashboard from "../components/Dashboard";
 import InfoBox from "../components/InfoBox";
 import { advertisers } from "../utils/dummyData";
@@ -7,6 +8,7 @@ import DataTable from "../components/DataTable";
 import Checkbox from "../components/uiComponents/Checkbox";
 import Pagination from "../components/uiComponents/Pagination";
 import { formatNum } from "../utils/numFormatter";
+import kebabCase from "lodash/kebabCase";
 
 const tableHeaders = [
   "",
@@ -21,6 +23,8 @@ const Advertisers = () => {
   const [checkedAdvertisers, setCheckedAdvertisers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [shownRows, setShownRows] = useState(5);
+
+  const history = useHistory();
 
   const { currentList, indexOfFirstItem, indexOfLastItem, pages } =
     usePagination(currentPage, shownRows, advertisers);
@@ -49,7 +53,6 @@ const Advertisers = () => {
             bgColor="bg-green-gradient"
             infoTitle="Total Revenue"
             infoValue={formatNum(12850000, true)}
-            isCurrency
           />
           <InfoBox
             bgColor="bg-yellow-gradient"
@@ -61,6 +64,14 @@ const Advertisers = () => {
           <DataTable headers={tableHeaders}>
             {currentList.map((advtr, idx) => (
               <tr
+                onClick={() =>
+                  history.push({
+                    pathname: `/advertiser/${kebabCase(advtr.name)}`,
+                    state: {
+                      advtr,
+                    },
+                  })
+                }
                 className={
                   checkedAdvertisers.includes(idx)
                     ? "text-lg bg-gray-700 border border-247-dark-text cursor-pointer hover:bg-gray-700"
