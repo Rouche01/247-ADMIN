@@ -1,9 +1,10 @@
 const LOGIN_PAGE = "/login";
 const OVERVIEW_PAGE = "/overview";
 const ADVERTISERS_PAGE = "/advertisers";
+const ADVERTISER_DETAIL_PAGE = "/advertiser/:advertiserId";
 const DRIVERS_PAGE = "/drivers";
 const CAMPAIGN_PAGE = "/campaigns";
-const CAMPAIGN_DETAIL_PAGE = "/campaign/:campaignId"
+const CAMPAIGN_DETAIL_PAGE = "/campaign/:campaignId";
 const NOTIF_PAGE = "/send-notifications";
 const CONTENT_LIBRARY = "/content-library";
 const PLAYLIST_MANAGER = "/playlist-manager";
@@ -20,4 +21,5 @@ export {
   CONTENT_LIBRARY,
   PLAYLIST_MANAGER,
   QUIZ_CENTRE,
+  ADVERTISER_DETAIL_PAGE
 };
