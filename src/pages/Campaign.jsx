@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useHistory } from "react-router-dom";
 import Dashboard from "../components/Dashboard";
 import DataTable from "../components/DataTable";
 import InfoBox from "../components/InfoBox";
@@ -11,6 +12,7 @@ import { useLocation } from "react-router";
 import { formatNum } from "../utils/numFormatter";
 import classNames from "classnames";
 import startCase from "lodash/startCase";
+import kebabCase from "lodash/kebabCase";
 import moment from "moment";
 
 const tableHeaders = [
@@ -49,6 +51,7 @@ const Campaign = () => {
   ]);
 
   const { state } = useLocation();
+  const history = useHistory();
   console.log(state?.advertiser);
 
   const filteredList = useMemo(() => {
@@ -72,7 +75,7 @@ const Campaign = () => {
   };
 
   return (
-    <Dashboard pageTitle="Campaigns" titleTag={state?.advertiser}>
+    <Dashboard>
       <div className="grid grid-cols-3 gap-6 mt-16">
         <InfoBox
           bgColor="bg-blue-gradient"
@@ -113,6 +116,16 @@ const Campaign = () => {
                   : "text-lg border border-247-dark-text odd:bg-247-dark-accent3 cursor-pointer hover:bg-gray-700"
               }
               key={`campaign${campaign.id}`}
+              onClick={() =>
+                history.push({
+                  pathname: `/campaign/${kebabCase(campaign.name)}-${
+                    campaign.id
+                  }`,
+                  state: {
+                    campaign,
+                  },
+                })
+              }
             >
               <td className="px-3 py-5">
                 <Checkbox

@@ -9,7 +9,13 @@ import SelectInput from "./SelectInput";
 import FileUploadInput from "./FileUploadInput";
 import Button from "./Button";
 
-const CreateCampaignModal = ({ modalIsOpen, setIsOpen, modalWidth }) => {
+const CreateCampaignModal = ({
+  modalIsOpen,
+  setIsOpen,
+  modalWidth,
+  isEdit,
+  editData,
+}) => {
   const { validationSchema } = useCampaignFormValidation();
   const [campaignMedia, setCampaignMedia] = useState([]);
 
@@ -27,7 +33,10 @@ const CreateCampaignModal = ({ modalIsOpen, setIsOpen, modalWidth }) => {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm({ resolver: yupResolver(validationSchema) });
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+    defaultValues: isEdit && editData,
+  });
 
   const onSubmit = async (data) => {
     console.log(data);
@@ -40,7 +49,7 @@ const CreateCampaignModal = ({ modalIsOpen, setIsOpen, modalWidth }) => {
       width={modalWidth}
     >
       <h2 className="text-2xl text-white text-center font-semibold">
-        Create new campaign
+        {isEdit ? `Edit campaign (${editData.campaignName})` : "Create new campaign"}
       </h2>
       <form className="mt-8" onSubmit={handleSubmit(onSubmit)}>
         <InputField
@@ -66,7 +75,7 @@ const CreateCampaignModal = ({ modalIsOpen, setIsOpen, modalWidth }) => {
             name="duration"
             control={control}
             render={({ field }) => {
-              console.log(field.value)
+              console.log(field.value);
               console.log((field.value && field?.value[0]) || null);
               return (
                 <DateInput
@@ -124,7 +133,7 @@ const CreateCampaignModal = ({ modalIsOpen, setIsOpen, modalWidth }) => {
           className={["bg-247-red", "block", "mt-12", "px-12", "font-normal"]}
           fullWidth
         >
-          Create Campaign
+          {isEdit ? "Submit Change" : "Create Campaign"}
         </Button>
       </form>
     </CenterModal>
