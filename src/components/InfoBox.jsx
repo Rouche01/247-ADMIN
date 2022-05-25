@@ -3,7 +3,7 @@ import { MdOutlineArrowUpward, MdOutlineArrowDownward } from "react-icons/md";
 
 const InfoBox = ({ infoTitle, infoValue, bgColor, statChange }) => {
   return (
-    <div className={`${bgColor} rounded-md border-2 border-247-dark-text p-7`}>
+    <div className={`${bgColor} rounded-lg border-2 border-247-dark-text p-7`}>
       <h4 className="text-white font-customRoboto font-medium text-lg">
         {infoTitle}
       </h4>

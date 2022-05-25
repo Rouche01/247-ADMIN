@@ -39,6 +39,9 @@ const CustomOption = ({
 
 const SelectInput = ({
   label,
+  standAlone,
+  bgColor,
+  borderColor,
   options,
   value,
   darkMode,
@@ -49,9 +52,18 @@ const SelectInput = ({
   const customStyles = {
     control: (provided, state) => ({
       ...provided,
-      backgroundColor: state.selectProps.darkMode && "rgba(0, 0, 0, 0.25)",
-      borderColor: state.selectProps.darkMode && "#4D4D4D",
+      backgroundColor: state.selectProps.darkMode
+        ? "rgba(0, 0, 0, 0.25)"
+        : bgColor,
+      borderColor: state.selectProps.darkMode ? "#4D4D4D" : borderColor,
       padding: "6px 10px",
+      "&:hover": {
+        borderColor: state.selectProps.darkMode ? "#4D4D4D" : borderColor,
+      },
+      "&:focus": {
+        borderColor: state.selectProps.darkMode ? "#4D4D4D" : borderColor,
+        boxShadow: "none",
+      },
     }),
     indicatorSeparator: (provided, state) => ({
       ...provided,
@@ -76,12 +88,12 @@ const SelectInput = ({
     menu: (provided, state) => ({
       ...provided,
       fontWeight: "500",
-      backgroundColor: state.selectProps.darkMode && "rgba(0, 0, 0, 0.25)",
+      backgroundColor: state.selectProps.darkMode ? "#222222" : bgColor,
       color: "#fff",
     }),
   };
   return (
-    <div className="mt-8">
+    <div className={classNames({ "mt-8": !standAlone })}>
       {label && (
         <label className="inline-block text-white mb-2 font-medium">
           {label}
@@ -95,6 +107,7 @@ const SelectInput = ({
         darkMode={darkMode}
         value={value}
         onChange={handleChange}
+        isSearchable={false}
         components={{
           Option: CustomOption,
         }}

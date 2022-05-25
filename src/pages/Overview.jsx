@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import "daterangepicker";
-import "daterangepicker/daterangepicker.css";
 import Dashboard from "../components/Dashboard";
 import {
   MdOutlineArrowUpward,
@@ -76,31 +74,30 @@ const Overview = () => {
     }
   };
 
-  $('button[name="daterange"]').daterangepicker(
-    {
-      opens: "left",
-      ranges: {
-        "Last 7 Days": [moment().subtract(6, "days"), moment()],
-        "Last 14 Days": [moment().subtract(13, "days"), moment()],
-        "Last 30 Days": [moment().subtract(29, "days"), moment()],
-        "Last 3 months": [moment().subtract(3, "M"), moment()],
-        "Last 12 months": [moment().subtract(12, "M"), moment()],
-        "Month to date": [moment().startOf("month"), moment()],
-        "All time": [moment().subtract(2, "Y"), moment()],
-      },
-      startDate: dateRange[0],
-      endDate: dateRange[1],
-      alwaysShowCalendars: true,
-      applyButtonClasses: "range-apply-btn",
-    },
-    (start, end, _label) => {
-      setDateRange([start, end]);
-    }
-  );
-
   useEffect(() => {
-    console.log(dateRange);
-  }, [dateRange]);
+    $('button[name="daterange"]').daterangepicker(
+      {
+        opens: "left",
+        ranges: {
+          "Last 7 Days": [moment().subtract(6, "days"), moment()],
+          "Last 14 Days": [moment().subtract(13, "days"), moment()],
+          "Last 30 Days": [moment().subtract(29, "days"), moment()],
+          "Last 3 months": [moment().subtract(3, "M"), moment()],
+          "Last 12 months": [moment().subtract(12, "M"), moment()],
+          "Month to date": [moment().startOf("month"), moment()],
+          "All time": [moment().subtract(2, "Y"), moment()],
+        },
+        startDate: dateRange[0],
+        endDate: dateRange[1],
+        alwaysShowCalendars: true,
+        applyButtonClasses: "range-apply-btn",
+      },
+      (start, end, _label) => {
+        setDateRange([start, end]);
+      }
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Dashboard pageTitle="Overview">

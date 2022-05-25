@@ -3,6 +3,8 @@ import ReactDOM from "react-dom";
 import { Router } from "react-router-dom";
 import history from "./utils/history";
 import "./index.css";
+import "daterangepicker";
+import "daterangepicker/daterangepicker.css";
 import App from "./App";
 import { Provider as AuthProvider } from "../src/context/AuthContext";
 import reportWebVitals from "./reportWebVitals";

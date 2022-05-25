@@ -13,6 +13,7 @@ module.exports = {
         "247-inactive-link": "#959698",
         "247-dark-accent1": "#454545",
         "247-dark-accent2": "#4C4C4C",
+        "247-dark-accent3": "#161616",
         "247-gray-accent2": "#CACACA",
         "247-gray-accent3": "#383B3E",
         "247-gray-accent4": "#444444",
@@ -29,7 +30,8 @@ module.exports = {
         "247-dotted-border": "rgba(196, 226, 250, 0.24)",
         "247-upload-bg": "rgba(247, 247, 247, 0.1)",
         "247-placeholder-shade": "#DFDFDF",
-        "247-overlay": "rgba(0, 0, 0, 0.75)"
+        "247-overlay": "rgba(0, 0, 0, 0.75)",
+        "247-tab-bg": "#222222",
       },
       backgroundImage: {
         "subtle-curve": "url('/src/assets/subtle-curve.svg')",
@@ -42,6 +44,12 @@ module.exports = {
           "linear-gradient(180deg, #F7BC13 0%, rgba(214, 158, 0, 0.76) 100%)",
         "orange-gradient":
           "linear-gradient(180deg, #EF8428 0%, rgba(242, 100, 20, 0.83) 100%)",
+        "active-gradient":
+          "linear-gradient(180deg, #028307 0%, rgba(12, 136, 17, 0.64) 100%)",
+        "closed-gradient":
+          "linear-gradient(180deg, #E20000 0%, rgba(116, 7, 0, 0.64) 100%)",
+        "paused-gradient":
+          "linear-gradient(180deg, #EC5500 0%, rgba(180, 75, 0, 0.64) 100%)",
       },
     },
     fontFamily: {
@@ -49,7 +57,9 @@ module.exports = {
     },
   },
   variants: {
-    extend: {},
+    extend: {
+      backgroundColor: ["odd", "even"],
+    },
   },
   plugins: [require("tailwind-scrollbar-hide")],
 };
