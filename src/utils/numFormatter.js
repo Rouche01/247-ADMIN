@@ -1,5 +1,15 @@
-export const formatNum = (num, isCurrency) => {
+export const formatNum = (num, isCurrency, atMillion) => {
   if (num > 9999 && num < 1000000) {
+    if (atMillion) {
+      return isCurrency
+        ? num.toLocaleString("en-NG", {
+            currency: "NGN",
+            style: "currency",
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 2,
+          })
+        : num.toLocaleString("en-NG");
+    }
     return isCurrency
       ? `${(num / 1000).toLocaleString("en-NG", {
           currency: "NGN",

@@ -32,6 +32,8 @@ module.exports = {
         "247-placeholder-shade": "#DFDFDF",
         "247-overlay": "rgba(0, 0, 0, 0.75)",
         "247-tab-bg": "#222222",
+        "247-campaign-preview": "#131313",
+        "247-campaign-preview-title": "#F50606",
       },
       backgroundImage: {
         "subtle-curve": "url('/src/assets/subtle-curve.svg')",

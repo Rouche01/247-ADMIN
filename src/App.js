@@ -2,6 +2,7 @@ import "./App.css";
 import { Switch, Route, Redirect, useLocation } from "react-router-dom";
 import {
   ADVERTISERS_PAGE,
+  CAMPAIGN_DETAIL_PAGE,
   CAMPAIGN_PAGE,
   CONTENT_LIBRARY,
   DRIVERS_PAGE,
@@ -16,6 +17,7 @@ import Overview from "./pages/Overview";
 import Advertisers from "./pages/Advertisers";
 import Drivers from "./pages/Drivers";
 import Campaign from "./pages/Campaign";
+import CampaignDetail from "./pages/CampaignDetail";
 import SendNotifs from "./pages/SendNotifs";
 import ContentLibrary from "./pages/ContentLibrary";
 import PlaylistManager from "./pages/PlaylistManager";
@@ -55,6 +57,12 @@ function App() {
           exact
           userType="admin"
           component={Campaign}
+        />
+        <ProtectedRoute
+          path={CAMPAIGN_DETAIL_PAGE}
+          // exact
+          userType="admin"
+          component={CampaignDetail}
         />
         <ProtectedRoute
           path={NOTIF_PAGE}
