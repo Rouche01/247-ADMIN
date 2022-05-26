@@ -82,6 +82,12 @@ const Drivers = () => {
           <DataTable headers={tableHeaders}>
             {currentList.map((driver, idx) => (
               <tr
+                onClick={() =>
+                  history.push({
+                    pathname: `/driver/${driver.id.toLowerCase()}`,
+                    state: { driver },
+                  })
+                }
                 className={
                   checkedDrivers.includes(idx)
                     ? "text-lg bg-gray-700 border border-247-dark-text cursor-pointer hover:bg-gray-700"

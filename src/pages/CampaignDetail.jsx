@@ -7,12 +7,12 @@ import Dashboard from "../components/Dashboard";
 import RoundedBtnWithIcon from "../components/uiComponents/RoundedBtnWithIcon";
 import InfoBox from "../components/InfoBox";
 import { formatNum } from "../utils/numFormatter";
-import classNames from "classnames";
 import CampaignAnalyticsChart from "../components/CampaignAnalyticsChart";
 import { impressionData } from "../utils/dummyData";
 import ConfirmationModal from "../components/uiComponents/ConfirmationModal";
 import startCase from "lodash/startCase";
 import CreateCampaignModal from "../components/uiComponents/CreateCampaignModal";
+import ResourceMeta from "../components/uiComponents/ResourceMeta";
 
 const CustomHeader = ({
   handleTerminateClick,
@@ -43,20 +43,6 @@ const CustomHeader = ({
         icon={<AiOutlineCloseCircle className="mr-2" size={22} />}
         onBtnClick={handleTerminateClick}
       />
-    </div>
-  );
-};
-
-const CampaignMeta = ({ label, value, last, valueColor }) => {
-  return (
-    <div className={classNames("text-white", { "mb-7": !last })}>
-      <h5 className="text-base font-light mb-2">{label}</h5>
-      <h3
-        className="text-xl font-medium"
-        style={valueColor && { color: valueColor }}
-      >
-        {value}
-      </h3>
     </div>
   );
 };
@@ -118,23 +104,23 @@ const CampaignDetail = () => {
           <div className="border-l border-white ml-14"></div>
           <div className="w-full flex justify-around pt-2">
             <div>
-              <CampaignMeta label="Campaign name" value={state.campaign.name} />
-              <CampaignMeta
+              <ResourceMeta label="Campaign name" value={state.campaign.name} />
+              <ResourceMeta
                 label="Advertiser"
                 value={state.campaign.advertiser}
               />
-              <CampaignMeta label="Ad Type" value="Video" last />
+              <ResourceMeta label="Ad Type" value="Video" last />
             </div>
             <div>
-              <CampaignMeta
+              <ResourceMeta
                 label="Ad Spend"
                 value={Number(state.campaign.adSpend).toLocaleString("en-NG", {
                   currency: "NGN",
                   style: "currency",
                 })}
               />
-              <CampaignMeta label="Duration" value={state.campaign.duration} />
-              <CampaignMeta
+              <ResourceMeta label="Duration" value={state.campaign.duration} />
+              <ResourceMeta
                 label="Status"
                 value={startCase(state.campaign.status)}
                 valueColor={mapStatusToColor[state.campaign.status]}
