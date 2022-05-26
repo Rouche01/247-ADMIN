@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useHistory } from "react-router-dom";
 import classNames from "classnames";
 import startCase from "lodash/startCase";
 import Dashboard from "../components/Dashboard";
@@ -33,7 +34,7 @@ const Drivers = () => {
     return selectedDriverFilter === "all"
       ? drivers
       : drivers.filter((item) => item.status === selectedDriverFilter);
-  }, [selectedDriverFilter])
+  }, [selectedDriverFilter]);
 
   const { currentList, indexOfFirstItem, indexOfLastItem, pages } =
     usePagination(currentPage, shownRows, filteredList);
@@ -48,6 +49,8 @@ const Drivers = () => {
       setCheckedDrivers([...checkedDrivers, idx]);
     }
   };
+
+  const history = useHistory();
 
   return (
     <>
@@ -74,6 +77,7 @@ const Drivers = () => {
             selectedStatusFilter={selectedDriverFilter}
             setSelectedStatusFilter={setSelectedDriverFilter}
             statusFilters={driverStatusFilters}
+            navigateToPayoutRequests={() => history.push("/pending-payouts")}
           />
           <DataTable headers={tableHeaders}>
             {currentList.map((driver, idx) => (

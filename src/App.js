@@ -10,6 +10,7 @@ import {
   LOGIN_PAGE,
   NOTIF_PAGE,
   OVERVIEW_PAGE,
+  PENDING_PAYOUTS,
   PLAYLIST_MANAGER,
   QUIZ_CENTRE,
 } from "../src/routes/pageUrls";
@@ -24,6 +25,7 @@ import SendNotifs from "./pages/SendNotifs";
 import ContentLibrary from "./pages/ContentLibrary";
 import PlaylistManager from "./pages/PlaylistManager";
 import QuizCentre from "./pages/QuizCentre";
+import PendingPayouts from "./pages/PendingPayouts";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
@@ -93,6 +95,12 @@ function App() {
           exact
           userType="admin"
           component={QuizCentre}
+        />
+        <ProtectedRoute
+          path={PENDING_PAYOUTS}
+          exact
+          userType="admin"
+          component={PendingPayouts}
         />
       </Switch>
     </div>

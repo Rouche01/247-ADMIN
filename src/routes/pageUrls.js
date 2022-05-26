@@ -9,6 +9,7 @@ const NOTIF_PAGE = "/send-notifications";
 const CONTENT_LIBRARY = "/content-library";
 const PLAYLIST_MANAGER = "/playlist-manager";
 const QUIZ_CENTRE = "/quiz-centre";
+const PENDING_PAYOUTS = "/pending-payouts"
 
 export {
   LOGIN_PAGE,
@@ -21,5 +22,6 @@ export {
   CONTENT_LIBRARY,
   PLAYLIST_MANAGER,
   QUIZ_CENTRE,
-  ADVERTISER_DETAIL_PAGE
+  ADVERTISER_DETAIL_PAGE,
+  PENDING_PAYOUTS
 };

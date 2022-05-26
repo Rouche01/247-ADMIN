@@ -6,6 +6,7 @@ const DriversTableHeader = ({
   statusFilters,
   selectedStatusFilter,
   setSelectedStatusFilter,
+  navigateToPayoutRequests,
 }) => {
   return (
     <div className="flex pt-3 px-8 mb-3 items-center justify-between">
@@ -14,7 +15,10 @@ const DriversTableHeader = ({
         activeFilter={selectedStatusFilter}
         setActiveFilter={setSelectedStatusFilter}
       />
-      <RoundedBtnWithIcon title="See payout requests" />
+      <RoundedBtnWithIcon
+        title="See payout requests"
+        onBtnClick={navigateToPayoutRequests}
+      />
     </div>
   );
 };
