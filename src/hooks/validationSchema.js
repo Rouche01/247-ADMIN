@@ -24,3 +24,16 @@ export const useCampaignFormValidation = () => {
 
   return { validationSchema };
 };
+
+export const useSettlePayoutFormValidation = () => {
+  const validationSchema = Yup.object({
+    bankName: Yup.string().required("Bank name is required"),
+    accountNumber: Yup.string()
+      .length(10)
+      .required("Account number is required"),
+    accountName: Yup.string().required("Account name is required"),
+    pendingPayout: Yup.string().required("Enter an amount to payout"),
+  });
+
+  return validationSchema;
+};

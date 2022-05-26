@@ -9,7 +9,10 @@ import { formatNum } from "../utils/numFormatter";
 import { usePagination } from "../hooks/pagination";
 import { drivers } from "../utils/dummyData";
 import { MdKeyboardBackspace } from "react-icons/md";
+import { IoIosCash } from "react-icons/io";
 import RoundedBtnWithIcon from "../components/uiComponents/RoundedBtnWithIcon";
+import SettlePayoutModal from "../components/uiComponents/SettlePayoutModal";
+import ConfirmationModal from "../components/uiComponents/ConfirmationModal";
 
 const tableHeaders = ["", "Driver", "Total Earning", "Pending Payout"];
 
@@ -34,6 +37,10 @@ const PendingPayouts = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [shownRows, setShownRows] = useState(5);
 
+  const [settleModalOpen, setSettleModalOpen] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [selectedDriverDeets, setSelectedDriverDeets] = useState();
+
   const history = useHistory();
   const { currentList, indexOfFirstItem, indexOfLastItem, pages } =
     usePagination(currentPage, shownRows, drivers);
@@ -47,6 +54,17 @@ const PendingPayouts = () => {
     } else {
       setCheckedDrivers([...checkedDrivers, idx]);
     }
+  };
+
+  const handlePayoutBtn = (data) => {
+    console.log(data, "confirming payout");
+    setSettleModalOpen(false);
+    setConfirmModalOpen(true);
+  };
+
+  const payoutDriver = () => {
+    console.log("paying driver...");
+    setConfirmModalOpen(false);
   };
 
   return (
@@ -96,7 +114,18 @@ const PendingPayouts = () => {
                 {formatNum(driver.pendingPayout, true, true)}
               </td>
               <td className="px-6 py-5">
-                <RoundedBtnWithIcon title="Settle" />
+                <RoundedBtnWithIcon
+                  onBtnClick={() => {
+                    setSelectedDriverDeets({
+                      bankName: "Access Bank",
+                      accountNumber: "2591678234",
+                      accountName: driver.name,
+                      pendingPayout: driver.pendingPayout,
+                    });
+                    setSettleModalOpen(true);
+                  }}
+                  title="Settle"
+                />
               </td>
             </tr>
           ))}
@@ -114,6 +143,19 @@ const PendingPayouts = () => {
           visibleRows={shownRows}
         />
       </div>
+      <SettlePayoutModal
+        isOpen={settleModalOpen}
+        setIsOpen={setSettleModalOpen}
+        driverDeets={selectedDriverDeets}
+        handlePayout={handlePayoutBtn}
+      />
+      <ConfirmationModal
+        open={confirmModalOpen}
+        setOpen={setConfirmModalOpen}
+        text={`Continue payout for ${selectedDriverDeets?.accountName}`}
+        handleConfirmation={payoutDriver}
+        icon={<IoIosCash size={32} color="#fff" />}
+      />
     </Dashboard>
   );
 };

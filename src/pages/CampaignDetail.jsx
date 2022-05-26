@@ -193,7 +193,7 @@ const CampaignDetail = () => {
         setOpen={setConfirmModalOpen}
         text="Are you sure you want to terminate this ad?"
         icon={<FaRegTrashAlt size={28} color="#fff" />}
-        handleTerminate={handleCampaignTermination}
+        handleConfirmation={handleCampaignTermination}
       />
       <CreateCampaignModal
         modalIsOpen={editCampaignOpen}

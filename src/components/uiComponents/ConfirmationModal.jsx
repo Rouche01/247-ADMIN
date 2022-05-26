@@ -1,7 +1,7 @@
 import React from "react";
 import CenterModal from "./CenterModal";
 
-const ConfirmationModal = ({ open, setOpen, icon, text, handleTerminate }) => {
+const ConfirmationModal = ({ open, setOpen, icon, text, handleConfirmation }) => {
   return (
     <CenterModal modalOpen={open} setModalOpen={setOpen}>
       <div className="text-center">
@@ -9,7 +9,7 @@ const ConfirmationModal = ({ open, setOpen, icon, text, handleTerminate }) => {
         <p className="text-white text-2xl mt-5 font-medium">{text}</p>
         <div className="flex items-center justify-center mt-6 gap-7">
           <button
-            onClick={handleTerminate}
+            onClick={handleConfirmation}
             className="text-white bg-247-red-straight px-5 py-2 rounded-md font-medium text-base"
           >
             Yes

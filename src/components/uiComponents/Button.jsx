@@ -6,7 +6,7 @@ const Button = ({ children, type, className, fullWidth, isLoading }) => {
     <button
       className={[
         "text-white",
-        "py-4",
+        "py-3",
         "rounded-md",
         fullWidth && "w-full",
         "text-lg",
