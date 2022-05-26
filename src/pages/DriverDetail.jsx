@@ -1,16 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useHistory } from "react-router-dom";
 import Dashboard from "../components/Dashboard";
 import { MdKeyboardBackspace } from "react-icons/md";
 import { AiOutlineCloseCircle } from "react-icons/ai";
+import { ImInfo } from "react-icons/im";
 import { BiUserCheck } from "react-icons/bi";
 import { FiCheckSquare } from "react-icons/fi";
 import classNames from "classnames";
 import RoundedBtnWithIcon from "../components/uiComponents/RoundedBtnWithIcon";
 import ResourceMeta from "../components/uiComponents/ResourceMeta";
+import ConfirmationModal from "../components/uiComponents/ConfirmationModal";
 import InfoBox from "../components/InfoBox";
 import { formatNum } from "../utils/numFormatter";
 import startCase from "lodash/startCase";
+import EditDriverInfoModal from "../components/uiComponents/EditDriverInfoModal";
 
 // const mapStatusToColor = {
 //   active: "#028307",
@@ -18,22 +21,25 @@ import startCase from "lodash/startCase";
 //   suspended: "#E20000",
 // };
 
-const CustomHeader = ({ goToPrevPage, name, status }) => {
-  const mapBtnTextToStatus = {
-    active: {
-      title: "Suspend Account",
-      icon: <AiOutlineCloseCircle className="mr-2" size={22} />,
-    },
-    pending: {
-      title: "Activate Account",
-      icon: <FiCheckSquare className="mr-2" size={22} />,
-    },
-    suspended: {
-      title: "Reactivate Account",
-      icon: <BiUserCheck className="mr-2" size={22} />,
-    },
-  };
+const mapBtnTextToStatus = {
+  active: {
+    title: "Suspend Account",
+    icon: <AiOutlineCloseCircle className="mr-2" size={22} />,
+    action: "suspend",
+  },
+  pending: {
+    title: "Activate Account",
+    icon: <FiCheckSquare className="mr-2" size={22} />,
+    action: "activate",
+  },
+  suspended: {
+    title: "Reactivate Account",
+    icon: <BiUserCheck className="mr-2" size={22} />,
+    action: "reactivate",
+  },
+};
 
+const CustomHeader = ({ goToPrevPage, name, status, accountAction }) => {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center">
@@ -71,6 +77,7 @@ const CustomHeader = ({ goToPrevPage, name, status }) => {
       <RoundedBtnWithIcon
         title={mapBtnTextToStatus[status].title}
         icon={mapBtnTextToStatus[status].icon}
+        onBtnClick={() => accountAction(mapBtnTextToStatus[status].action)}
       />
     </div>
   );
@@ -80,6 +87,61 @@ const DriverDetail = () => {
   const { state } = useLocation();
   const history = useHistory();
 
+  const [editInfoOpen, setEditInfoOpen] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState({
+    open: false,
+    action: null,
+  });
+
+  const confirmAccountAction = (action) => {
+    setConfirmModalOpen({ open: true, action });
+  };
+
+  const handleAccountSuspend = () => {
+    console.log("suspending...");
+    setConfirmModalOpen({ open: false, action: null });
+  };
+
+  const handleAccountActivate = () => {
+    console.log("activating...");
+    setConfirmModalOpen({ open: false, action: null });
+  };
+
+  const handleAccountReactivate = () => {
+    console.log("reactivating...");
+    setConfirmModalOpen({ open: false, action: null });
+  };
+
+  const mapAccountActionToValues = {
+    suspend: {
+      confirmText: "Are you sure you want to suspend this account?",
+      action: handleAccountSuspend,
+    },
+    activate: {
+      confirmText: "Are you sure you want to activate this account?",
+      action: handleAccountActivate,
+    },
+    reactivate: {
+      confirmText: "Are you sure you want to reactivate this account?",
+      action: handleAccountReactivate,
+    },
+  };
+
+  const handleDriverInfoEdit = (data) => {
+    console.log(data, "Editing driver info...")
+  }
+
+  const editData = {
+    firstName: state.driver?.name?.split(" ")[0],
+    lastName: state.driver?.name?.split(" ")[1],
+    emailAddress: state.driver?.email,
+    phoneNumber: "08090023150",
+    favouriteMeal: "Jollof Rice",
+    hobby: "Football",
+    askMeAbout: "Manchester United",
+    vacationSpot: "Bahamas",
+  };
+
   return (
     <Dashboard
       customHeader={
@@ -87,6 +149,7 @@ const DriverDetail = () => {
           goToPrevPage={() => history.goBack()}
           name={state.driver.name}
           status={state.driver.status}
+          accountAction={confirmAccountAction}
         />
       }
     >
@@ -94,7 +157,7 @@ const DriverDetail = () => {
         <div className="w-full bg-247-campaign-preview-title flex items-center justify-between px-12 py-4 rounded-t-lg">
           <h4 className="text-white text-xl font-medium">Personal Info</h4>
           <button
-            onClick={() => console.log("editing user")}
+            onClick={() => setEditInfoOpen(true)}
             className="text-247-campaign-preview-title bg-white px-5 py-2 rounded-md font-medium"
           >
             Edit Info
@@ -165,6 +228,22 @@ const DriverDetail = () => {
           />
         </div>
       </div>
+      <ConfirmationModal
+        open={confirmModalOpen.open}
+        setOpen={setConfirmModalOpen}
+        text={mapAccountActionToValues[confirmModalOpen?.action]?.confirmText}
+        icon={<ImInfo size={28} color="#fff" />}
+        handleConfirmation={
+          mapAccountActionToValues[confirmModalOpen?.action]?.action
+        }
+      />
+      <EditDriverInfoModal
+        isOpen={editInfoOpen}
+        setIsOpen={setEditInfoOpen}
+        isEdit
+        editData={editData}
+        submitAction={handleDriverInfoEdit}
+      />
     </Dashboard>
   );
 };

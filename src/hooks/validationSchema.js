@@ -37,3 +37,20 @@ export const useSettlePayoutFormValidation = () => {
 
   return validationSchema;
 };
+
+export const useDriverInfoFormValidation = () => {
+  const validationSchema = Yup.object({
+    firstName: Yup.string().required("First name is required"),
+    lastName: Yup.string().required("Last name is required"),
+    emailAddress: Yup.string()
+      .email("Enter a valid email address")
+      .required("Email is required"),
+    phoneNumber: Yup.string().length(11).required("Phone number is required"),
+    favouriteMeal: Yup.string().required("Required field"),
+    hobby: Yup.string().required("Required field"),
+    askMeAbout: Yup.string().required("Required field"),
+    vacationSpot: Yup.string().required("Required field"),
+  });
+
+  return validationSchema;
+};
