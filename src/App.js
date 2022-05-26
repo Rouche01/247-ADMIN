@@ -7,6 +7,7 @@ import {
   CAMPAIGN_PAGE,
   CONTENT_LIBRARY,
   DRIVERS_PAGE,
+  DRIVER_DETAIL_PAGE,
   LOGIN_PAGE,
   NOTIF_PAGE,
   OVERVIEW_PAGE,
@@ -19,6 +20,7 @@ import Overview from "./pages/Overview";
 import Advertisers from "./pages/Advertisers";
 import AdvertiserDetail from "./pages/AdvertiserDetail";
 import Drivers from "./pages/Drivers";
+import DriverDetail from "./pages/DriverDetail";
 import Campaign from "./pages/Campaign";
 import CampaignDetail from "./pages/CampaignDetail";
 import SendNotifs from "./pages/SendNotifs";
@@ -60,6 +62,11 @@ function App() {
           exact
           userType="admin"
           component={Drivers}
+        />
+        <ProtectedRoute
+          path={DRIVER_DETAIL_PAGE}
+          userType="admin"
+          component={DriverDetail}
         />
         <ProtectedRoute
           path={CAMPAIGN_PAGE}
