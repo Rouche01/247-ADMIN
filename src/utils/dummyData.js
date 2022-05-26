@@ -233,6 +233,9 @@ export const advertisers = [
 export const drivers = [
   {
     name: "James Adeola",
+    email: "jadeola@gmail.com",
+    location: "Lagos",
+    status: "active",
     id: "AD240981",
     totalTrips: 276,
     earnings: 76560,
@@ -240,6 +243,9 @@ export const drivers = [
   },
   {
     name: "Musa Ibrahim",
+    email: "ibrahim.musa@gmail.com",
+    location: "Lagos",
+    status: "suspended",
     id: "AD241964",
     totalTrips: 118,
     earnings: 45755,
@@ -247,6 +253,9 @@ export const drivers = [
   },
   {
     name: "Kayode Kazeem",
+    email: "kaykazeem@gmail.com",
+    location: "Lagos",
+    status: "active",
     id: "AD248907",
     totalTrips: 24,
     earnings: 12897,
@@ -254,6 +263,9 @@ export const drivers = [
   },
   {
     name: "Lawal Abioye",
+    email: "oyelawal@gmail.com",
+    location: "Lagos",
+    status: "active",
     id: "AD240879",
     totalTrips: 452,
     earnings: 112094,
@@ -261,6 +273,9 @@ export const drivers = [
   },
   {
     name: "Precious S.",
+    email: "suavepreccy@gmail.com",
+    location: "Lagos",
+    status: "pending",
     id: "AD247765",
     totalTrips: 18,
     earnings: 10789,
@@ -268,6 +283,9 @@ export const drivers = [
   },
   {
     name: "Alao Matthew",
+    email: "alaomatthew@gmail.com",
+    location: "Lagos",
+    status: "active",
     id: "AD249088",
     totalTrips: 92,
     earnings: 33173,
@@ -275,6 +293,9 @@ export const drivers = [
   },
   {
     name: "Joel Ifeoluwa",
+    email: "ifejoel@gmail.com",
+    location: "Lagos",
+    status: "active",
     id: "AD243374",
     totalTrips: 422,
     earnings: 91750,
@@ -282,6 +303,9 @@ export const drivers = [
   },
   {
     name: "Anthony Jay.",
+    email: "anthonyjay@gmail.com",
+    location: "Lagos",
+    status: "suspended",
     id: "AD246709",
     totalTrips: 65,
     earnings: 54129,
@@ -289,6 +313,9 @@ export const drivers = [
   },
   {
     name: "Dare Salami",
+    email: "salamidare@gmail.com",
+    location: "Lagos",
+    status: "active",
     id: "AD241119",
     totalTrips: 17,
     earnings: 6111,
@@ -296,6 +323,9 @@ export const drivers = [
   },
   {
     name: "John James",
+    email: "james.john@gmail.com",
+    location: "Lagos",
+    status: "pending",
     id: "AD247856",
     totalTrips: 41,
     earnings: 62600,

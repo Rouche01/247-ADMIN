@@ -10,3 +10,10 @@ export const typeFilters = [
   { label: "Image", value: "image" },
   { label: "Video", value: "video" },
 ];
+
+export const driverStatusFilters = [
+  { label: "All", id: "all" },
+  { label: "Active", id: "active" },
+  { label: "Suspended", id: "suspended" },
+  { label: "Pending", id: "pending" },
+]

@@ -14,7 +14,6 @@ import { formatNum } from "../utils/numFormatter";
 import { usePagination } from "../hooks/pagination";
 import moment from "moment";
 import classNames from "classnames/bind";
-import kebabCase from "lodash/kebabCase";
 import startCase from "lodash/startCase";
 
 const tableHeaders = [
@@ -135,16 +134,16 @@ const AdvertiserDetail = () => {
                   : "text-lg border border-247-dark-text odd:bg-247-dark-accent3 cursor-pointer hover:bg-gray-700"
               }
               key={`campaign${campaign.id}`}
-              onClick={() =>
-                history.push({
-                  pathname: `/campaign/${kebabCase(campaign.name)}-${
-                    campaign.id
-                  }`,
-                  state: {
-                    campaign,
-                  },
-                })
-              }
+              // onClick={() =>
+              //   history.push({
+              //     pathname: `/campaign/${kebabCase(campaign.name)}-${
+              //       campaign.id
+              //     }`,
+              //     state: {
+              //       campaign,
+              //     },
+              //   })
+              // }
             >
               <td className="px-3 py-5">
                 <Checkbox
