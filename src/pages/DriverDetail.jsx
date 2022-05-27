@@ -14,6 +14,7 @@ import InfoBox from "../components/InfoBox";
 import { formatNum } from "../utils/numFormatter";
 import startCase from "lodash/startCase";
 import EditDriverInfoModal from "../components/uiComponents/EditDriverInfoModal";
+import PayoutHistoryModal from "../components/uiComponents/PayoutHistoryModal";
 
 // const mapStatusToColor = {
 //   active: "#028307",
@@ -87,6 +88,7 @@ const DriverDetail = () => {
   const { state } = useLocation();
   const history = useHistory();
 
+  const [payoutModalOpen, setPayoutModalOpen] = useState(false);
   const [editInfoOpen, setEditInfoOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState({
     open: false,
@@ -128,8 +130,8 @@ const DriverDetail = () => {
   };
 
   const handleDriverInfoEdit = (data) => {
-    console.log(data, "Editing driver info...")
-  }
+    console.log(data, "Editing driver info...");
+  };
 
   const editData = {
     firstName: state.driver?.name?.split(" ")[0],
@@ -203,7 +205,7 @@ const DriverDetail = () => {
         <div className="w-full bg-247-campaign-preview-title flex items-center justify-between px-12 py-4 rounded-t-lg">
           <h4 className="text-white text-xl font-medium">Earnings</h4>
           <button
-            onClick={() => console.log("editing user")}
+            onClick={() => setPayoutModalOpen(true)}
             className="text-247-campaign-preview-title bg-white px-5 py-2 rounded-md font-medium"
           >
             Payout History
@@ -243,6 +245,10 @@ const DriverDetail = () => {
         isEdit
         editData={editData}
         submitAction={handleDriverInfoEdit}
+      />
+      <PayoutHistoryModal
+        isOpen={payoutModalOpen}
+        setIsOpen={setPayoutModalOpen}
       />
     </Dashboard>
   );

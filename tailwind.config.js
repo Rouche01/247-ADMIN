@@ -34,6 +34,8 @@ module.exports = {
         "247-tab-bg": "#222222",
         "247-campaign-preview": "#131313",
         "247-campaign-preview-title": "#F50606",
+        "247-timestamp-color": "#A7A7A7",
+        "247-inactive-btn": "#CFCECE",
       },
       backgroundImage: {
         "subtle-curve": "url('/src/assets/subtle-curve.svg')",
@@ -60,7 +62,9 @@ module.exports = {
   },
   variants: {
     extend: {
-      backgroundColor: ["odd", "even"],
+      backgroundColor: ["odd", "even", "disabled"],
+      cursor: ["disabled"],
+      borderRadius: ["first", "last"],
     },
   },
   plugins: [require("tailwind-scrollbar-hide")],
