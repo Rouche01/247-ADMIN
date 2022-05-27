@@ -36,6 +36,7 @@ module.exports = {
         "247-campaign-preview-title": "#F50606",
         "247-timestamp-color": "#A7A7A7",
         "247-inactive-btn": "#CFCECE",
+        "247-not-live": "#FF6B00",
       },
       backgroundImage: {
         "subtle-curve": "url('/src/assets/subtle-curve.svg')",

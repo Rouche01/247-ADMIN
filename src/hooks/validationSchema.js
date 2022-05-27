@@ -54,3 +54,12 @@ export const useDriverInfoFormValidation = () => {
 
   return validationSchema;
 };
+
+export const useUploadContentFormValidation = () => {
+  const validationSchema = Yup.object({
+    title: Yup.string().required("Title is required"),
+    category: Yup.string().required("Category is required"),
+  });
+
+  return validationSchema;
+};
