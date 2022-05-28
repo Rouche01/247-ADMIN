@@ -9,6 +9,7 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import PlaylistItemRow from "../components/PlaylistItemRow";
 import DraggableTable from "../components/DraggableTable";
 import ConfirmationModal from "../components/uiComponents/ConfirmationModal";
+import AddPlaylistModal from "../components/AddPlaylistModal";
 
 const tableHeaders = ["", "Title", "Duration", "Date Added", "Action"];
 
@@ -16,6 +17,8 @@ const PlaylistManager = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [shownRows, setShownRows] = useState(5);
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
+
+  const [addModalOpen, setAddModalOpen] = useState(false);
 
   const [playlistItems, setPlaylistItems] = useState(contentLibrary);
 
@@ -64,7 +67,7 @@ const PlaylistManager = () => {
         <RoundedBtnWithIcon
           title="Add Content"
           icon={<MdAdd className="mr-2" size={22} />}
-          onBtnClick={() => console.log("pop up")}
+          onBtnClick={() => setAddModalOpen(true)}
         />
       </div>
       <div className="mt-16">
@@ -98,6 +101,7 @@ const PlaylistManager = () => {
           visibleRows={shownRows}
         />
       </div>
+      <AddPlaylistModal isOpen={addModalOpen} setIsOpen={setAddModalOpen} />
       <ConfirmationModal
         open={confirmRemoveOpen}
         setOpen={setConfirmRemoveOpen}

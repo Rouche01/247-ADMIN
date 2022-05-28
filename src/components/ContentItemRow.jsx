@@ -18,6 +18,8 @@ const ContentItemRow = forwardRef(
       index,
       checkedItems,
       toggleItemCheck,
+      hideAction,
+      smallText,
       open,
       setOpen,
     },
@@ -55,11 +57,15 @@ const ContentItemRow = forwardRef(
 
     return (
       <tr
-        className={
-          checkedItems.includes(index)
-            ? "text-lg bg-gray-700 border border-247-dark-text hover:bg-gray-700"
-            : "text-lg border border-247-dark-text odd:bg-247-dark-accent3 hover:bg-gray-700"
-        }
+        className={classNames(
+          "border",
+          "border-247-dark-text",
+          "hover:bg-gray-700",
+          { "bg-gray-700": checkedItems.includes(index) },
+          { "odd:bg-247-dark-accent3": !checkedItems.includes(index) },
+          { "text-lg": !smallText },
+          { "text-sm": smallText }
+        )}
       >
         <td className="px-3 py-5">
           <Checkbox
@@ -98,47 +104,49 @@ const ContentItemRow = forwardRef(
         >
           {startCase(contentItem.status.split("-").join(" "))}
         </td>
-        <td>
-          <div className="relative" ref={ref}>
-            <button
-              onClick={() => setOpen(!open)}
-              className="flex items-center justify-center"
-            >
-              <FiMoreVertical color="#fff" size={24} />
-            </button>
-            <ul
-              style={{ transform: "translateX(-90%)" }}
-              className={classNames(
-                "absolute",
-                "top-7",
-                "bg-247-dark-accent3",
-                "p-0",
-                "left-1/2",
-                "transition-all",
-                "translate-y-3",
-                "origin-top-right",
-                "w-52",
-                "z-50",
-                "shadow-xl",
-                "rounded-lg",
-                { "opacity-0": !open },
-                { "opacity-100": open },
-                { visible: open },
-                { hidden: !open }
-              )}
-            >
-              {compact(contentActions).map((action) => (
-                <li
-                  className="w-full py-4 px-5 text-white text-sm font-semibold hover:bg-black hover:text-247-red-straight first:rounded-t-lg last:rounded-b-lg cursor-pointer"
-                  key={kebabCase(action.name)}
-                  onClick={(_ev) => action.action(contentItem)}
-                >
-                  {action.name}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </td>
+        {!hideAction && (
+          <td>
+            <div className="relative" ref={ref}>
+              <button
+                onClick={() => setOpen(!open)}
+                className="flex items-center justify-center"
+              >
+                <FiMoreVertical color="#fff" size={24} />
+              </button>
+              <ul
+                style={{ transform: "translateX(-90%)" }}
+                className={classNames(
+                  "absolute",
+                  "top-7",
+                  "bg-247-dark-accent3",
+                  "p-0",
+                  "left-1/2",
+                  "transition-all",
+                  "translate-y-3",
+                  "origin-top-right",
+                  "w-52",
+                  "z-50",
+                  "shadow-xl",
+                  "rounded-lg",
+                  { "opacity-0": !open },
+                  { "opacity-100": open },
+                  { visible: open },
+                  { hidden: !open }
+                )}
+              >
+                {compact(contentActions).map((action) => (
+                  <li
+                    className="w-full py-4 px-5 text-white text-sm font-semibold hover:bg-black hover:text-247-red-straight first:rounded-t-lg last:rounded-b-lg cursor-pointer"
+                    key={kebabCase(action.name)}
+                    onClick={(_ev) => action.action(contentItem)}
+                  >
+                    {action.name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </td>
+        )}
       </tr>
     );
   }
