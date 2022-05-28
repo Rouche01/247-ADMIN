@@ -1,16 +1,15 @@
 import React, { useState } from "react";
-import { FiMoreVertical, FiUploadCloud } from "react-icons/fi";
+import { FiUploadCloud } from "react-icons/fi";
+import { FaRegTrashAlt } from "react-icons/fa";
 import Dashboard from "../components/Dashboard";
 import DataTable from "../components/DataTable";
-import Checkbox from "../components/uiComponents/Checkbox";
 import Pagination from "../components/uiComponents/Pagination";
-import startCase from "lodash/startCase";
 import { usePagination } from "../hooks/pagination";
 import { contentLibrary } from "../utils/dummyData";
-import { formatNum } from "../utils/numFormatter";
-import classNames from "classnames";
 import RoundedBtnWithIcon from "../components/uiComponents/RoundedBtnWithIcon";
 import UploadContentModal from "../components/uiComponents/UploadContentModal";
+import ContentItemRow from "../components/ContentItemRow";
+import ConfirmationModal from "../components/uiComponents/ConfirmationModal";
 
 const tableHeaders = [
   "",
@@ -29,11 +28,12 @@ const ContentLibrary = () => {
   const [shownRows, setShownRows] = useState(5);
 
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   const { currentList, indexOfFirstItem, indexOfLastItem, pages } =
     usePagination(currentPage, shownRows, contentLibrary);
 
-  const toggleAdvertiserCheck = (idx) => {
+  const toggleContentItemCheck = (idx) => {
     if (checkedContentItem.includes(idx)) {
       const index = checkedContentItem.indexOf(idx);
       const newCheckedAdvertisers = [...checkedContentItem];
@@ -49,6 +49,19 @@ const ContentLibrary = () => {
     setUploadModalOpen(false);
   };
 
+  const handleRemoveItemFromPlaylist = (item) => {
+    console.log(item, "removing item from playlist...");
+  };
+
+  const handleAddItemToPlaylist = (item) => {
+    console.log(item, "adding item to playlist...");
+  };
+
+  const handleDeleteContentItem = () => {
+    setConfirmDeleteOpen(false);
+    console.log("Deleting content...")
+  }
+
   return (
     <Dashboard>
       <div className="mt-20 rounded-md bg-247-secondary border-2 border-247-dark-text mb-10">
@@ -61,57 +74,16 @@ const ContentLibrary = () => {
         </div>
         <DataTable headers={tableHeaders}>
           {currentList.map((contentItem, idx) => (
-            <tr
-              className={
-                checkedContentItem.includes(idx)
-                  ? "text-lg bg-gray-700 border border-247-dark-text hover:bg-gray-700"
-                  : "text-lg border border-247-dark-text odd:bg-247-dark-accent3 hover:bg-gray-700"
-              }
-              key={`advertisers_${idx}`}
-            >
-              <td className="px-3 py-5">
-                <Checkbox
-                  checked={checkedContentItem.includes(idx) ? true : false}
-                  iconColor="#CACACA"
-                  name={contentItem.title.toLowerCase()}
-                  handleChange={() => toggleAdvertiserCheck(idx)}
-                />
-              </td>
-              <td className="px-6 py-5">
-                <div className="flex items-center">
-                  <img
-                    src={contentItem.previewImg}
-                    className="h-14 w-24 object-cover rounded"
-                    alt="content thumbnail"
-                  />
-                  <div className="ml-4">
-                    <p>{contentItem.title}</p>
-                    <p className="text-sm text-247-timestamp-color font-semibold">
-                      {contentItem.type}
-                    </p>
-                  </div>
-                </div>
-              </td>
-              <td className="px-6 py-5">{contentItem.duration}</td>
-              <td className="px-6 py-5">{contentItem.category}</td>
-              <td className="px-6 py-5">{contentItem.date}</td>
-              <td className="px-6 py-5">
-                {formatNum(contentItem.plays, false, true)}
-              </td>
-              <td
-                className={classNames("px-6", "py-5", {
-                  "text-247-red-straight": contentItem.status === "live",
-                  "text-247-not-live": contentItem.status === "not-live",
-                })}
-              >
-                {startCase(contentItem.status.split("-").join(" "))}
-              </td>
-              <td>
-                <button className="flex items-center justify-center">
-                  <FiMoreVertical color="#fff" size={24} />
-                </button>
-              </td>
-            </tr>
+            <ContentItemRow
+              checkedItems={checkedContentItem}
+              contentItem={contentItem}
+              index={idx}
+              toggleItemCheck={toggleContentItemCheck}
+              key={`contentItem_${idx}`}
+              setConfirmItemDelete={setConfirmDeleteOpen}
+              removeItemFromPlaylist={handleRemoveItemFromPlaylist}
+              addItemToPlaylist={handleAddItemToPlaylist}
+            />
           ))}
         </DataTable>
       </div>
@@ -131,6 +103,13 @@ const ContentLibrary = () => {
         isOpen={uploadModalOpen}
         setIsOpen={setUploadModalOpen}
         handleUpload={handleUploadNewContent}
+      />
+      <ConfirmationModal
+        open={confirmDeleteOpen}
+        setOpen={setConfirmDeleteOpen}
+        text="Are you sure you want to delete this content?"
+        icon={<FaRegTrashAlt size={28} color="#fff" />}
+        handleConfirmation={handleDeleteContentItem}
       />
     </Dashboard>
   );
