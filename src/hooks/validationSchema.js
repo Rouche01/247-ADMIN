@@ -63,3 +63,16 @@ export const useUploadContentFormValidation = () => {
 
   return validationSchema;
 };
+
+export const useNewQuizFormValidation = () => {
+  const validationSchema = Yup.object({
+    question: Yup.string().required("This field is required"),
+    optionA: Yup.string().required("This field is required"),
+    optionB: Yup.string().required("This field is required"),
+    optionC: Yup.string().required("This field is required"),
+    optionD: Yup.string().required("This field is required"),
+    correctOption: Yup.object().required("This field is required"),
+  });
+
+  return validationSchema;
+};

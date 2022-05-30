@@ -525,3 +525,55 @@ export const contentLibrary = [
     type: "video",
   },
 ];
+
+export const quizQuestions = [
+  {
+    id: "quiz-001",
+    question: "Which one of these afrobeats artistes won a grammy in 2021?",
+    answers: 1500,
+    correctAnswer: 20,
+    correctOption: "C",
+  },
+  {
+    id: "quiz-002",
+    question: "What year did Nigeria gain her independence?",
+    answers: 1500,
+    correctAnswer: 35,
+    correctOption: "A",
+  },
+  {
+    id: "quiz-003",
+    question: "What is the capital of Tanzania?",
+    answers: 500,
+    correctAnswer: 59,
+    correctOption: "D",
+  },
+  {
+    id: "quiz-004",
+    question: "One of these songs is by Wizkid, pick one",
+    answers: 1300,
+    correctAnswer: 20,
+    correctOption: "A",
+  },
+  {
+    id: "quiz-005",
+    question: "Which one of these afrobeats artistes won a grammy in 2021?",
+    answers: 1250,
+    correctAnswer: 25,
+    correctOption: "C",
+  },
+  {
+    id: "quiz-006",
+    question: "What year did Nigeria gain her independence?",
+    answers: 2000,
+    correctAnswer: 40,
+    correctOption: "B",
+  },
+  {
+    id: "quiz-007",
+    question: "Which one of these afrobeats artistes won a grammy in 2021?",
+    answers: 1700,
+    correctAnswer: 21,
+    correctOption: "A",
+  },
+];

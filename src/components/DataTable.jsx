@@ -1,6 +1,7 @@
+import classNames from "classnames";
 import React from "react";
 
-const DataTable = ({ headers, children }) => {
+const DataTable = ({ headers, children, roundedHeader }) => {
   return (
     <table className="font-customRoboto w-full text-white border-collapse">
       <thead>
@@ -8,7 +9,17 @@ const DataTable = ({ headers, children }) => {
           {headers.map((header, idx) => (
             <th
               key={`${header}_${idx}`}
-              className="text-left px-6 py-4 text-lg"
+              className={classNames(
+                "text-left",
+                "py-4",
+                "text-lg",
+                {
+                  "px-3": idx === 0,
+                },
+                {
+                  "px-6": idx !== 0,
+                }
+              )}
             >
               {header}
             </th>
