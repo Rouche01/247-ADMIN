@@ -1,4 +1,5 @@
 import React, { forwardRef, useContext, useState } from "react";
+import { Toaster } from "react-hot-toast";
 import { Link, useLocation } from "react-router-dom";
 import { MdAdd } from "react-icons/md";
 import Logo from "../assets/logo.png";
@@ -26,6 +27,7 @@ const Dashboard = forwardRef(
 
     return (
       <div className="h-screen max-h-screen overflow-y-hidden">
+        <Toaster position="top-center" />
         <div className="grid grid-cols-5 gap-0 max-h-screen h-screen">
           <div className="h-screen min-h-screen border-r-2 border-247-dark-text bg-247-secondary">
             <img src={Logo} alt="logo" width="160" className="ml-10 mt-10" />

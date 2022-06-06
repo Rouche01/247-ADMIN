@@ -18,7 +18,7 @@ export const useCampaignFormValidation = () => {
     duration: Yup.array()
       .length(2, "select start and end duration")
       .required("Campaign duration is required"),
-    adSpend: Yup.string().required("Ad Spend is required"),
+    adBudget: Yup.string().required("Ad Spend is required"),
     adType: Yup.object().required("Ad type is required"),
   });
 

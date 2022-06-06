@@ -1,7 +1,7 @@
 import React from "react";
 import Modal from "react-modal";
 
-Modal.setAppElement('#root')
+Modal.setAppElement("#root");
 
 const CenterModal = ({ modalOpen, setModalOpen, children, width }) => {
   const modalStyle = {
@@ -17,6 +17,8 @@ const CenterModal = ({ modalOpen, setModalOpen, children, width }) => {
       borderRadius: "8px",
       width: width ? `${width}px` : "650px",
       padding: "28px 32px",
+      maxHeight: "90vh",
+      overflowY: "auto",
     },
     overlay: {
       backgroundColor: "rgba(0, 0, 0, 0.86)",

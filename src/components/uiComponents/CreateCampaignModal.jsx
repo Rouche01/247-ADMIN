@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
+import { format } from "date-fns";
 import CenterModal from "./CenterModal";
 import InputField from "./InputField";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { Context as CampaignContext } from "../../context/CampaignContext";
 import { useCampaignFormValidation } from "../../hooks/validationSchema";
 import DateInput from "./DateInput";
 import SelectInput from "./SelectInput";
 import FileUploadInput from "./FileUploadInput";
 import Button from "./Button";
+import { useToastError } from "../../hooks/handleError";
+import toast from "react-hot-toast";
 
 const CreateCampaignModal = ({
   modalIsOpen,
@@ -17,6 +21,11 @@ const CreateCampaignModal = ({
   editData,
 }) => {
   const { validationSchema } = useCampaignFormValidation();
+  const {
+    createCampaign,
+    clearError,
+    state: { loading: creatingCampaign, errorMessage },
+  } = useContext(CampaignContext);
   const [campaignMedia, setCampaignMedia] = useState([]);
 
   const updateUploadedFile = (fileObject) => {
@@ -24,9 +33,7 @@ const CreateCampaignModal = ({
     setCampaignMedia(mediaContents);
   };
 
-  useEffect(() => {
-    console.log(campaignMedia);
-  }, [campaignMedia]);
+  useToastError(errorMessage, clearError);
 
   const {
     register,
@@ -39,7 +46,25 @@ const CreateCampaignModal = ({
   });
 
   const onSubmit = async (data) => {
-    console.log(data);
+    let formData = new FormData();
+
+    formData.append("campaignName", data.campaignName);
+    formData.append("advertiser", data.advertiserName);
+    formData.append("adBudget", data.adBudget);
+    formData.append("adType", data.adType.value);
+    formData.append(
+      "duration",
+      JSON.stringify([
+        format(data.duration[0], "yyyy-MM-dd"),
+        format(data.duration[1], "yyyy-MM-dd"),
+      ])
+    );
+
+    formData.append("campaignMedia", campaignMedia[0]);
+
+    await createCampaign(formData);
+    toast.success("Campaign created successfully");
+    setIsOpen(false);
   };
 
   return (
@@ -49,7 +74,9 @@ const CreateCampaignModal = ({
       width={modalWidth}
     >
       <h2 className="text-2xl text-white text-center font-semibold">
-        {isEdit ? `Edit campaign (${editData.campaignName})` : "Create new campaign"}
+        {isEdit
+          ? `Edit campaign (${editData.campaignName})`
+          : "Create new campaign"}
       </h2>
       <form className="mt-8" onSubmit={handleSubmit(onSubmit)}>
         <InputField
@@ -75,8 +102,6 @@ const CreateCampaignModal = ({
             name="duration"
             control={control}
             render={({ field }) => {
-              console.log(field.value);
-              console.log((field.value && field?.value[0]) || null);
               return (
                 <DateInput
                   label="Duration"
@@ -93,19 +118,18 @@ const CreateCampaignModal = ({
         </div>
         <div className="grid grid-cols-2 gap-4">
           <InputField
-            label="Ad Spend"
+            label="Ad Budget"
             darkMode={true}
             placeholder="enter campaign spend"
             type="string"
             registerFn={register}
-            name="adSpend"
-            errorText={errors.adSpend?.message}
+            name="adBudget"
+            errorText={errors.adBudget?.message}
           />
           <Controller
             name="adType"
             control={control}
             render={({ field }) => {
-              console.log(field.value);
               return (
                 <SelectInput
                   label="Ad Type"
@@ -132,6 +156,7 @@ const CreateCampaignModal = ({
           type="submit"
           className={["bg-247-red", "block", "mt-12", "px-12", "font-normal"]}
           fullWidth
+          isLoading={creatingCampaign}
         >
           {isEdit ? "Submit Change" : "Create Campaign"}
         </Button>

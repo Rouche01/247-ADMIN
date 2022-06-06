@@ -7,14 +7,17 @@ import "daterangepicker";
 import "daterangepicker/daterangepicker.css";
 import App from "./App";
 import { Provider as AuthProvider } from "../src/context/AuthContext";
+import { Provider as CampaignProvider } from "../src/context/CampaignContext";
 import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
   <React.StrictMode>
     <AuthProvider>
-      <Router history={history}>
-        <App />
-      </Router>
+      <CampaignProvider>
+        <Router history={history}>
+          <App />
+        </Router>
+      </CampaignProvider>
     </AuthProvider>
   </React.StrictMode>,
   document.getElementById("root")
