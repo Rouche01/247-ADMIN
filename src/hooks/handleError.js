@@ -9,7 +9,7 @@ export const useToastError = (error, cb) => {
       toast.error(error, { duration: ERROR_DISPLAY_DURATION });
     }
 
-    setTimeout(() => cb(), ERROR_DISPLAY_DURATION);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setTimeout(() => cb("create"), ERROR_DISPLAY_DURATION);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error]);
 };

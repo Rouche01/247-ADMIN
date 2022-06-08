@@ -1,14 +1,23 @@
 import React from "react";
 import classNames from "classnames/bind";
 
-const TabFilters = ({ filterList, activeFilter, setActiveFilter }) => {
+const TabFilters = ({
+  defaultFilters,
+  filterList,
+  activeFilter,
+  setActiveFilter,
+}) => {
   return (
     <div className="bg-247-tab-bg rounded-lg p-3">
       <ul className="flex text-white gap-3 text-lg">
         {filterList.map(({ label, id }) => (
           <li key={id}>
             <button
-              onClick={() => setActiveFilter(id)}
+              onClick={() => {
+                id === defaultFilters.status
+                  ? setActiveFilter(undefined)
+                  : setActiveFilter(id);
+              }}
               className={classNames(
                 "py-1",
                 "px-2",

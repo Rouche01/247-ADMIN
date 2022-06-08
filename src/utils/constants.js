@@ -6,7 +6,7 @@ export const statusFilters = [
 ];
 
 export const typeFilters = [
-  { label: "All Types", value: "all types" },
+  { label: "All Types", value: "all" },
   { label: "Image", value: "image" },
   { label: "Video", value: "video" },
 ];

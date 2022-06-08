@@ -24,7 +24,7 @@ const CreateCampaignModal = ({
   const {
     createCampaign,
     clearError,
-    state: { loading: creatingCampaign, errorMessage },
+    state: { loading: creatingCampaign, createErrorMsg },
   } = useContext(CampaignContext);
   const [campaignMedia, setCampaignMedia] = useState([]);
 
@@ -33,7 +33,7 @@ const CreateCampaignModal = ({
     setCampaignMedia(mediaContents);
   };
 
-  useToastError(errorMessage, clearError);
+  useToastError(createErrorMsg, clearError);
 
   const {
     register,

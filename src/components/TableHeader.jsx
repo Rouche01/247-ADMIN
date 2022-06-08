@@ -4,8 +4,10 @@ import SelectInput from "./uiComponents/SelectInput";
 import TabFilters from "./uiComponents/TabFilters";
 import $ from "jquery";
 import moment from "moment";
+import find from "lodash/find";
 
 const TableHeader = ({
+  defaultFilters,
   statusFilters,
   typeFilters,
   selectedStatusFilter,
@@ -43,6 +45,7 @@ const TableHeader = ({
   return (
     <div className="flex pt-3 px-8 mb-3 items-stretch justify-between">
       <TabFilters
+        defaultFilters={defaultFilters}
         filterList={statusFilters}
         activeFilter={selectedStatusFilter}
         setActiveFilter={setSelectedStatusFilter}
@@ -52,8 +55,12 @@ const TableHeader = ({
           <SelectInput
             standAlone
             options={typeFilters}
-            value={selectedTypeFilter}
-            handleChange={(value) => setSelectedTypeFilter(value)}
+            value={find(typeFilters, { value: selectedTypeFilter })}
+            handleChange={(item) =>
+              item.value === defaultFilters.type
+                ? setSelectedTypeFilter(undefined)
+                : setSelectedTypeFilter(item.value)
+            }
             bgColor="#222"
             borderColor="#222"
           />

@@ -1,9 +1,9 @@
 import classNames from "classnames";
 import React from "react";
 
-const DataTable = ({ headers, children, roundedHeader }) => {
+const DataTable = ({ headers, children, loadingData }) => {
   return (
-    <table className="font-customRoboto w-full text-white border-collapse">
+    <table className="font-customRoboto w-full text-white border-collapse relative">
       <thead>
         <tr className="border border-247-dark-text bg-247-red-straight">
           {headers.map((header, idx) => (
@@ -26,7 +26,7 @@ const DataTable = ({ headers, children, roundedHeader }) => {
           ))}
         </tr>
       </thead>
-      <tbody>{children}</tbody>
+      <tbody className={classNames({ "h-48": loadingData })}>{children}</tbody>
     </table>
   );
 };
