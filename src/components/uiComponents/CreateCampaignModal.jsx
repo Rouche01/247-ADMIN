@@ -62,8 +62,9 @@ const CreateCampaignModal = ({
 
     formData.append("campaignMedia", campaignMedia[0]);
 
-    await createCampaign(formData);
-    toast.success("Campaign created successfully");
+    await createCampaign(formData, () =>
+      toast.success("Campaign created successfully")
+    );
     setIsOpen(false);
   };
 

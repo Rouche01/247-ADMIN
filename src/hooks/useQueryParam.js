@@ -39,8 +39,6 @@ export const useQueryParam = (paramName = "default") => {
   const queryParamValue = useURLSearchParam(paramName);
   const setQueryParamValue = useSetQueryParamValue(paramName);
 
-  console.log(queryParamValue);
-
   return [queryParamValue, setQueryParamValue];
 };
 

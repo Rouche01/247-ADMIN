@@ -14,7 +14,7 @@ const DataTable = ({ headers, children, loadingData }) => {
                 "py-4",
                 "text-lg",
                 {
-                  "px-3": idx === 0,
+                  "px-2": idx === 0,
                 },
                 {
                   "px-6": idx !== 0,

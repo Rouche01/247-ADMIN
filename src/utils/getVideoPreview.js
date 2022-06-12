@@ -1,8 +1,11 @@
-export const getVideoCover = (file, seekTo = 0.1) => {
+export const getVideoCover = (fileOrUrl, isURL = false, seekTo = 0.1) => {
   return new Promise((resolve, reject) => {
     // load the file to a video player
     const videoPlayer = document.createElement("video");
-    videoPlayer.setAttribute("src", URL.createObjectURL(file));
+    videoPlayer.setAttribute(
+      "src",
+      isURL ? fileOrUrl : URL.createObjectURL(fileOrUrl)
+    );
     videoPlayer.load();
     videoPlayer.addEventListener("error", (ex) => {
       reject("error when loading video file", ex);

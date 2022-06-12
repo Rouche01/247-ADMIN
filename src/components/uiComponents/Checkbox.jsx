@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import React from "react";
 import {
   MdOutlineCheckBox,
@@ -6,7 +7,7 @@ import {
 
 const Checkbox = ({ checked, iconColor, name, value, handleChange }) => {
   return (
-    <div className="flex mr-4">
+    <div className="flex justify-center items-center">
       <input
         type="checkbox"
         name={name}
@@ -17,18 +18,25 @@ const Checkbox = ({ checked, iconColor, name, value, handleChange }) => {
         onChange={handleChange}
       />
       <label
-        className="text-xl font-bold ml-3 text-247-gray-accent2 flex items-center"
+        className={classNames([
+          { "text-xl": !!value },
+          { "font-bold": !!value },
+          { "ml-3": !!value },
+          { "text-247-gray-accent2": !!value },
+          "flex",
+          "items-center",
+        ])}
         htmlFor={name}
       >
         {checked ? (
           <MdOutlineCheckBox
             color={iconColor}
-            className={value ? "mr-2" : ""}
+            className={classNames([{ "mr-2": value }, "toggle-check"])}
           />
         ) : (
           <MdOutlineCheckBoxOutlineBlank
             color={iconColor}
-            className={value ? "mr-2" : ""}
+            className={classNames([{ "mr-2": value }, "toggle-check"])}
           />
         )}
         {value}

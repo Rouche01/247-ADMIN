@@ -9,18 +9,16 @@ import { useQueryParamWithDefaultValue } from "../hooks/useQueryParam";
 import Checkbox from "../components/uiComponents/Checkbox";
 import Pagination from "../components/uiComponents/Pagination";
 import { Context as CampaignContext } from "../context/CampaignContext";
-import { useLocation } from "react-router";
 import { formatNum } from "../utils/numFormatter";
 import { typeFilters, statusFilters } from "../utils/constants";
 import classNames from "classnames";
 import startCase from "lodash/startCase";
-import kebabCase from "lodash/kebabCase";
 import omitBy from "lodash/omitBy";
 import moment from "moment";
-import formatDistance from "date-fns/formatDistance";
 import Spinner from "../components/uiComponents/Spinner";
 import NoDataBox from "../components/uiComponents/NoDataBox";
 import ErrorBox from "../components/uiComponents/ErrorBox";
+import { calculateDistance } from "../utils/date";
 
 const tableHeaders = [
   "",
@@ -47,9 +45,7 @@ const Campaign = () => {
     moment(),
   ]);
 
-  const { state } = useLocation();
   const history = useHistory();
-  console.log(state?.advertiser);
 
   const [campaignStatus, setCampaignStatus] = useQueryParamWithDefaultValue(
     "status",
@@ -65,6 +61,14 @@ const Campaign = () => {
     [campaignStatus, campaignType]
   );
 
+  const paginationOptions = useMemo(
+    () => ({
+      limit: shownRows,
+      skip: (currentPage - 1) * shownRows,
+    }),
+    [shownRows, currentPage]
+  );
+
   const {
     fetchCampaigns,
     state: {
@@ -75,17 +79,22 @@ const Campaign = () => {
     },
   } = useContext(CampaignContext);
 
+  console.log(campaigns);
+
   useEffect(() => {
     const sanitizedFilterValues = omitBy(
       filterValues,
       (item) => item && item === "all"
     );
-    fetchCampaigns(sanitizedFilterValues);
+    fetchCampaigns({ ...sanitizedFilterValues, ...paginationOptions });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterValues]);
+  }, [filterValues, paginationOptions]);
 
-  const { currentList, indexOfFirstItem, indexOfLastItem, pages } =
-    usePagination(currentPage, shownRows, campaigns);
+  const { indexOfFirstItem, indexOfLastItem, pages } = usePagination(
+    currentPage,
+    shownRows,
+    campaigns
+  );
 
   const toggleCampaignCheck = (idx) => {
     if (checkedCampaigns.includes(idx)) {
@@ -139,13 +148,13 @@ const Campaign = () => {
             </div>
           )}
           {!fetchingCampaigns &&
-            currentList.length > 0 &&
-            currentList.map((campaign, idx) => {
-              const duration = formatDistance(
-                new Date(campaign.duration[1]),
-                new Date(campaign.duration[0])
+            campaigns.length > 0 &&
+            campaigns.map((campaign, idx) => {
+              const duration = calculateDistance(
+                campaign.duration[1],
+                campaign.duration[0]
               );
-              console.log(duration);
+
               return (
                 <tr
                   className={
@@ -154,23 +163,22 @@ const Campaign = () => {
                       : "text-lg border border-247-dark-text odd:bg-247-dark-accent3 cursor-pointer hover:bg-gray-700"
                   }
                   key={`campaign${campaign.campaignID}`}
-                  onClick={() =>
-                    history.push({
-                      pathname: `/campaign/${kebabCase(campaign.name)}-${
-                        campaign.id
-                      }`,
-                      state: {
-                        campaign,
-                      },
-                    })
-                  }
+                  onClick={(ev) => {
+                    if (!ev.target.closest(".toggle-check")) {
+                      history.push({
+                        pathname: `/campaign/${campaign.campaignID}`,
+                      });
+                    }
+                  }}
                 >
-                  <td className="px-3 py-5">
+                  <td className="px-3 py-5 toggle-check">
                     <Checkbox
                       checked={checkedCampaigns.includes(idx) ? true : false}
                       iconColor="#CACACA"
                       name={campaign.id.toLowerCase()}
-                      handleChange={() => toggleCampaignCheck(idx)}
+                      handleChange={(ev) => {
+                        toggleCampaignCheck(idx);
+                      }}
                     />
                   </td>
                   <td className="px-6 py-5">
@@ -197,9 +205,13 @@ const Campaign = () => {
                       {startCase(campaign.status)}
                     </div>
                   </td>
-                  <td className="px-6 py-5">{campaign.advertiser}</td>
                   <td className="px-6 py-5">
-                    {Number(27009).toLocaleString("en-NG")}
+                    {campaign.advertiser.companyName}
+                  </td>
+                  <td className="px-6 py-5">
+                    {Number(campaign.campaignStat.impressions).toLocaleString(
+                      "en-NG"
+                    )}
                   </td>
                   <td className="px-6 py-5">{duration}</td>
                   <td className="px-6 py-5">
@@ -212,7 +224,7 @@ const Campaign = () => {
               );
             })}
         </DataTable>
-        {!fetchingCampaigns && !retrieveErrorMsg && currentList.length === 0 && (
+        {!fetchingCampaigns && !retrieveErrorMsg && campaigns.length === 0 && (
           <div className="w-full py-9">
             <NoDataBox
               title="No Campaign Found"

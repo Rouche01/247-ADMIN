@@ -1,14 +1,21 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState, useMemo } from "react";
 import { useHistory } from "react-router-dom";
+import differenceInSeconds from "date-fns/differenceInSeconds";
 import Dashboard from "../components/Dashboard";
 import InfoBox from "../components/InfoBox";
-import { advertisers } from "../utils/dummyData";
+import { Context as AdvertiserContext } from "../context/AdvertiserContext";
 import { usePagination } from "../hooks/pagination";
 import DataTable from "../components/DataTable";
 import Checkbox from "../components/uiComponents/Checkbox";
 import Pagination from "../components/uiComponents/Pagination";
-import { formatNum } from "../utils/numFormatter";
-import kebabCase from "lodash/kebabCase";
+import Spinner from "../components/uiComponents/Spinner";
+import NoDataBox from "../components/uiComponents/NoDataBox";
+import ErrorBox from "../components/uiComponents/ErrorBox";
+import { convertSecToHHMMSS, formatNum } from "../utils/numFormatter";
+import {
+  calculateTotalAdSpend,
+  calculateTotalImpression,
+} from "../utils/transformAdvertiser";
 
 const tableHeaders = [
   "",
@@ -26,8 +33,36 @@ const Advertisers = () => {
 
   const history = useHistory();
 
-  const { currentList, indexOfFirstItem, indexOfLastItem, pages } =
-    usePagination(currentPage, shownRows, advertisers);
+  const {
+    state: {
+      loading: fetchingAdvertisers,
+      advertisers,
+      advertiserSize,
+      fetchError,
+    },
+    fetchAdvertisers,
+  } = useContext(AdvertiserContext);
+
+  const paginationOptions = useMemo(
+    () => ({
+      limit: shownRows,
+      skip: (currentPage - 1) * shownRows,
+    }),
+    [shownRows, currentPage]
+  );
+
+  useEffect(() => {
+    fetchAdvertisers({ ...paginationOptions });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paginationOptions]);
+
+  console.log(advertisers);
+
+  const { indexOfFirstItem, indexOfLastItem, pages } = usePagination(
+    currentPage,
+    shownRows,
+    advertisers
+  );
 
   const toggleAdvertiserCheck = (idx) => {
     if (checkedAdvertisers.includes(idx)) {
@@ -60,61 +95,104 @@ const Advertisers = () => {
             infoValue={formatNum(27009, false, true)}
           />
         </div>
-        <div className="mt-16 rounded-md bg-247-secondary border-2 border-247-dark-text mb-10">
-          <DataTable headers={tableHeaders}>
-            {currentList.map((advtr, idx) => (
-              <tr
-                onClick={() =>
-                  history.push({
-                    pathname: `/advertiser/${kebabCase(advtr.name)}`,
-                    state: {
-                      advtr,
-                    },
-                  })
-                }
-                className={
-                  checkedAdvertisers.includes(idx)
-                    ? "text-lg bg-gray-700 border border-247-dark-text cursor-pointer hover:bg-gray-700"
-                    : "text-lg border border-247-dark-text odd:bg-247-dark-accent3 cursor-pointer hover:bg-gray-700"
-                }
-                key={`advertisers_${idx}`}
-              >
-                <td className="px-3 py-5">
-                  <Checkbox
-                    checked={checkedAdvertisers.includes(idx) ? true : false}
-                    iconColor="#CACACA"
-                    name={advtr.name.toLowerCase()}
-                    handleChange={() => toggleAdvertiserCheck(idx)}
-                  />
-                </td>
-                <td className="px-6 py-5">
-                  <div className="flex items-center">{advtr.name}</div>
-                </td>
-                <td className="px-6 py-5">
-                  <div className="flex items-center">
-                    {Number(advtr.numOfCampaigns).toLocaleString("en-US")}{" "}
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  {Number(advtr.totalImpressions).toLocaleString("en-US")}
-                </td>
-                <td className="px-6 py-5">
-                  {Number(advtr.totalSpend).toLocaleString("en-NG", {
-                    currency: "NGN",
-                    style: "currency",
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </td>
-                <td className="px-6 py-5">{advtr.totalDuration}</td>
-              </tr>
-            ))}
+        <div className="mt-16 rounded-md bg-black border-2 border-247-dark-text mb-10">
+          <DataTable headers={tableHeaders} loadingData={fetchingAdvertisers}>
+            {fetchingAdvertisers && (
+              <div className="flex items-center justify-center w-full absolute py-14">
+                <Spinner size="large" />
+              </div>
+            )}
+            {!fetchingAdvertisers &&
+              advertisers.length > 0 &&
+              advertisers.map((advtr, idx) => {
+                const impressions = calculateTotalImpression(advtr);
+                const totalAdSpend = calculateTotalAdSpend(advtr);
+
+                const totalDurationInSecs = advtr.campaigns
+                  .map((campaign) =>
+                    differenceInSeconds(
+                      new Date(campaign.duration[1]),
+                      new Date(campaign.duration[0])
+                    )
+                  )
+                  .reduce((prev, curr) => prev + curr, 0);
+
+                const formattedDuration =
+                  convertSecToHHMMSS(totalDurationInSecs);
+
+                return (
+                  <tr
+                    onClick={(ev) => {
+                      if (!ev.target.closest(".toggle-check")) {
+                        history.push({
+                          pathname: `/advertiser/${advtr.advertiserId}`,
+                        });
+                      }
+                    }}
+                    className={
+                      checkedAdvertisers.includes(idx)
+                        ? "text-lg bg-gray-700 border border-247-dark-text cursor-pointer hover:bg-gray-700"
+                        : "text-lg border border-247-dark-text odd:bg-247-dark-accent3 cursor-pointer hover:bg-gray-700"
+                    }
+                    key={advtr.id}
+                  >
+                    <td className="px-3 py-5 toggle-check">
+                      <Checkbox
+                        checked={
+                          checkedAdvertisers.includes(idx) ? true : false
+                        }
+                        iconColor="#CACACA"
+                        name={advtr.id.toLowerCase()}
+                        handleChange={() => toggleAdvertiserCheck(idx)}
+                      />
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center">
+                        {advtr.companyName}
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center">
+                        {Number(advtr.campaigns.length).toLocaleString("en-US")}{" "}
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      {Number(impressions).toLocaleString("en-US")}
+                    </td>
+                    <td className="px-6 py-5">
+                      {Number(totalAdSpend).toLocaleString("en-NG", {
+                        currency: "NGN",
+                        style: "currency",
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </td>
+                    <td className="px-6 py-5">{formattedDuration}</td>
+                  </tr>
+                );
+              })}
           </DataTable>
+          {!fetchingAdvertisers && !fetchError && advertisers.length === 0 && (
+            <div className="w-full py-9">
+              <NoDataBox
+                title="No Campaign Found"
+                subtitle="We cannot find any campaign that fits your criteria."
+              />
+            </div>
+          )}
+          {!fetchingAdvertisers && fetchError && (
+            <div className="w-full py-9">
+              <ErrorBox
+                title="Error Retrieving Campaigns"
+                subtitle={fetchError}
+              />
+            </div>
+          )}
         </div>
         <div className="flex items-center justify-end mb-20">
           <Pagination
             activePage={currentPage}
-            dataLength={advertisers.length}
+            dataLength={advertiserSize}
             firstItem={indexOfFirstItem + 1}
             lastItem={indexOfLastItem}
             pages={pages}

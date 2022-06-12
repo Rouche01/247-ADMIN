@@ -38,3 +38,16 @@ export const formatNum = (num, isCurrency, atMillion) => {
       : num.toLocaleString("en-NG");
   }
 };
+
+export const convertSecToHHMMSS = (secondsInput) => {
+  const parsedSecs = parseInt(secondsInput, 10);
+  const hours = Math.floor(parsedSecs / 3600);
+  const minutes = Math.floor((parsedSecs - hours * 3600) / 60);
+  const seconds = parsedSecs - hours * 3600 - minutes * 60;
+
+  const hoursOut = hours < 10 ? `0${hours}` : hours;
+  const minutesOut = minutes < 10 ? `0${minutes}` : minutes;
+  const secondsOut = seconds < 10 ? `0${seconds}` : seconds;
+
+  return `${hoursOut}:${minutesOut}:${secondsOut}`;
+};
