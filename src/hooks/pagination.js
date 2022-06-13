@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-export const usePagination = (activePage, rowsShown, data) => {
+export const usePagination = (activePage, rowsShown, data, dataLength) => {
   const indexOfLastItem = useMemo(() => {
     return activePage * rowsShown;
   }, [activePage, rowsShown]);
@@ -13,7 +13,7 @@ export const usePagination = (activePage, rowsShown, data) => {
     return data.slice(indexOfFirstItem, indexOfLastItem);
   }, [indexOfFirstItem, indexOfLastItem, data]);
 
-  const pages = Math.ceil(data.length / rowsShown);
+  const pages = Math.ceil(dataLength / rowsShown);
 
   return { currentList, indexOfFirstItem, indexOfLastItem, pages };
 };

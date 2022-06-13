@@ -61,7 +61,8 @@ const Advertisers = () => {
   const { indexOfFirstItem, indexOfLastItem, pages } = usePagination(
     currentPage,
     shownRows,
-    advertisers
+    advertisers,
+    advertiserSize
   );
 
   const toggleAdvertiserCheck = (idx) => {

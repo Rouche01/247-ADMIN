@@ -93,7 +93,8 @@ const Campaign = () => {
   const { indexOfFirstItem, indexOfLastItem, pages } = usePagination(
     currentPage,
     shownRows,
-    campaigns
+    campaigns,
+    campaignSize
   );
 
   const toggleCampaignCheck = (idx) => {

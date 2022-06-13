@@ -13,7 +13,7 @@ export const typeFilters = [
 
 export const driverStatusFilters = [
   { label: "All", id: "all" },
-  { label: "Active", id: "active" },
+  { label: "Active", id: "approved" },
   { label: "Suspended", id: "suspended" },
   { label: "Pending", id: "pending" },
 ]

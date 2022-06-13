@@ -9,6 +9,7 @@ import App from "./App";
 import { Provider as AuthProvider } from "../src/context/AuthContext";
 import { Provider as CampaignProvider } from "../src/context/CampaignContext";
 import { Provider as AdvertiserProvider } from "../src/context/AdvertiserContext";
+import { Provider as DriverProvider } from "../src/context/DriverContext";
 import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
@@ -16,9 +17,11 @@ ReactDOM.render(
     <AuthProvider>
       <AdvertiserProvider>
         <CampaignProvider>
-          <Router history={history}>
-            <App />
-          </Router>
+          <DriverProvider>
+            <Router history={history}>
+              <App />
+            </Router>
+          </DriverProvider>
         </CampaignProvider>
       </AdvertiserProvider>
     </AuthProvider>
