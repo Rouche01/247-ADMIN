@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useContext, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import format from "date-fns/format";
+import toast from "react-hot-toast";
 import { MdKeyboardBackspace } from "react-icons/md";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { ImInfo } from "react-icons/im";
@@ -18,12 +19,7 @@ import startCase from "lodash/startCase";
 import EditDriverInfoModal from "../components/uiComponents/EditDriverInfoModal";
 import PayoutHistoryModal from "../components/uiComponents/PayoutHistoryModal";
 import Spinner from "../components/uiComponents/Spinner";
-
-// const mapStatusToColor = {
-//   active: "#028307",
-//   pending: "#EC5500",
-//   suspended: "#E20000",
-// };
+import { useToastError } from "../hooks/handleError";
 
 const mapBtnTextToStatus = {
   approved: {
@@ -49,6 +45,7 @@ const CustomHeader = ({
   status,
   accountAction,
   createdDate,
+  loadingState,
 }) => {
   return (
     <div className="flex items-center justify-between">
@@ -88,6 +85,7 @@ const CustomHeader = ({
         title={mapBtnTextToStatus[status].title}
         icon={mapBtnTextToStatus[status].icon}
         onBtnClick={() => accountAction(mapBtnTextToStatus[status].action)}
+        isLoading={loadingState}
       />
     </div>
   );
@@ -105,8 +103,15 @@ const DriverDetail = () => {
   });
 
   const {
-    state: { fetchingSingleDriver, driver },
+    state: {
+      fetchingSingleDriver,
+      driver,
+      updatingDriverStatus,
+      updateStatusError,
+    },
     fetchDriverById,
+    updateDriverStatus,
+    clearError,
   } = useContext(DriverContext);
 
   useEffect(() => {
@@ -114,24 +119,52 @@ const DriverDetail = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  console.log(driver);
+  useToastError(updateStatusError, clearError);
+
+  const mapActionToStatus = {
+    suspend: "suspended",
+    activate: "approved",
+    reactivate: "approved",
+  };
 
   const confirmAccountAction = (action) => {
     setConfirmModalOpen({ open: true, action });
   };
 
-  const handleAccountSuspend = () => {
+  const statusUpdateCallback = () => {
+    toast.success(
+      `Driver is ${mapActionToStatus[confirmModalOpen.action]} successfully!`
+    );
+    return fetchDriverById(driverId);
+  };
+
+  const handleAccountSuspend = async () => {
     console.log("suspending...");
+    await updateDriverStatus(
+      driverId,
+      mapActionToStatus[confirmModalOpen.action],
+      statusUpdateCallback
+    );
     setConfirmModalOpen({ open: false, action: null });
   };
 
-  const handleAccountActivate = () => {
+  const handleAccountActivate = async () => {
     console.log("activating...");
+    await updateDriverStatus(
+      driverId,
+      mapActionToStatus[confirmModalOpen.action],
+      statusUpdateCallback
+    );
     setConfirmModalOpen({ open: false, action: null });
   };
 
-  const handleAccountReactivate = () => {
+  const handleAccountReactivate = async () => {
     console.log("reactivating...");
+    await updateDriverStatus(
+      driverId,
+      mapActionToStatus[confirmModalOpen.action],
+      statusUpdateCallback
+    );
     setConfirmModalOpen({ open: false, action: null });
   };
 
@@ -158,7 +191,7 @@ const DriverDetail = () => {
     firstName: driver?.name?.split(" ")[0],
     lastName: driver?.name?.split(" ")[1],
     emailAddress: driver?.email,
-    phoneNumber: driver.phoneNumber ? `0${driver.phoneNumber}` : "",
+    phoneNumber: driver?.phoneNumber ? `0${driver.phoneNumber}` : "",
     favouriteMeal: driver?.extraInfo?.favouriteMeal,
     hobby: driver?.extraInfo?.favouriteHobby,
     askMeAbout: driver?.extraInfo?.askMeAbout,
@@ -186,6 +219,7 @@ const DriverDetail = () => {
             status={driver.status}
             accountAction={confirmAccountAction}
             createdDate={dateCreated}
+            loadingState={updatingDriverStatus}
           />
         }
       >

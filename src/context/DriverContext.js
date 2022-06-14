@@ -4,11 +4,19 @@ import { resolveToken } from "../utils/resolveToken";
 
 const FETCHING_DRIVERS = "fetching_drivers";
 const FETCHING_SINGLE_DRIVER = "fetching_single_driver";
+const UPDATING_STATUS = "updating_status";
 const SET_FETCH_DRIVERS_ERROR = "set_fetch_drivers_error";
 const FETCH_SINGLE_DRIVER_ERROR = "fetch_single_driver_error";
+const UPDATE_STATUS_ERROR = "update_status_error";
 const SET_DRIVERS_LIST = "set_drivers_list";
 const SET_SINGLE_DRIVER = "set_single_driver";
 const SET_DRIVERS_LIST_SIZE = "set_drivers_list_size";
+
+const mapErrorDispatchToAction = {
+  fetchDrivers: SET_FETCH_DRIVERS_ERROR,
+  fetchDriverById: FETCH_SINGLE_DRIVER_ERROR,
+  updateStatus: UPDATE_STATUS_ERROR,
+};
 
 const driverReducer = (state, action) => {
   switch (action.type) {
@@ -16,6 +24,10 @@ const driverReducer = (state, action) => {
       return { ...state, fetchingDrivers: action.payload };
     case FETCHING_SINGLE_DRIVER:
       return { ...state, fetchingSingleDriver: action.payload };
+    case UPDATING_STATUS:
+      return { ...state, updatingDriverStatus: action.payload };
+    case UPDATE_STATUS_ERROR:
+      return { ...state, updateStatusError: action.payload };
     case FETCH_SINGLE_DRIVER_ERROR:
       return { ...state, fetchSingleDriverError: action.payload };
     case SET_FETCH_DRIVERS_ERROR:
@@ -89,16 +101,53 @@ const fetchDriverById = (dispatch) => async (driverId) => {
   }
 };
 
+const updateDriverStatus = (dispatch) => async (driverId, newStatus, cb) => {
+  dispatch({ type: UPDATING_STATUS, payload: true });
+  dispatch({ type: UPDATE_STATUS_ERROR, payload: null });
+  try {
+    const response = await adverts247Api.patch(
+      `/driver/change-status?driver=${driverId}`,
+      { status: newStatus },
+      { headers: { Authorization: `Bearer ${resolveToken()}` } }
+    );
+
+    console.log(response);
+    cb && cb();
+    dispatch({ type: UPDATING_STATUS, payload: false });
+  } catch (err) {
+    if (err.response) {
+      dispatch({
+        type: UPDATE_STATUS_ERROR,
+        payload:
+          err.response.data.message ||
+          "Unable to update driver status. Something went wrong",
+      });
+    } else {
+      dispatch({
+        type: UPDATE_STATUS_ERROR,
+        payload: "Unable to update driver status. Something went wrong",
+      });
+    }
+    dispatch({ type: UPDATING_STATUS, payload: false });
+  }
+};
+
+const clearError = (dispatch) => (actionType) => {
+  dispatch({ type: mapErrorDispatchToAction[actionType], payload: null });
+};
+
 export const { Context, Provider } = createDataContext(
   driverReducer,
   {
     fetchingDrivers: false,
     fetchingSingleDriver: false,
+    updatingDriverStatus: false,
     drivers: [],
     driver: null,
     fetchDriversError: null,
     fetchSingleDriverError: null,
+    updateStatusError: null,
     driverListSize: 0,
   },
-  { fetchDrivers, fetchDriverById }
+  { fetchDrivers, fetchDriverById, updateDriverStatus, clearError }
 );
