@@ -54,12 +54,7 @@ const Drivers = () => {
   );
 
   const {
-    state: {
-      loading: fetchingDrivers,
-      drivers,
-      fetchDriversError,
-      driverListSize,
-    },
+    state: { fetchingDrivers, drivers, fetchDriversError, driverListSize },
     fetchDrivers,
   } = useContext(DriverContext);
 
@@ -132,12 +127,13 @@ const Drivers = () => {
               drivers.length > 0 &&
               drivers.map((driver, idx) => (
                 <tr
-                  onClick={() =>
-                    history.push({
-                      pathname: `/driver/${driver.id.toLowerCase()}`,
-                      state: { driver },
-                    })
-                  }
+                  onClick={(ev) => {
+                    if (!ev.target.closest(".toggle-check")) {
+                      history.push({
+                        pathname: `/driver/${driver.id.toLowerCase()}`,
+                      });
+                    }
+                  }}
                   className={
                     checkedDrivers.includes(idx)
                       ? "text-lg bg-gray-700 border border-247-dark-text cursor-pointer hover:bg-gray-700"
@@ -145,7 +141,7 @@ const Drivers = () => {
                   }
                   key={`driver_${driver.id}`}
                 >
-                  <td className="px-3 py-5">
+                  <td className="px-3 py-5 toggle-check">
                     <Checkbox
                       checked={checkedDrivers.includes(idx) ? true : false}
                       iconColor="#CACACA"

@@ -1,12 +1,14 @@
-import React, { useState } from "react";
-import { useLocation, useHistory } from "react-router-dom";
-import Dashboard from "../components/Dashboard";
+import React, { useMemo, useState, useContext, useEffect } from "react";
+import { useHistory, useParams } from "react-router-dom";
+import format from "date-fns/format";
 import { MdKeyboardBackspace } from "react-icons/md";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { ImInfo } from "react-icons/im";
 import { BiUserCheck } from "react-icons/bi";
 import { FiCheckSquare } from "react-icons/fi";
 import classNames from "classnames";
+import Dashboard from "../components/Dashboard";
+import { Context as DriverContext } from "../context/DriverContext";
 import RoundedBtnWithIcon from "../components/uiComponents/RoundedBtnWithIcon";
 import ResourceMeta from "../components/uiComponents/ResourceMeta";
 import ConfirmationModal from "../components/uiComponents/ConfirmationModal";
@@ -15,6 +17,7 @@ import { formatNum } from "../utils/numFormatter";
 import startCase from "lodash/startCase";
 import EditDriverInfoModal from "../components/uiComponents/EditDriverInfoModal";
 import PayoutHistoryModal from "../components/uiComponents/PayoutHistoryModal";
+import Spinner from "../components/uiComponents/Spinner";
 
 // const mapStatusToColor = {
 //   active: "#028307",
@@ -23,7 +26,7 @@ import PayoutHistoryModal from "../components/uiComponents/PayoutHistoryModal";
 // };
 
 const mapBtnTextToStatus = {
-  active: {
+  approved: {
     title: "Suspend Account",
     icon: <AiOutlineCloseCircle className="mr-2" size={22} />,
     action: "suspend",
@@ -40,7 +43,13 @@ const mapBtnTextToStatus = {
   },
 };
 
-const CustomHeader = ({ goToPrevPage, name, status, accountAction }) => {
+const CustomHeader = ({
+  goToPrevPage,
+  name,
+  status,
+  accountAction,
+  createdDate,
+}) => {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center">
@@ -53,7 +62,7 @@ const CustomHeader = ({ goToPrevPage, name, status, accountAction }) => {
         <div className="ml-14">
           <h3 className="text-white text-2xl font-semibold">{name}</h3>
           <p className="text-white font-normal text-sm">
-            Date created: 12/12/2021
+            Date created: {createdDate}
           </p>
         </div>
         <div
@@ -66,7 +75,7 @@ const CustomHeader = ({ goToPrevPage, name, status, accountAction }) => {
             "px-4",
             "rounded-md",
             {
-              "bg-active-gradient": status === "active",
+              "bg-active-gradient": status === "approved",
             },
             { "bg-closed-gradient": status === "suspended" },
             { "bg-paused-gradient": status === "pending" }
@@ -85,8 +94,8 @@ const CustomHeader = ({ goToPrevPage, name, status, accountAction }) => {
 };
 
 const DriverDetail = () => {
-  const { state } = useLocation();
   const history = useHistory();
+  const { driverId } = useParams();
 
   const [payoutModalOpen, setPayoutModalOpen] = useState(false);
   const [editInfoOpen, setEditInfoOpen] = useState(false);
@@ -94,6 +103,18 @@ const DriverDetail = () => {
     open: false,
     action: null,
   });
+
+  const {
+    state: { fetchingSingleDriver, driver },
+    fetchDriverById,
+  } = useContext(DriverContext);
+
+  useEffect(() => {
+    fetchDriverById(driverId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  console.log(driver);
 
   const confirmAccountAction = (action) => {
     setConfirmModalOpen({ open: true, action });
@@ -134,123 +155,152 @@ const DriverDetail = () => {
   };
 
   const editData = {
-    firstName: state.driver?.name?.split(" ")[0],
-    lastName: state.driver?.name?.split(" ")[1],
-    emailAddress: state.driver?.email,
-    phoneNumber: "08090023150",
-    favouriteMeal: "Jollof Rice",
-    hobby: "Football",
-    askMeAbout: "Manchester United",
-    vacationSpot: "Bahamas",
+    firstName: driver?.name?.split(" ")[0],
+    lastName: driver?.name?.split(" ")[1],
+    emailAddress: driver?.email,
+    phoneNumber: driver.phoneNumber ? `0${driver.phoneNumber}` : "",
+    favouriteMeal: driver?.extraInfo?.favouriteMeal,
+    hobby: driver?.extraInfo?.favouriteHobby,
+    askMeAbout: driver?.extraInfo?.askMeAbout,
+    vacationSpot: driver?.extraInfo.vacationSpot,
   };
 
+  const dateCreated = useMemo(
+    () =>
+      driver?.createdAt
+        ? format(new Date(driver.createdAt), "dd/MM/yyyy")
+        : "12/12/2021",
+    [driver]
+  );
+
+  // will improve this later
+  if (fetchingSingleDriver && !driver) return <Spinner />;
+
   return (
-    <Dashboard
-      customHeader={
-        <CustomHeader
-          goToPrevPage={() => history.goBack()}
-          name={state.driver.name}
-          status={state.driver.status}
-          accountAction={confirmAccountAction}
-        />
-      }
-    >
-      <div className="w-full mt-20 rounded-lg bg-247-campaign-preview">
-        <div className="w-full bg-247-campaign-preview-title flex items-center justify-between px-12 py-4 rounded-t-lg">
-          <h4 className="text-white text-xl font-medium">Personal Info</h4>
-          <button
-            onClick={() => setEditInfoOpen(true)}
-            className="text-247-campaign-preview-title bg-white px-5 py-2 rounded-md font-medium"
-          >
-            Edit Info
-          </button>
-        </div>
-        <div className="flex py-5 px-6">
-          <img
-            src="/assets/profile-img.png"
-            alt="video ad"
-            className="h-full drop-shadow-sm w-full object-cover rounded-md"
-            style={{ maxWidth: "300px", maxHeight: "300px" }}
+    driver && (
+      <Dashboard
+        customHeader={
+          <CustomHeader
+            goToPrevPage={() => history.push("/drivers")}
+            name={driver.name}
+            status={driver.status}
+            accountAction={confirmAccountAction}
+            createdDate={dateCreated}
           />
-          <div className="border-l border-white ml-14"></div>
-          <div className="w-full flex justify-around pt-2">
-            <div>
-              <ResourceMeta
-                label="First name"
-                value={state.driver.name.split(" ")[0]}
-              />
-              <ResourceMeta label="Phone Number" value="08090023150" />
-              <ResourceMeta label="Hobby" value="Football" />
-              <ResourceMeta label="Date Created" value="12/12/2021" last />
-            </div>
-            <div>
-              <ResourceMeta
-                label="Last name"
-                value={state.driver.name.split(" ")[1]}
-              />
-              <ResourceMeta label="City" value="Lagos" />
-              <ResourceMeta label="Ask me about" value="Manchester United" />
-              <ResourceMeta label="ID Type" value="Drivers License" last />
-            </div>
-            <div>
-              <ResourceMeta label="Email Address" value={state.driver.email} />
-              <ResourceMeta label="Favourite Meal" value="Jollof Rice" />
-              <ResourceMeta label="Vacation Spot" value="Bahamas" />
-              <ResourceMeta label="ID Upload" value="mydl.png" />
+        }
+      >
+        <div className="w-full mt-20 rounded-lg bg-247-campaign-preview">
+          <div className="w-full bg-247-campaign-preview-title flex items-center justify-between px-12 py-4 rounded-t-lg">
+            <h4 className="text-white text-xl font-medium">Personal Info</h4>
+            <button
+              onClick={() => setEditInfoOpen(true)}
+              className="text-247-campaign-preview-title bg-white px-5 py-2 rounded-md font-medium"
+            >
+              Edit Info
+            </button>
+          </div>
+          <div className="flex py-5 px-6">
+            <img
+              src={driver.profilePhoto}
+              alt="profile"
+              className="h-full drop-shadow-sm w-full object-cover rounded-md"
+              style={{ maxWidth: "300px", maxHeight: "300px" }}
+            />
+            <div className="border-l border-white ml-14"></div>
+            <div className="w-full flex justify-around pt-2">
+              <div>
+                <ResourceMeta
+                  label="First name"
+                  value={driver.name.split(" ")[0]}
+                />
+                <ResourceMeta
+                  label="Phone Number"
+                  value={`0${driver.phoneNumber}`}
+                />
+                <ResourceMeta
+                  label="Hobby"
+                  value={driver.extraInfo.favouriteHobby}
+                />
+                <ResourceMeta label="Date Created" value={dateCreated} last />
+              </div>
+              <div>
+                <ResourceMeta
+                  label="Last name"
+                  value={driver.name.split(" ")[1]}
+                />
+                <ResourceMeta label="City" value={driver.city} />
+                <ResourceMeta
+                  label="Ask me about"
+                  value={driver.extraInfo.askMeAbout}
+                />
+                <ResourceMeta label="ID Type" value="Drivers License" last />
+              </div>
+              <div>
+                <ResourceMeta label="Email Address" value={driver.email} />
+                <ResourceMeta
+                  label="Favourite Meal"
+                  value={driver.extraInfo.favouriteMeal}
+                />
+                <ResourceMeta
+                  label="Vacation Spot"
+                  value={driver.extraInfo.vacationSpot}
+                />
+                <ResourceMeta label="ID Upload" value="mydl.png" />
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div className="w-full mt-14 mb-24 rounded-lg bg-247-campaign-preview">
-        <div className="w-full bg-247-campaign-preview-title flex items-center justify-between px-12 py-4 rounded-t-lg">
-          <h4 className="text-white text-xl font-medium">Earnings</h4>
-          <button
-            onClick={() => setPayoutModalOpen(true)}
-            className="text-247-campaign-preview-title bg-white px-5 py-2 rounded-md font-medium"
-          >
-            Payout History
-          </button>
+        <div className="w-full mt-14 mb-24 rounded-lg bg-247-campaign-preview">
+          <div className="w-full bg-247-campaign-preview-title flex items-center justify-between px-12 py-4 rounded-t-lg">
+            <h4 className="text-white text-xl font-medium">Earnings</h4>
+            <button
+              onClick={() => setPayoutModalOpen(true)}
+              className="text-247-campaign-preview-title bg-white px-5 py-2 rounded-md font-medium"
+            >
+              Payout History
+            </button>
+          </div>
+          <div className="grid grid-cols-3 gap-6 pt-16 pb-5 px-6">
+            <InfoBox
+              bgColor="bg-blue-gradient"
+              infoTitle="Today's Earning"
+              infoValue={formatNum(4557.45, true, true)}
+            />
+            <InfoBox
+              bgColor="bg-green-gradient"
+              infoTitle="Total Earning"
+              infoValue={formatNum(147557.45, true, true)}
+            />
+            <InfoBox
+              bgColor="bg-yellow-gradient"
+              infoTitle="Pending Payout"
+              infoValue={formatNum(20800.45, true, true)}
+              btnText="Settle"
+            />
+          </div>
         </div>
-        <div className="grid grid-cols-3 gap-6 pt-16 pb-5 px-6">
-          <InfoBox
-            bgColor="bg-blue-gradient"
-            infoTitle="Today's Earning"
-            infoValue={formatNum(4557.45, true, true)}
-          />
-          <InfoBox
-            bgColor="bg-green-gradient"
-            infoTitle="Total Earning"
-            infoValue={formatNum(147557.45, true, true)}
-          />
-          <InfoBox
-            bgColor="bg-yellow-gradient"
-            infoTitle="Pending Payout"
-            infoValue={formatNum(20800.45, true, true)}
-            btnText="Settle"
-          />
-        </div>
-      </div>
-      <ConfirmationModal
-        open={confirmModalOpen.open}
-        setOpen={setConfirmModalOpen}
-        text={mapAccountActionToValues[confirmModalOpen?.action]?.confirmText}
-        icon={<ImInfo size={28} color="#fff" />}
-        handleConfirmation={
-          mapAccountActionToValues[confirmModalOpen?.action]?.action
-        }
-      />
-      <EditDriverInfoModal
-        isOpen={editInfoOpen}
-        setIsOpen={setEditInfoOpen}
-        isEdit
-        editData={editData}
-        submitAction={handleDriverInfoEdit}
-      />
-      <PayoutHistoryModal
-        isOpen={payoutModalOpen}
-        setIsOpen={setPayoutModalOpen}
-      />
-    </Dashboard>
+        <ConfirmationModal
+          open={confirmModalOpen.open}
+          setOpen={setConfirmModalOpen}
+          text={mapAccountActionToValues[confirmModalOpen?.action]?.confirmText}
+          icon={<ImInfo size={28} color="#fff" />}
+          handleConfirmation={
+            mapAccountActionToValues[confirmModalOpen?.action]?.action
+          }
+        />
+        <EditDriverInfoModal
+          isOpen={editInfoOpen}
+          setIsOpen={setEditInfoOpen}
+          isEdit
+          editData={editData}
+          submitAction={handleDriverInfoEdit}
+        />
+        <PayoutHistoryModal
+          isOpen={payoutModalOpen}
+          setIsOpen={setPayoutModalOpen}
+        />
+      </Dashboard>
+    )
   );
 };
 

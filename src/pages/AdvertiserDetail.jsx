@@ -71,8 +71,6 @@ const AdvertiserDetail = () => {
   const history = useHistory();
   const { advertiserId } = useParams();
 
-  console.log(advertiserId);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [shownRows, setShownRows] = useState(5);
   const [checkedCampaigns, setCheckedCampaigns] = useState([]);
