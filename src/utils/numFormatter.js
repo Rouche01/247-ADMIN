@@ -51,3 +51,14 @@ export const convertSecToHHMMSS = (secondsInput) => {
 
   return `${hoursOut}:${minutesOut}:${secondsOut}`;
 };
+
+export const convertSecToMMSS = (secondsInput) => {
+  const parsedSecs = parseInt(secondsInput, 10);
+  const minutes = Math.floor(parsedSecs / 60);
+  const seconds = parsedSecs - minutes * 60;
+
+  const minutesOut = minutes < 10 ? `0${minutes}` : minutes;
+  const secondsOut = seconds < 10 ? `0${seconds}` : seconds;
+
+  return `${minutesOut}:${secondsOut}`;
+};

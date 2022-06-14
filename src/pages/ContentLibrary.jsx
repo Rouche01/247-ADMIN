@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { FiUploadCloud } from "react-icons/fi";
 import { FaRegTrashAlt } from "react-icons/fa";
 import Dashboard from "../components/Dashboard";
@@ -10,6 +10,9 @@ import RoundedBtnWithIcon from "../components/uiComponents/RoundedBtnWithIcon";
 import UploadContentModal from "../components/uiComponents/UploadContentModal";
 import ContentItemRow from "../components/ContentItemRow";
 import ConfirmationModal from "../components/uiComponents/ConfirmationModal";
+import { Context as ContentLibraryContext } from "../context/ContentLibraryContext";
+import { convertSecToMMSS } from "../utils/numFormatter";
+import toast from "react-hot-toast";
 
 const tableHeaders = [
   "",
@@ -27,8 +30,16 @@ const ContentLibrary = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [shownRows, setShownRows] = useState(5);
 
+  const [contentMedia, setContentMedia] = useState([]);
+  const [contentDuration, setContentDuration] = useState();
+
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+
+  const {
+    state: { creatingContent },
+    createContentItem,
+  } = useContext(ContentLibraryContext);
 
   const { currentList, indexOfFirstItem, indexOfLastItem, pages } =
     usePagination(currentPage, shownRows, contentLibrary);
@@ -44,8 +55,20 @@ const ContentLibrary = () => {
     }
   };
 
-  const handleUploadNewContent = (...args) => {
-    console.log(args, "uploading new content...");
+  const handleUploadNewContent = async (data) => {
+    console.log(data, "uploading new content...");
+    console.log(contentMedia, convertSecToMMSS(contentDuration));
+
+    let formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("category", data.category);
+    formData.append("duration", convertSecToMMSS(contentDuration));
+    formData.append("mediaItem", contentMedia[0]);
+
+    await createContentItem(formData, () =>
+      toast.success("New content created!")
+    );
+
     setUploadModalOpen(false);
   };
 
@@ -59,8 +82,8 @@ const ContentLibrary = () => {
 
   const handleDeleteContentItem = () => {
     setConfirmDeleteOpen(false);
-    console.log("Deleting content...")
-  }
+    console.log("Deleting content...");
+  };
 
   return (
     <Dashboard>
@@ -103,6 +126,9 @@ const ContentLibrary = () => {
         isOpen={uploadModalOpen}
         setIsOpen={setUploadModalOpen}
         handleUpload={handleUploadNewContent}
+        setMediaItem={setContentMedia}
+        setMediaDuration={setContentDuration}
+        creatingContent={creatingContent}
       />
       <ConfirmationModal
         open={confirmDeleteOpen}

@@ -1,5 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import React, { useState } from "react";
+import React from "react";
 import InputField from "./InputField";
 import Button from "./Button";
 import FileUploadInput from "./FileUploadInput";
@@ -7,9 +7,14 @@ import { useForm } from "react-hook-form";
 import { useUploadContentFormValidation } from "../../hooks/validationSchema";
 import CenterModal from "./CenterModal";
 
-const UploadContentModal = ({ isOpen, setIsOpen, handleUpload }) => {
-  const [contentMedia, setContentMedia] = useState([]);
-
+const UploadContentModal = ({
+  isOpen,
+  setIsOpen,
+  handleUpload,
+  setMediaItem,
+  setMediaDuration,
+  creatingContent
+}) => {
   const validationSchema = useUploadContentFormValidation();
   const {
     handleSubmit,
@@ -19,7 +24,7 @@ const UploadContentModal = ({ isOpen, setIsOpen, handleUpload }) => {
 
   const updateUploadedFile = (fileObject) => {
     const mediaContents = Object.values(fileObject);
-    setContentMedia(mediaContents);
+    setMediaItem(mediaContents);
   };
 
   return (
@@ -50,11 +55,14 @@ const UploadContentModal = ({ isOpen, setIsOpen, handleUpload }) => {
           label="Upload Content"
           multiple={false}
           callUpdateFilesCb={updateUploadedFile}
+          accepts=".mp4"
+          setDuration={setMediaDuration}
         />
         <Button
           type="submit"
           className={["bg-247-red", "block", "mt-12", "px-12", "font-normal"]}
           fullWidth
+          isLoading={creatingContent}
         >
           Upload
         </Button>

@@ -5,7 +5,13 @@ import { getVideoCover } from "../../utils/getVideoPreview";
 
 const DEFAULT_MAX_FILE_SIZE_IN_BYTES = 500000000;
 
-const FileUploadInput = ({ label, multiple, callUpdateFilesCb }) => {
+const FileUploadInput = ({
+  label,
+  multiple,
+  callUpdateFilesCb,
+  accepts,
+  setDuration,
+}) => {
   const [files, setFiles] = useState({});
   const fileInputRef = useRef(null);
 
@@ -14,9 +20,16 @@ const FileUploadInput = ({ label, multiple, callUpdateFilesCb }) => {
       if (file.size < DEFAULT_MAX_FILE_SIZE_IN_BYTES) {
         if (!multiple) {
           let isImageFile = file.type.split("/")[0] === "image";
-          const preview = isImageFile
-            ? URL.createObjectURL(file)
-            : URL.createObjectURL(await getVideoCover(file));
+          let preview;
+
+          if (isImageFile) {
+            preview = URL.createObjectURL(file);
+          } else {
+            const { blob, duration } = await getVideoCover(file);
+            setDuration && setDuration(duration);
+            preview = URL.createObjectURL(blob);
+          }
+
           file.preview = preview;
           return { file };
         }
@@ -59,7 +72,7 @@ const FileUploadInput = ({ label, multiple, callUpdateFilesCb }) => {
               ref={fileInputRef}
               className="absolute top-0 left-0 bottom-0 right-0 w-full opacity-0 cursor-pointer"
               onChange={(ev) => handleNewFileUpload(ev)}
-              accept=".jpg,.png,.jpeg,.mp4"
+              accept={accepts ? accepts : ".jpg,.png,.jpeg,.mp4"}
             />
           </div>
         )}

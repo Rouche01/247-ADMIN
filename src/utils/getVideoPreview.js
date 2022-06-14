@@ -1,6 +1,7 @@
 export const getVideoCover = (fileOrUrl, isURL = false, seekTo = 0.1) => {
   return new Promise((resolve, reject) => {
     // load the file to a video player
+    let duration;
     const videoPlayer = document.createElement("video");
     videoPlayer.setAttribute(
       "src",
@@ -13,6 +14,7 @@ export const getVideoCover = (fileOrUrl, isURL = false, seekTo = 0.1) => {
     // load metadata of the video to get video duration and dimensions
     videoPlayer.addEventListener("loadedmetadata", () => {
       // seek to user defined timestamp (in seconds) if possible
+      duration = videoPlayer.duration;
       if (videoPlayer.duration < seekTo) {
         reject("video is too short.");
         return;
@@ -33,7 +35,7 @@ export const getVideoCover = (fileOrUrl, isURL = false, seekTo = 0.1) => {
         // return the canvas image as a blob
         ctx.canvas.toBlob(
           (blob) => {
-            resolve(blob);
+            resolve({ blob, duration });
           },
           "image/jpeg",
           0.75 /* quality */
@@ -42,3 +44,17 @@ export const getVideoCover = (fileOrUrl, isURL = false, seekTo = 0.1) => {
     });
   });
 };
+
+// const getVideoInfo = (file) => {
+//   const video = document.createElement("video");
+//   video.preload = "metadata";
+
+//   let duration;
+
+//   video.onloadedmetadata = (ev) => {
+//     window.URL.revokeObjectURL(video.src);
+//     duration = video.duration;
+//   };
+
+//   return duration;
+// };
