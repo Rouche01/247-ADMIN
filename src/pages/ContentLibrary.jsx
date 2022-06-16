@@ -1,18 +1,21 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState, useMemo } from "react";
 import { FiUploadCloud } from "react-icons/fi";
 import { FaRegTrashAlt } from "react-icons/fa";
 import Dashboard from "../components/Dashboard";
 import DataTable from "../components/DataTable";
 import Pagination from "../components/uiComponents/Pagination";
 import { usePagination } from "../hooks/pagination";
-import { contentLibrary } from "../utils/dummyData";
 import RoundedBtnWithIcon from "../components/uiComponents/RoundedBtnWithIcon";
+import Spinner from "../components/uiComponents/Spinner";
+import NoDataBox from "../components/uiComponents/NoDataBox";
+import ErrorBox from "../components/uiComponents/ErrorBox";
 import UploadContentModal from "../components/uiComponents/UploadContentModal";
 import ContentItemRow from "../components/ContentItemRow";
 import ConfirmationModal from "../components/uiComponents/ConfirmationModal";
 import { Context as ContentLibraryContext } from "../context/ContentLibraryContext";
 import { convertSecToMMSS } from "../utils/numFormatter";
 import toast from "react-hot-toast";
+import { useToastError } from "../hooks/handleError";
 
 const tableHeaders = [
   "",
@@ -37,12 +40,42 @@ const ContentLibrary = () => {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   const {
-    state: { creatingContent },
+    state: {
+      creatingContent,
+      createError,
+      fetchingMediaItems,
+      mediaItems,
+      mediaItemsSize,
+      fetchItemsError,
+    },
     createContentItem,
+    fetchMediaItems,
+    clearError,
   } = useContext(ContentLibraryContext);
 
-  const { currentList, indexOfFirstItem, indexOfLastItem, pages } =
-    usePagination(currentPage, shownRows, contentLibrary);
+  console.log(mediaItems);
+
+  useToastError(createError, clearError);
+
+  const paginationOptions = useMemo(
+    () => ({
+      limit: shownRows,
+      skip: (currentPage - 1) * shownRows,
+    }),
+    [shownRows, currentPage]
+  );
+
+  useEffect(() => {
+    fetchMediaItems({ ...paginationOptions });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paginationOptions]);
+
+  const { indexOfFirstItem, indexOfLastItem, pages } = usePagination(
+    currentPage,
+    shownRows,
+    mediaItems,
+    mediaItemsSize
+  );
 
   const toggleContentItemCheck = (idx) => {
     if (checkedContentItem.includes(idx)) {
@@ -95,25 +128,48 @@ const ContentLibrary = () => {
             onBtnClick={() => setUploadModalOpen(true)}
           />
         </div>
-        <DataTable headers={tableHeaders}>
-          {currentList.map((contentItem, idx) => (
-            <ContentItemRow
-              checkedItems={checkedContentItem}
-              contentItem={contentItem}
-              index={idx}
-              toggleItemCheck={toggleContentItemCheck}
-              key={`contentItem_${idx}`}
-              setConfirmItemDelete={setConfirmDeleteOpen}
-              removeItemFromPlaylist={handleRemoveItemFromPlaylist}
-              addItemToPlaylist={handleAddItemToPlaylist}
-            />
-          ))}
+        <DataTable headers={tableHeaders} loadingData={fetchingMediaItems}>
+          {fetchingMediaItems && (
+            <div className="flex items-center justify-center w-full absolute py-14">
+              <Spinner size="large" />
+            </div>
+          )}
+          {!fetchingMediaItems &&
+            mediaItems.length > 0 &&
+            mediaItems.map((contentItem, idx) => (
+              <ContentItemRow
+                checkedItems={checkedContentItem}
+                contentItem={contentItem}
+                index={idx}
+                toggleItemCheck={toggleContentItemCheck}
+                key={`contentItem_${idx}`}
+                setConfirmItemDelete={setConfirmDeleteOpen}
+                removeItemFromPlaylist={handleRemoveItemFromPlaylist}
+                addItemToPlaylist={handleAddItemToPlaylist}
+              />
+            ))}
         </DataTable>
+        {!fetchingMediaItems && !fetchItemsError && mediaItems.length === 0 && (
+          <div className="w-full py-9">
+            <NoDataBox
+              title="No Campaign Found"
+              subtitle="We cannot find any campaign that fits your criteria."
+            />
+          </div>
+        )}
+        {!fetchingMediaItems && fetchItemsError && (
+          <div className="w-full py-9">
+            <ErrorBox
+              title="Error Retrieving Campaigns"
+              subtitle={fetchItemsError}
+            />
+          </div>
+        )}
       </div>
       <div className="flex items-center justify-end mb-20">
         <Pagination
           activePage={currentPage}
-          dataLength={contentLibrary.length}
+          dataLength={mediaItemsSize}
           firstItem={indexOfFirstItem + 1}
           lastItem={indexOfLastItem}
           pages={pages}
