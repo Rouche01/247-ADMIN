@@ -91,6 +91,12 @@ const CustomHeader = ({
   );
 };
 
+const mapActionToStatus = {
+  suspend: "suspended",
+  activate: "approved",
+  reactivate: "approved",
+};
+
 const DriverDetail = () => {
   const history = useHistory();
   const { driverId } = useParams();
@@ -120,12 +126,6 @@ const DriverDetail = () => {
   }, []);
 
   useToastError(updateStatusError, clearError);
-
-  const mapActionToStatus = {
-    suspend: "suspended",
-    activate: "approved",
-    reactivate: "approved",
-  };
 
   const confirmAccountAction = (action) => {
     setConfirmModalOpen({ open: true, action });

@@ -4,8 +4,10 @@ import { resolveToken } from "../utils/resolveToken";
 
 const CREATING_CONTENT = "creating_content";
 const FETCHING_ITEMS = "fetching_media_items";
+const DELETING_ITEM = "deleting_item";
 const FETCH_ITEMS_ERROR = "fetch_media_items_error";
 const CREATE_ERROR = "create_error";
+const DELETE_ERROR = "delete_error";
 const SET_MEDIA_ITEMS = "set_media_items";
 const SET_MEDIA_ITEMS_SIZE = "set_media_items_size";
 
@@ -25,6 +27,10 @@ const contentLibraryReducer = (state, action) => {
       return { ...state, fetchingMediaItems: action.payload };
     case FETCH_ITEMS_ERROR:
       return { ...state, fetchItemsError: action.payload };
+    case DELETING_ITEM:
+      return { ...state, deletingItem: action.payload };
+    case DELETE_ERROR:
+      return { ...state, deleteItemError: action.payload };
     case SET_MEDIA_ITEMS:
       return { ...state, mediaItems: action.payload };
     case SET_MEDIA_ITEMS_SIZE:
@@ -93,6 +99,34 @@ const fetchMediaItems = (dispatch) => async (params) => {
   }
 };
 
+const deleteMediaItem = (dispatch) => async (mediaId, cb) => {
+  dispatch({ type: DELETING_ITEM, payload: true });
+  dispatch({ type: DELETE_ERROR, payload: null });
+  try {
+    await adverts247Api.delete(`/mediaitems/${mediaId}`, {
+      headers: { Authorization: `Bearer ${resolveToken()}` },
+    });
+
+    dispatch({ type: DELETING_ITEM, payload: false });
+    cb && cb();
+  } catch (err) {
+    if (err.response) {
+      dispatch({
+        type: DELETE_ERROR,
+        payload:
+          err.response.data.message ||
+          "Unable to delete media item. Something went wrong",
+      });
+    } else {
+      dispatch({
+        type: DELETE_ERROR,
+        payload: "Unable to delete media item. Something went wrong",
+      });
+    }
+    dispatch({ type: DELETING_ITEM, payload: false });
+  }
+};
+
 const clearError = (dispatch) => (actionType) => {
   dispatch({ type: mapErrorDispatchToAction[actionType], payload: null });
 };
@@ -102,10 +136,12 @@ export const { Context, Provider } = createDataContext(
   {
     creatingContent: false,
     createError: null,
+    deletingItem: false,
+    deleteItemError: null,
     fetchingMediaItems: false,
     fetchItemsError: null,
     mediaItems: [],
     mediaItemsSize: 0,
   },
-  { createContentItem, fetchMediaItems, clearError }
+  { createContentItem, fetchMediaItems, clearError, deleteMediaItem }
 );

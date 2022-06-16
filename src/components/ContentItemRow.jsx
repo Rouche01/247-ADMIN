@@ -3,7 +3,7 @@ import classNames from "classnames";
 import startCase from "lodash/startCase";
 import kebabCase from "lodash/kebabCase";
 import compact from "lodash/compact";
-import format from "date-fns/format"
+import format from "date-fns/format";
 import { FiMoreVertical } from "react-icons/fi";
 import Checkbox from "./uiComponents/Checkbox";
 import { formatNum } from "../utils/numFormatter";
@@ -13,6 +13,7 @@ const ContentItemRow = forwardRef(
   (
     {
       setConfirmItemDelete,
+      setCurrentItem,
       removeItemFromPlaylist,
       addItemToPlaylist,
       contentItem,
@@ -26,8 +27,10 @@ const ContentItemRow = forwardRef(
     },
     ref
   ) => {
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = (item) => {
       setOpen(false);
+      console.log(item, "hello");
+      setCurrentItem(item);
       setConfirmItemDelete(true);
     };
 
@@ -93,7 +96,9 @@ const ContentItemRow = forwardRef(
         </td>
         <td className="px-6 py-5">{contentItem.duration}</td>
         <td className="px-6 py-5">{contentItem.category}</td>
-        <td className="px-6 py-5">{format(new Date(contentItem.createdAt), 'dd LLL, yyyy')}</td>
+        <td className="px-6 py-5">
+          {format(new Date(contentItem.createdAt), "dd LLL, yyyy")}
+        </td>
         <td className="px-6 py-5">
           {formatNum(contentItem.plays, false, true)}
         </td>

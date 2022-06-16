@@ -33,6 +33,8 @@ const ContentLibrary = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [shownRows, setShownRows] = useState(5);
 
+  const [currentMediaItem, setCurrentMediaItem] = useState();
+
   const [contentMedia, setContentMedia] = useState([]);
   const [contentDuration, setContentDuration] = useState();
 
@@ -44,12 +46,15 @@ const ContentLibrary = () => {
       creatingContent,
       createError,
       fetchingMediaItems,
+      deletingItem,
+      deleteItemError,
       mediaItems,
       mediaItemsSize,
       fetchItemsError,
     },
     createContentItem,
     fetchMediaItems,
+    deleteMediaItem,
     clearError,
   } = useContext(ContentLibraryContext);
 
@@ -88,6 +93,16 @@ const ContentLibrary = () => {
     }
   };
 
+  const createContentCallback = () => {
+    toast.success("New content created!");
+    return fetchMediaItems({ ...paginationOptions });
+  };
+
+  const deleteContentCallback = () => {
+    toast.success("Media item deleted successfully!");
+    return fetchMediaItems({ ...paginationOptions });
+  };
+
   const handleUploadNewContent = async (data) => {
     console.log(data, "uploading new content...");
     console.log(contentMedia, convertSecToMMSS(contentDuration));
@@ -98,9 +113,7 @@ const ContentLibrary = () => {
     formData.append("duration", convertSecToMMSS(contentDuration));
     formData.append("mediaItem", contentMedia[0]);
 
-    await createContentItem(formData, () =>
-      toast.success("New content created!")
-    );
+    await createContentItem(formData, createContentCallback);
 
     setUploadModalOpen(false);
   };
@@ -113,9 +126,10 @@ const ContentLibrary = () => {
     console.log(item, "adding item to playlist...");
   };
 
-  const handleDeleteContentItem = () => {
+  const handleDeleteContentItem = async () => {
     setConfirmDeleteOpen(false);
     console.log("Deleting content...");
+    await deleteMediaItem(currentMediaItem.mediaId, deleteContentCallback);
   };
 
   return (
@@ -146,6 +160,7 @@ const ContentLibrary = () => {
                 setConfirmItemDelete={setConfirmDeleteOpen}
                 removeItemFromPlaylist={handleRemoveItemFromPlaylist}
                 addItemToPlaylist={handleAddItemToPlaylist}
+                setCurrentItem={setCurrentMediaItem}
               />
             ))}
         </DataTable>
