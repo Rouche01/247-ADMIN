@@ -58,9 +58,13 @@ const ContentLibrary = () => {
     clearError,
   } = useContext(ContentLibraryContext);
 
-  console.log(mediaItems);
+  useToastError(createError, () => {
+    clearError("create");
+  });
 
-  useToastError(createError, clearError);
+  useToastError(deleteItemError, () => {
+    clearError("deleteItem");
+  });
 
   const paginationOptions = useMemo(
     () => ({
@@ -127,9 +131,8 @@ const ContentLibrary = () => {
   };
 
   const handleDeleteContentItem = async () => {
-    setConfirmDeleteOpen(false);
-    console.log("Deleting content...");
     await deleteMediaItem(currentMediaItem.mediaId, deleteContentCallback);
+    setConfirmDeleteOpen(false);
   };
 
   return (
@@ -207,6 +210,7 @@ const ContentLibrary = () => {
         text="Are you sure you want to delete this content?"
         icon={<FaRegTrashAlt size={28} color="#fff" />}
         handleConfirmation={handleDeleteContentItem}
+        processingConfirm={deletingItem}
       />
     </Dashboard>
   );

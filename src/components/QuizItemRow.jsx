@@ -5,9 +5,17 @@ import Checkbox from "./uiComponents/Checkbox";
 import { formatNum } from "../utils/numFormatter";
 import withClickOutside from "../hoc/withClickOutside";
 
+const mapIndexToOption = {
+  0: "A",
+  1: "B",
+  2: "C",
+  3: "D",
+};
+
 const QuizItemRow = forwardRef(
   (
     {
+      setCurrentItem,
       checkedItems,
       index,
       toggleItemCheck,
@@ -18,6 +26,10 @@ const QuizItemRow = forwardRef(
     },
     ref
   ) => {
+    const correctOptionIdx = quizItem.options.findIndex(
+      (option) => option.toLowerCase() === quizItem.answer.toLowerCase()
+    );
+
     return (
       <tr
         className={classNames(
@@ -33,18 +45,18 @@ const QuizItemRow = forwardRef(
           <Checkbox
             checked={checkedItems.includes(index) ? true : false}
             iconColor="#CACACA"
-            name={quizItem.id.toLowerCase()}
+            name={quizItem._id.toLowerCase()}
             handleChange={() => toggleItemCheck(index)}
           />
         </td>
         <td className="px-6 py-5 max-w-xs">{quizItem.question}</td>
         <td className="px-6 py-5">
-          {formatNum(quizItem.answers, false, true)}
+          {formatNum(quizItem.timesAnswered, false, true)}
         </td>
         <td className="px-6 py-5">
-          {formatNum(quizItem.correctAnswer, false, true)}
+          {formatNum(quizItem.timesAnsweredCorrectly, false, true)}
         </td>
-        <td className="px-6 py-5">{quizItem.correctOption}</td>
+        <td className="px-6 py-5">{mapIndexToOption[correctOptionIdx]}</td>
         <td>
           <div className="relative" ref={ref}>
             <button
@@ -78,6 +90,7 @@ const QuizItemRow = forwardRef(
                 className="w-full py-4 px-5 text-white text-sm font-semibold hover:bg-black hover:text-247-red-straight first:rounded-t-lg last:rounded-b-lg cursor-pointer"
                 onClick={(_ev) => {
                   setOpen(false);
+                  setCurrentItem(quizItem);
                   setConfirmDeleteItem(true);
                 }}
               >

@@ -1,5 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import React, { useState } from "react";
+import React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useNewQuizFormValidation } from "../../hooks/validationSchema";
 import CenterModal from "./CenterModal";
@@ -8,7 +8,13 @@ import InputField from "./InputField";
 import FileUploadInput from "./FileUploadInput";
 import Button from "./Button";
 
-const NewQuizModal = ({ isOpen, setIsOpen, submitAction }) => {
+const NewQuizModal = ({
+  isOpen,
+  setIsOpen,
+  submitAction,
+  setMediaItem,
+  creatingQuiz,
+}) => {
   const validationSchema = useNewQuizFormValidation();
   const {
     handleSubmit,
@@ -17,11 +23,9 @@ const NewQuizModal = ({ isOpen, setIsOpen, submitAction }) => {
     control,
   } = useForm({ resolver: yupResolver(validationSchema) });
 
-  const [quizMedia, setQuizMedia] = useState([]);
-
   const updateUploadedFile = (fileObject) => {
     const mediaContents = Object.values(fileObject);
-    setQuizMedia(mediaContents);
+    setMediaItem(mediaContents);
   };
 
   return (
@@ -103,11 +107,13 @@ const NewQuizModal = ({ isOpen, setIsOpen, submitAction }) => {
           label="Upload Quiz Image"
           multiple={false}
           callUpdateFilesCb={updateUploadedFile}
+          accepts=".jpg,.png,.jpeg"
         />
         <Button
           type="submit"
           className={["bg-247-red", "block", "mt-12", "px-12", "font-normal"]}
           fullWidth
+          isLoading={creatingQuiz}
         >
           Submit Quiz
         </Button>

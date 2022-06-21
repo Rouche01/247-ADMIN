@@ -12,7 +12,7 @@ import FileUploadInput from "./FileUploadInput";
 import Button from "./Button";
 import { useToastError } from "../../hooks/handleError";
 import toast from "react-hot-toast";
-import AsyncSelectInput from "./AsyncSelectInput";
+// import AsyncSelectInput from "./AsyncSelectInput";
 
 const CreateCampaignModal = ({
   modalIsOpen,
@@ -149,7 +149,7 @@ const CreateCampaignModal = ({
             }}
           />
         </div>
-        <AsyncSelectInput label="Advertiser" />
+        {/* <AsyncSelectInput label="Advertiser" /> */}
         <FileUploadInput
           label="Upload Content"
           multiple={false}

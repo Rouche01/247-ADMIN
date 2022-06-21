@@ -11,21 +11,24 @@ import { Provider as CampaignProvider } from "../src/context/CampaignContext";
 import { Provider as AdvertiserProvider } from "../src/context/AdvertiserContext";
 import { Provider as DriverProvider } from "../src/context/DriverContext";
 import { Provider as ContentLibraryProvider } from "../src/context/ContentLibraryContext";
+import { Provider as QuizProvider } from "../src/context/QuizContext";
 import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
   <React.StrictMode>
     <AuthProvider>
       <AdvertiserProvider>
-        <ContentLibraryProvider>
-          <CampaignProvider>
-            <DriverProvider>
-              <Router history={history}>
-                <App />
-              </Router>
-            </DriverProvider>
-          </CampaignProvider>
-        </ContentLibraryProvider>
+        <QuizProvider>
+          <ContentLibraryProvider>
+            <CampaignProvider>
+              <DriverProvider>
+                <Router history={history}>
+                  <App />
+                </Router>
+              </DriverProvider>
+            </CampaignProvider>
+          </ContentLibraryProvider>
+        </QuizProvider>
       </AdvertiserProvider>
     </AuthProvider>
   </React.StrictMode>,

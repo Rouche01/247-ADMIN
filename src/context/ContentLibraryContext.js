@@ -14,6 +14,7 @@ const SET_MEDIA_ITEMS_SIZE = "set_media_items_size";
 const mapErrorDispatchToAction = {
   create: CREATE_ERROR,
   fetchItems: FETCH_ITEMS_ERROR,
+  deleteItem: DELETE_ERROR,
   // fetchSingle:
 };
 

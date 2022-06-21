@@ -1,7 +1,15 @@
 import React from "react";
 import CenterModal from "./CenterModal";
+import Spinner from "./Spinner";
 
-const ConfirmationModal = ({ open, setOpen, icon, text, handleConfirmation }) => {
+const ConfirmationModal = ({
+  open,
+  setOpen,
+  icon,
+  text,
+  handleConfirmation,
+  processingConfirm,
+}) => {
   return (
     <CenterModal modalOpen={open} setModalOpen={setOpen}>
       <div className="text-center">
@@ -12,7 +20,7 @@ const ConfirmationModal = ({ open, setOpen, icon, text, handleConfirmation }) =>
             onClick={handleConfirmation}
             className="text-white bg-247-red-straight px-5 py-2 rounded-md font-medium text-base"
           >
-            Yes
+            {processingConfirm ? <Spinner /> : "Yes"}
           </button>
           <button
             onClick={() => setOpen(false)}

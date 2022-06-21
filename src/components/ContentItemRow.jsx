@@ -29,7 +29,6 @@ const ContentItemRow = forwardRef(
   ) => {
     const handleConfirmDelete = (item) => {
       setOpen(false);
-      console.log(item, "hello");
       setCurrentItem(item);
       setConfirmItemDelete(true);
     };
