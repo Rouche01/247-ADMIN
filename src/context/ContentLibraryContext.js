@@ -76,7 +76,7 @@ const fetchMediaItems = (dispatch) => async (params) => {
   try {
     const response = await adverts247Api.get("/mediaitems", {
       headers: { Authorization: `Bearer ${resolveToken()}` },
-      params,
+      params: { ...params, sortBy: "createdAt", orderBy: "desc" },
     });
 
     dispatch({ type: SET_MEDIA_ITEMS, payload: response.data.mediaItems });

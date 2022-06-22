@@ -49,7 +49,7 @@ const fetchDrivers = (dispatch) => async (params) => {
   try {
     const response = await adverts247Api.get("/drivers", {
       headers: { Authorization: `Bearer ${resolveToken()}` },
-      params,
+      params: { ...params, sortBy: "createdAt", orderBy: "desc" },
     });
 
     dispatch({ type: SET_DRIVERS_LIST, payload: response.data.drivers });

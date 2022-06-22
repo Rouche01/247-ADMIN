@@ -1,9 +1,6 @@
-import React, { useCallback, useContext, useEffect } from "react";
 import classNames from "classnames";
-import AsyncSelect from "react-select/async";
+import AsyncCreatableSelect from "react-select/async-creatable";
 import { MdOutlineCheck } from "react-icons/md";
-import debounce from "lodash/debounce";
-import { Context as AdvertiserContext } from "../../context/AdvertiserContext";
 
 const CustomOption = ({
   innerProps,
@@ -19,7 +16,7 @@ const CustomOption = ({
       className={classNames(
         "flex",
         "items-center",
-        "px-3",
+        "px-2",
         "py-3",
         "cursor-pointer",
         "hover:bg-black",
@@ -44,12 +41,18 @@ const AsyncSelectInput = ({
   standAlone,
   bgColor,
   borderColor,
-  options,
-  value,
+  handleChange,
   darkMode,
   errorText,
   placeholderText,
-  handleChange,
+  value,
+  loadOptionFn,
+  createNewOption,
+  getOptionLabel,
+  getOptionValue,
+  loading,
+  inputValue,
+  onInputValueChange
 }) => {
   const customStyles = {
     control: (provided, state) => ({
@@ -95,26 +98,6 @@ const AsyncSelectInput = ({
     }),
   };
 
-  const {
-    state: { filteringAdvertisers, filteredAdvertisers },
-    filterAdvertisersByStartsWith,
-  } = useContext(AdvertiserContext);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const promiseOptions = useCallback(
-    debounce(async (inputValue) => {
-      console.log(inputValue);
-      await filterAdvertisersByStartsWith(inputValue);
-      return filteredAdvertisers.map((advertiser) => ({
-        label: advertiser.companyName,
-        value: advertiser.companyName.toLowerCase(),
-      }));
-    }, 1000),
-    []
-  );
-
-  useEffect(() => console.log(filteredAdvertisers), [filteredAdvertisers]);
-
   return (
     <div className={classNames({ "mt-8": !standAlone })}>
       {label && (
@@ -122,16 +105,32 @@ const AsyncSelectInput = ({
           {label}
         </label>
       )}
-      <AsyncSelect
+      <AsyncCreatableSelect
+        value={value}
+        inputValue={inputValue}
         styles={customStyles}
         darkMode={darkMode}
+        getOptionLabel={getOptionLabel}
+        getOptionValue={getOptionValue}
         components={{
           Option: CustomOption,
         }}
-        cacheOptions={false}
+        cacheOptions
         defaultOptions
-        loadOptions={promiseOptions}
+        loadOptions={loadOptionFn}
+        isSearchable
+        onChange={handleChange}
+        onInputChange={onInputValueChange}
+        onCreateOption={createNewOption}
+        isClearable
+        placeholder={placeholderText}
+        isLoading={loading}
+        isDisabled={loading}
+        maxMenuHeight={180}
       />
+      {errorText && (
+        <p className="text-sm mt-1 ml-2 text-247-error-text">{errorText}</p>
+      )}
     </div>
   );
 };

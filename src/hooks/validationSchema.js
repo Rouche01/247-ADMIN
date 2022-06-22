@@ -14,12 +14,14 @@ export const useLoginValidation = () => {
 export const useCampaignFormValidation = () => {
   const validationSchema = Yup.object({
     campaignName: Yup.string().required("Campaign name is required"),
-    advertiserName: Yup.string().required("Advertiser name is required"),
     duration: Yup.array()
       .length(2, "select start and end duration")
       .required("Campaign duration is required"),
     adBudget: Yup.string().required("Ad Spend is required"),
     adType: Yup.object().required("Ad type is required"),
+    advertiser: Yup.object()
+      .required("Advertiser is required")
+      .typeError("This field cannot be empty"),
   });
 
   return { validationSchema };

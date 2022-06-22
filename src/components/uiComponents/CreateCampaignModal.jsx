@@ -1,9 +1,11 @@
 import React, { useState, useContext } from "react";
 import { format } from "date-fns";
-import CenterModal from "./CenterModal";
-import InputField from "./InputField";
+import toast from "react-hot-toast";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+
+import CenterModal from "./CenterModal";
+import InputField from "./InputField";
 import { Context as CampaignContext } from "../../context/CampaignContext";
 import { useCampaignFormValidation } from "../../hooks/validationSchema";
 import DateInput from "./DateInput";
@@ -11,8 +13,9 @@ import SelectInput from "./SelectInput";
 import FileUploadInput from "./FileUploadInput";
 import Button from "./Button";
 import { useToastError } from "../../hooks/handleError";
-import toast from "react-hot-toast";
-// import AsyncSelectInput from "./AsyncSelectInput";
+import AsyncSelectInput from "./AsyncSelectInput";
+import adverts247Api from "../../apiService/adverts247Api";
+import { resolveToken } from "../../utils/resolveToken";
 
 const CreateCampaignModal = ({
   modalIsOpen,
@@ -27,7 +30,10 @@ const CreateCampaignModal = ({
     clearError,
     state: { loading: creatingCampaign, createErrorMsg },
   } = useContext(CampaignContext);
+
   const [campaignMedia, setCampaignMedia] = useState([]);
+  const [inputLoading, setInputLoading] = useState(false);
+  const [inputValue, setInputValue] = useState("");
 
   const updateUploadedFile = (fileObject) => {
     const mediaContents = Object.values(fileObject);
@@ -41,16 +47,59 @@ const CreateCampaignModal = ({
     handleSubmit,
     control,
     formState: { errors },
+    setValue,
+    setError,
+    clearErrors,
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: isEdit && editData,
   });
 
+  const fetchAdvertiserList = async (inputValue) => {
+    const response = await adverts247Api.get(
+      `/advertisers${inputValue ? `?startsWith=${inputValue}` : ""}`,
+      {
+        headers: { Authorization: `Bearer ${resolveToken()}` },
+      }
+    );
+
+    return response.data.advertisers;
+  };
+
+  const createNewAdvertiser = async (inputValue) => {
+    setInputLoading(true);
+    try {
+      const response = await adverts247Api.post(
+        "/advertisers",
+        {
+          companyName: inputValue,
+        },
+        { headers: { Authorization: `Bearer ${resolveToken()}` } }
+      );
+      setInputLoading(false);
+      setValue("advertiser", response.data);
+    } catch (err) {
+      console.log(err.response);
+      if (err.response) {
+        setError("advertiser", {
+          message:
+            err.response.data.message ||
+            "Unable to create advertiser, try again",
+        });
+      } else {
+        setError("advertiser", {
+          message: "Unable to create new advertiser, try again",
+        });
+      }
+      setInputLoading(false);
+    }
+  };
+
   const onSubmit = async (data) => {
     let formData = new FormData();
 
     formData.append("campaignName", data.campaignName);
-    formData.append("advertiser", data.advertiserName);
+    formData.append("advertiser", data.advertiser.id);
     formData.append("adBudget", data.adBudget);
     formData.append("adType", data.adType.value);
     formData.append(
@@ -91,14 +140,33 @@ const CreateCampaignModal = ({
           errorText={errors.campaignName?.message}
         />
         <div className="grid grid-cols-2 gap-4">
-          <InputField
-            label="Advertisers"
-            darkMode={true}
-            placeholder="enter advertiser’s name"
-            type="text"
-            registerFn={register}
-            name="advertiserName"
-            errorText={errors.advertiserName?.message}
+          <Controller
+            name="advertiser"
+            control={control}
+            render={({ field }) => {
+              return (
+                <AsyncSelectInput
+                  label="Advertiser"
+                  handleChange={(value) => field.onChange(value)}
+                  darkMode
+                  placeholderText="Enter advertiser name..."
+                  value={field.value}
+                  loadOptionFn={fetchAdvertiserList}
+                  createNewOption={createNewAdvertiser}
+                  getOptionLabel={(e) =>
+                    e.__isNew__ ? e.label : e.companyName
+                  }
+                  getOptionValue={(e) => (e.__isNew__ ? e.value : e.id)}
+                  loading={inputLoading}
+                  errorText={errors.advertiser?.message}
+                  inputValue={inputValue}
+                  onInputValueChange={(value) => {
+                    clearErrors("advertiser");
+                    setInputValue(value);
+                  }}
+                />
+              );
+            }}
           />
           <Controller
             name="duration"
@@ -149,7 +217,6 @@ const CreateCampaignModal = ({
             }}
           />
         </div>
-        {/* <AsyncSelectInput label="Advertiser" /> */}
         <FileUploadInput
           label="Upload Content"
           multiple={false}

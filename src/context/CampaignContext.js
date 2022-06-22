@@ -73,7 +73,7 @@ const fetchCampaigns = (dispatch) => async (params) => {
   try {
     const response = await adverts247Api.get("/campaigns", {
       headers: { Authorization: `Bearer ${resolveToken()}` },
-      params,
+      params: { ...params, sortBy: "createdAt", orderBy: "desc" },
     });
 
     dispatch({ type: SET_CAMPAIGN_LIST, payload: response.data.campaigns });

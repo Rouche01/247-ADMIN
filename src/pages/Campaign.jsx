@@ -79,7 +79,7 @@ const Campaign = () => {
     },
   } = useContext(CampaignContext);
 
-  console.log(campaigns);
+  console.log(campaigns, campaignDateRange);
 
   useEffect(() => {
     const sanitizedFilterValues = omitBy(
