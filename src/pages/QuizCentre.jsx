@@ -202,16 +202,18 @@ const QuizCentre = () => {
         )}
       </div>
       <div className="flex items-center justify-end mb-20">
-        <Pagination
-          activePage={currentPage}
-          dataLength={quizzesCount}
-          firstItem={indexOfFirstItem + 1}
-          lastItem={indexOfLastItem}
-          pages={pages}
-          setActivePage={setCurrentPage}
-          setVisibleRows={setShownRows}
-          visibleRows={shownRows}
-        />
+        {quizzes && quizzes.length > 0 && (
+          <Pagination
+            activePage={currentPage}
+            dataLength={quizzesCount}
+            firstItem={indexOfFirstItem + 1}
+            lastItem={indexOfLastItem}
+            pages={pages}
+            setActivePage={setCurrentPage}
+            setVisibleRows={setShownRows}
+            visibleRows={shownRows}
+          />
+        )}
       </div>
       <ConfirmationModal
         open={confirmModalOpen}

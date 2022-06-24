@@ -14,8 +14,10 @@ const TableHeader = ({
   setSelectedStatusFilter,
   selectedTypeFilter,
   setSelectedTypeFilter,
-  dateFilter,
-  setDateFilter,
+  startDate,
+  endDate,
+  setStartDate,
+  setEndDate,
 }) => {
   useEffect(() => {
     $('button[name="campaign-daterange"]').daterangepicker(
@@ -30,13 +32,14 @@ const TableHeader = ({
           "Month to date": [moment().startOf("month"), moment()],
           "All time": [moment().subtract(2, "Y"), moment()],
         },
-        startDate: dateFilter[0],
-        endDate: dateFilter[1],
+        startDate: startDate,
+        endDate: endDate,
         alwaysShowCalendars: true,
         applyButtonClasses: "range-apply-btn",
       },
       (start, end, _label) => {
-        setDateFilter([start, end]);
+        setStartDate(start)
+        setEndDate(end)
       }
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -2,8 +2,33 @@ import React from "react";
 import classNames from "classnames/bind";
 
 const InputField = (props) => {
-  const { inputIcon, registerFn, errorText, label, darkMode, ...inputProps } =
-    props;
+  const {
+    inputIcon,
+    registerFn,
+    errorText,
+    label,
+    darkMode,
+    isNumeric,
+    setValue,
+    ...inputProps
+  } = props;
+
+  const registerFunction = () =>
+    isNumeric
+      ? registerFn(props.name, {
+          onChange: (e) => {
+            console.log(e.target.value.replace(/\D/g, ""));
+
+            const value = parseFloat(
+              e.target.value.replace(/\D/g, "").replace(/,/g, "")
+            );
+
+            value
+              ? setValue(props.name, value.toLocaleString())
+              : setValue(props.name, "");
+          },
+        })
+      : registerFn(props.name);
 
   return (
     <div>
@@ -15,7 +40,7 @@ const InputField = (props) => {
         )}
         <input
           {...inputProps}
-          {...registerFn(props.name)}
+          {...registerFunction()}
           className={classNames(
             "w-full",
             "px-5",

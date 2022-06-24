@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useContext } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import omitBy from "lodash/omitBy";
+import format from "date-fns/format";
 import { MdKeyboardBackspace } from "react-icons/md";
 import { FiDownloadCloud } from "react-icons/fi";
 import Dashboard from "../components/Dashboard";
@@ -21,11 +22,15 @@ import { usePagination } from "../hooks/pagination";
 import moment from "moment";
 import classNames from "classnames/bind";
 import startCase from "lodash/startCase";
-import { useQueryParamWithDefaultValue } from "../hooks/useQueryParam";
+import {
+  useMomentDateQueryParamWithDefaultValue,
+  useQueryParamWithDefaultValue,
+} from "../hooks/useQueryParam";
 import {
   calculateTotalAdSpend,
   calculateTotalImpression,
 } from "../utils/transformAdvertiser";
+import AdvertiserDetailLoading from "../components/loader/AdvertiserDetail.loader";
 
 const tableHeaders = [
   "",
@@ -36,6 +41,9 @@ const tableHeaders = [
   "Duration",
   "Ad Spend",
 ];
+
+const TWELVE_MONTH_AGO = moment().subtract(12, "M");
+const NOW = moment();
 
 const CustomHeader = ({ advertiserName, goToPrevPage }) => {
   return (
@@ -65,6 +73,8 @@ const CustomHeader = ({ advertiserName, goToPrevPage }) => {
 const DEFAULT_FILTERS = {
   status: "all",
   type: "all",
+  startDate: TWELVE_MONTH_AGO,
+  endDate: NOW,
 };
 
 const AdvertiserDetail = () => {
@@ -75,11 +85,6 @@ const AdvertiserDetail = () => {
   const [shownRows, setShownRows] = useState(5);
   const [checkedCampaigns, setCheckedCampaigns] = useState([]);
 
-  const [campaignDateRange, setCampaignDateRange] = useState([
-    moment().subtract(12, "M"),
-    moment(),
-  ]);
-
   const [campaignStatus, setCampaignStatus] = useQueryParamWithDefaultValue(
     "status",
     DEFAULT_FILTERS.status
@@ -88,6 +93,16 @@ const AdvertiserDetail = () => {
   const [campaignType, setCampaignType] = useQueryParamWithDefaultValue(
     "type",
     DEFAULT_FILTERS.type
+  );
+
+  const [startDate, setStartDate] = useMomentDateQueryParamWithDefaultValue(
+    "startDate",
+    DEFAULT_FILTERS.startDate
+  );
+
+  const [endDate, setEndDate] = useMomentDateQueryParamWithDefaultValue(
+    "endDate",
+    DEFAULT_FILTERS.endDate
   );
 
   const {
@@ -116,9 +131,11 @@ const AdvertiserDetail = () => {
             status: campaignStatus,
             type: campaignType,
             advertiser: advertiser.id,
+            startDate: format(startDate.toDate(), "yyyy/MM/dd"),
+            endDate: format(endDate.toDate(), "yyyy/MM/dd"),
           }
         : {},
-    [campaignStatus, campaignType, advertiser]
+    [campaignStatus, campaignType, advertiser, startDate, endDate]
   );
 
   const paginationOptions = useMemo(
@@ -131,7 +148,12 @@ const AdvertiserDetail = () => {
 
   const {
     fetchCampaigns,
-    state: { loading: fetchingCampaigns, campaigns, retrieveErrorMsg },
+    state: {
+      loading: fetchingCampaigns,
+      campaignSize,
+      campaigns,
+      retrieveErrorMsg,
+    },
   } = useContext(CamapignContext);
 
   useEffect(() => {
@@ -144,12 +166,13 @@ const AdvertiserDetail = () => {
       fetchCampaigns({ ...sanitizedFilterValues, ...paginationOptions });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterValues, paginationOptions, advertiser]);
+  }, [filterValues, paginationOptions, advertiser, startDate, endDate]);
 
   const { indexOfFirstItem, indexOfLastItem, pages } = usePagination(
     currentPage,
     shownRows,
-    campaigns
+    campaigns,
+    campaignSize
   );
 
   const toggleCampaignCheck = (idx) => {
@@ -176,134 +199,157 @@ const AdvertiserDetail = () => {
           />
         }
       >
-        <div className="mt-20 grid grid-cols-3 gap-6">
-          <InfoBox
-            bgColor="bg-blue-gradient"
-            infoTitle="Total No. of Campaigns"
-            infoValue={advertiser?.campaigns.length}
-          />
-          <InfoBox
-            bgColor="bg-green-gradient"
-            infoTitle="Total Spend"
-            infoValue={formatNum(advertiserStat.totalAdSpend, true)}
-          />
-          <InfoBox
-            bgColor="bg-yellow-gradient"
-            infoTitle="Total Impressions"
-            infoValue={formatNum(advertiserStat.totalImpression, false, true)}
-          />
-        </div>
-        <div className="mt-16 bg-black rounded-md border-2 border-247-dark-text mb-10">
-          <TableHeader
-            defaultFilters={DEFAULT_FILTERS}
-            setSelectedStatusFilter={setCampaignStatus}
-            setSelectedTypeFilter={setCampaignType}
-            selectedStatusFilter={campaignStatus}
-            selectedTypeFilter={campaignType}
-            statusFilters={statusFilters}
-            typeFilters={typeFilters}
-            dateFilter={campaignDateRange}
-            setDateFilter={setCampaignDateRange}
-          />
-          <DataTable headers={tableHeaders} loadingData={fetchingCampaigns}>
-            {fetchingCampaigns && (
-              <div className="flex items-center justify-center w-full absolute py-14">
-                <Spinner size="large" />
-              </div>
-            )}
-            {!fetchingCampaigns &&
-              campaigns.length > 0 &&
-              campaigns.map((campaign, idx) => (
-                <tr
-                  className={
-                    checkedCampaigns.includes(idx)
-                      ? "text-lg bg-gray-700 border border-247-dark-text cursor-pointer hover:bg-gray-700"
-                      : "text-lg border border-247-dark-text odd:bg-247-dark-accent3 cursor-pointer hover:bg-gray-700"
-                  }
-                  key={`campaign${campaign.id}`}
-                >
-                  <td className="px-3 py-5">
-                    <Checkbox
-                      checked={checkedCampaigns.includes(idx) ? true : false}
-                      iconColor="#CACACA"
-                      name={campaign.id.toLowerCase()}
-                      handleChange={() => toggleCampaignCheck(idx)}
-                    />
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="flex items-center ">
-                      {campaign.campaignName}
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={classNames(
-                          "rounded-full",
-                          "w-4",
-                          "h-4",
-                          {
-                            "bg-active-gradient": campaign.status === "active",
-                          },
-                          {
-                            "bg-closed-gradient": campaign.status === "closed",
-                          },
-                          { "bg-paused-gradient": campaign.status === "paused" }
-                        )}
-                      ></div>
-                      {startCase(campaign.status)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    {campaign.advertiser.companyName}
-                  </td>
-                  <td className="px-6 py-5">
-                    {Number(campaign.campaignStat.impressions).toLocaleString(
-                      "en-NG"
-                    )}
-                  </td>
-                  <td className="px-6 py-5">{10}</td>
-                  <td className="px-6 py-5">
-                    {Number(campaign.campaignStat.adSpend).toLocaleString(
-                      "en-NG",
-                      {
-                        style: "currency",
-                        currency: "NGN",
+        {fetchingAdvertiser ? (
+          <AdvertiserDetailLoading />
+        ) : (
+          <>
+            <div className="mt-20 grid grid-cols-3 gap-6">
+              <InfoBox
+                bgColor="bg-blue-gradient"
+                infoTitle="Total No. of Campaigns"
+                infoValue={advertiser?.campaigns.length}
+              />
+              <InfoBox
+                bgColor="bg-green-gradient"
+                infoTitle="Total Spend"
+                infoValue={formatNum(advertiserStat.totalAdSpend, true)}
+              />
+              <InfoBox
+                bgColor="bg-yellow-gradient"
+                infoTitle="Total Impressions"
+                infoValue={formatNum(
+                  advertiserStat.totalImpression,
+                  false,
+                  true
+                )}
+              />
+            </div>
+            <div className="mt-16 bg-black rounded-md border-2 border-247-dark-text mb-10">
+              <TableHeader
+                defaultFilters={DEFAULT_FILTERS}
+                setSelectedStatusFilter={setCampaignStatus}
+                setSelectedTypeFilter={setCampaignType}
+                selectedStatusFilter={campaignStatus}
+                selectedTypeFilter={campaignType}
+                statusFilters={statusFilters}
+                typeFilters={typeFilters}
+                startDate={startDate}
+                endDate={endDate}
+                setStartDate={setStartDate}
+                setEndDate={setEndDate}
+              />
+              <DataTable headers={tableHeaders} loadingData={fetchingCampaigns}>
+                {fetchingCampaigns && (
+                  <div className="flex items-center justify-center w-full absolute py-14">
+                    <Spinner size="large" />
+                  </div>
+                )}
+                {!fetchingCampaigns &&
+                  campaigns.length > 0 &&
+                  campaigns.map((campaign, idx) => (
+                    <tr
+                      className={
+                        checkedCampaigns.includes(idx)
+                          ? "text-lg bg-gray-700 border border-247-dark-text cursor-pointer hover:bg-gray-700"
+                          : "text-lg border border-247-dark-text odd:bg-247-dark-accent3 cursor-pointer hover:bg-gray-700"
                       }
-                    )}
-                  </td>
-                </tr>
-              ))}
-          </DataTable>
-          {!fetchingCampaigns && !retrieveErrorMsg && campaigns.length === 0 && (
-            <div className="w-full py-9">
-              <NoDataBox
-                title="No Campaign Found"
-                subtitle="We cannot find any campaign that fits your criteria."
-              />
+                      key={`campaign${campaign.id}`}
+                    >
+                      <td className="px-3 py-5">
+                        <Checkbox
+                          checked={
+                            checkedCampaigns.includes(idx) ? true : false
+                          }
+                          iconColor="#CACACA"
+                          name={campaign.id.toLowerCase()}
+                          handleChange={() => toggleCampaignCheck(idx)}
+                        />
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center ">
+                          {campaign.campaignName}
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={classNames(
+                              "rounded-full",
+                              "w-4",
+                              "h-4",
+                              {
+                                "bg-active-gradient":
+                                  campaign.status === "active",
+                              },
+                              {
+                                "bg-closed-gradient":
+                                  campaign.status === "closed",
+                              },
+                              {
+                                "bg-paused-gradient":
+                                  campaign.status === "paused",
+                              }
+                            )}
+                          ></div>
+                          {startCase(campaign.status)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        {campaign.advertiser.companyName}
+                      </td>
+                      <td className="px-6 py-5">
+                        {Number(
+                          campaign.campaignStat.impressions
+                        ).toLocaleString("en-NG")}
+                      </td>
+                      <td className="px-6 py-5">{10}</td>
+                      <td className="px-6 py-5">
+                        {Number(campaign.campaignStat.adSpend).toLocaleString(
+                          "en-NG",
+                          {
+                            style: "currency",
+                            currency: "NGN",
+                          }
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+              </DataTable>
+              {!fetchingCampaigns &&
+                !retrieveErrorMsg &&
+                campaigns.length === 0 && (
+                  <div className="w-full py-9">
+                    <NoDataBox
+                      title="No Campaign Found"
+                      subtitle="We cannot find any campaign that fits your criteria."
+                    />
+                  </div>
+                )}
+              {!fetchingCampaigns && retrieveErrorMsg && (
+                <div className="w-full py-9">
+                  <ErrorBox
+                    title="Error Retrieving Campaigns"
+                    subtitle={retrieveErrorMsg}
+                  />
+                </div>
+              )}
             </div>
-          )}
-          {!fetchingCampaigns && retrieveErrorMsg && (
-            <div className="w-full py-9">
-              <ErrorBox
-                title="Error Retrieving Campaigns"
-                subtitle={retrieveErrorMsg}
-              />
+            <div className="flex items-center justify-end mb-20">
+              {campaigns && campaigns.length > 0 && (
+                <Pagination
+                  activePage={currentPage}
+                  dataLength={campaignSize}
+                  firstItem={indexOfFirstItem + 1}
+                  lastItem={indexOfLastItem}
+                  pages={pages}
+                  setActivePage={setCurrentPage}
+                  setVisibleRows={setShownRows}
+                  visibleRows={shownRows}
+                />
+              )}
             </div>
-          )}
-        </div>
-        <div className="flex items-center justify-end mb-20">
-          <Pagination
-            activePage={currentPage}
-            dataLength={campaigns.length}
-            firstItem={indexOfFirstItem + 1}
-            lastItem={indexOfLastItem}
-            pages={pages}
-            setActivePage={setCurrentPage}
-            setVisibleRows={setShownRows}
-            visibleRows={shownRows}
-          />
-        </div>
+          </>
+        )}
       </Dashboard>
     )
   );

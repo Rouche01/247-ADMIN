@@ -20,6 +20,7 @@ import EditDriverInfoModal from "../components/uiComponents/EditDriverInfoModal"
 import PayoutHistoryModal from "../components/uiComponents/PayoutHistoryModal";
 import Spinner from "../components/uiComponents/Spinner";
 import { useToastError } from "../hooks/handleError";
+import DriverDetailLoading from "../components/loader/DriverDetail.loader";
 
 const mapBtnTextToStatus = {
   approved: {
@@ -223,96 +224,112 @@ const DriverDetail = () => {
           />
         }
       >
-        <div className="w-full mt-20 rounded-lg bg-247-campaign-preview">
-          <div className="w-full bg-247-campaign-preview-title flex items-center justify-between px-12 py-4 rounded-t-lg">
-            <h4 className="text-white text-xl font-medium">Personal Info</h4>
-            <button
-              onClick={() => setEditInfoOpen(true)}
-              className="text-247-campaign-preview-title bg-white px-5 py-2 rounded-md font-medium"
-            >
-              Edit Info
-            </button>
-          </div>
-          <div className="flex py-5 px-6">
-            <img
-              src={driver.profilePhoto}
-              alt="profile"
-              className="h-full drop-shadow-sm w-full object-cover rounded-md"
-              style={{ maxWidth: "300px", maxHeight: "300px" }}
-            />
-            <div className="border-l border-white ml-14"></div>
-            <div className="w-full flex justify-around pt-2">
-              <div>
-                <ResourceMeta
-                  label="First name"
-                  value={driver.name.split(" ")[0]}
-                />
-                <ResourceMeta
-                  label="Phone Number"
-                  value={`0${driver.phoneNumber}`}
-                />
-                <ResourceMeta
-                  label="Hobby"
-                  value={driver.extraInfo.favouriteHobby}
-                />
-                <ResourceMeta label="Date Created" value={dateCreated} last />
+        {fetchingSingleDriver ? (
+          <DriverDetailLoading />
+        ) : (
+          <>
+            <div className="w-full mt-20 rounded-lg bg-247-campaign-preview">
+              <div className="w-full bg-247-campaign-preview-title flex items-center justify-between px-12 py-4 rounded-t-lg">
+                <h4 className="text-white text-xl font-medium">
+                  Personal Info
+                </h4>
+                <button
+                  onClick={() => setEditInfoOpen(true)}
+                  className="text-247-campaign-preview-title bg-white px-5 py-2 rounded-md font-medium"
+                >
+                  Edit Info
+                </button>
               </div>
-              <div>
-                <ResourceMeta
-                  label="Last name"
-                  value={driver.name.split(" ")[1]}
+              <div className="flex py-5 px-6">
+                <img
+                  src={driver.profilePhoto}
+                  alt="profile"
+                  className="h-full drop-shadow-sm w-full object-cover rounded-md"
+                  style={{ maxWidth: "300px", maxHeight: "300px" }}
                 />
-                <ResourceMeta label="City" value={driver.city} />
-                <ResourceMeta
-                  label="Ask me about"
-                  value={driver.extraInfo.askMeAbout}
-                />
-                <ResourceMeta label="ID Type" value="Drivers License" last />
-              </div>
-              <div>
-                <ResourceMeta label="Email Address" value={driver.email} />
-                <ResourceMeta
-                  label="Favourite Meal"
-                  value={driver.extraInfo.favouriteMeal}
-                />
-                <ResourceMeta
-                  label="Vacation Spot"
-                  value={driver.extraInfo.vacationSpot}
-                />
-                <ResourceMeta label="ID Upload" value="mydl.png" />
+                <div className="border-l border-white ml-14"></div>
+                <div className="w-full flex justify-around pt-2">
+                  <div>
+                    <ResourceMeta
+                      label="First name"
+                      value={driver.name.split(" ")[0]}
+                    />
+                    <ResourceMeta
+                      label="Phone Number"
+                      value={`0${driver.phoneNumber}`}
+                    />
+                    <ResourceMeta
+                      label="Hobby"
+                      value={driver.extraInfo.favouriteHobby}
+                    />
+                    <ResourceMeta
+                      label="Date Created"
+                      value={dateCreated}
+                      last
+                    />
+                  </div>
+                  <div>
+                    <ResourceMeta
+                      label="Last name"
+                      value={driver.name.split(" ")[1]}
+                    />
+                    <ResourceMeta label="City" value={driver.city} />
+                    <ResourceMeta
+                      label="Ask me about"
+                      value={driver.extraInfo.askMeAbout}
+                    />
+                    <ResourceMeta
+                      label="ID Type"
+                      value="Drivers License"
+                      last
+                    />
+                  </div>
+                  <div>
+                    <ResourceMeta label="Email Address" value={driver.email} />
+                    <ResourceMeta
+                      label="Favourite Meal"
+                      value={driver.extraInfo.favouriteMeal}
+                    />
+                    <ResourceMeta
+                      label="Vacation Spot"
+                      value={driver.extraInfo.vacationSpot}
+                    />
+                    <ResourceMeta label="ID Upload" value="mydl.png" />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div className="w-full mt-14 mb-24 rounded-lg bg-247-campaign-preview">
-          <div className="w-full bg-247-campaign-preview-title flex items-center justify-between px-12 py-4 rounded-t-lg">
-            <h4 className="text-white text-xl font-medium">Earnings</h4>
-            <button
-              onClick={() => setPayoutModalOpen(true)}
-              className="text-247-campaign-preview-title bg-white px-5 py-2 rounded-md font-medium"
-            >
-              Payout History
-            </button>
-          </div>
-          <div className="grid grid-cols-3 gap-6 pt-16 pb-5 px-6">
-            <InfoBox
-              bgColor="bg-blue-gradient"
-              infoTitle="Today's Earning"
-              infoValue={formatNum(4557.45, true, true)}
-            />
-            <InfoBox
-              bgColor="bg-green-gradient"
-              infoTitle="Total Earning"
-              infoValue={formatNum(147557.45, true, true)}
-            />
-            <InfoBox
-              bgColor="bg-yellow-gradient"
-              infoTitle="Pending Payout"
-              infoValue={formatNum(20800.45, true, true)}
-              btnText="Settle"
-            />
-          </div>
-        </div>
+            <div className="w-full mt-14 mb-24 rounded-lg bg-247-campaign-preview">
+              <div className="w-full bg-247-campaign-preview-title flex items-center justify-between px-12 py-4 rounded-t-lg">
+                <h4 className="text-white text-xl font-medium">Earnings</h4>
+                <button
+                  onClick={() => setPayoutModalOpen(true)}
+                  className="text-247-campaign-preview-title bg-white px-5 py-2 rounded-md font-medium"
+                >
+                  Payout History
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-6 pt-16 pb-5 px-6">
+                <InfoBox
+                  bgColor="bg-blue-gradient"
+                  infoTitle="Today's Earning"
+                  infoValue={formatNum(4557.45, true, true)}
+                />
+                <InfoBox
+                  bgColor="bg-green-gradient"
+                  infoTitle="Total Earning"
+                  infoValue={formatNum(147557.45, true, true)}
+                />
+                <InfoBox
+                  bgColor="bg-yellow-gradient"
+                  infoTitle="Pending Payout"
+                  infoValue={formatNum(20800.45, true, true)}
+                  btnText="Settle"
+                />
+              </div>
+            </div>
+          </>
+        )}
         <ConfirmationModal
           open={confirmModalOpen.open}
           setOpen={setConfirmModalOpen}

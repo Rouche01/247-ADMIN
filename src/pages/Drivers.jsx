@@ -203,16 +203,18 @@ const Drivers = () => {
           )}
         </div>
         <div className="flex items-center justify-end mb-20">
-          <Pagination
-            activePage={currentPage}
-            dataLength={driverListSize}
-            firstItem={indexOfFirstItem + 1}
-            lastItem={indexOfLastItem}
-            pages={pages}
-            setActivePage={setCurrentPage}
-            setVisibleRows={setShownRows}
-            visibleRows={shownRows}
-          />
+          {drivers && drivers.length > 0 && (
+            <Pagination
+              activePage={currentPage}
+              dataLength={driverListSize}
+              firstItem={indexOfFirstItem + 1}
+              lastItem={indexOfLastItem}
+              pages={pages}
+              setActivePage={setCurrentPage}
+              setVisibleRows={setShownRows}
+              visibleRows={shownRows}
+            />
+          )}
         </div>
       </Dashboard>
     </>

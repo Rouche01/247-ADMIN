@@ -13,6 +13,15 @@ import ChartUpIndicator from "../components/uiComponents/ChartUpIndicator";
 import ChartDownIndicator from "../components/uiComponents/ChartDownIndicator";
 import $ from "jquery";
 import moment from "moment";
+import { useMomentDateQueryParamWithDefaultValue } from "../hooks/useQueryParam";
+
+const TWELVE_MONTH_AGO = moment().subtract(12, "M");
+const NOW = moment();
+
+const DEFAULT_FILTERS = {
+  startDate: TWELVE_MONTH_AGO,
+  endDate: NOW,
+};
 
 const StatBox = ({
   statName,
@@ -58,10 +67,15 @@ const Overview = () => {
   const [totalChecked, setTotalChecked] = useState(true);
   const [perDayChecked, setPerDayChecked] = useState(false);
 
-  const [dateRange, setDateRange] = useState([
-    moment().subtract(12, "M"),
-    moment(),
-  ]);
+  const [startDate, setStartDate] = useMomentDateQueryParamWithDefaultValue(
+    "startDate",
+    DEFAULT_FILTERS.startDate
+  );
+
+  const [endDate, setEndDate] = useMomentDateQueryParamWithDefaultValue(
+    "endDate",
+    DEFAULT_FILTERS.endDate
+  );
 
   const handleCheckBoxes = () => {
     if (totalChecked) {
@@ -87,13 +101,14 @@ const Overview = () => {
           "Month to date": [moment().startOf("month"), moment()],
           "All time": [moment().subtract(2, "Y"), moment()],
         },
-        startDate: dateRange[0],
-        endDate: dateRange[1],
+        startDate: startDate,
+        endDate: endDate,
         alwaysShowCalendars: true,
         applyButtonClasses: "range-apply-btn",
       },
       (start, end, _label) => {
-        setDateRange([start, end]);
+        setStartDate(start);
+        setEndDate(end);
       }
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,11 +1,15 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
+import format from "date-fns/format";
 import Dashboard from "../components/Dashboard";
 import DataTable from "../components/DataTable";
 import InfoBox from "../components/InfoBox";
 import TableHeader from "../components/TableHeader";
 import { usePagination } from "../hooks/pagination";
-import { useQueryParamWithDefaultValue } from "../hooks/useQueryParam";
+import {
+  useMomentDateQueryParamWithDefaultValue,
+  useQueryParamWithDefaultValue,
+} from "../hooks/useQueryParam";
 import Checkbox from "../components/uiComponents/Checkbox";
 import Pagination from "../components/uiComponents/Pagination";
 import { Context as CampaignContext } from "../context/CampaignContext";
@@ -30,20 +34,20 @@ const tableHeaders = [
   "Ad Spend",
 ];
 
+const TWELVE_MONTH_AGO = moment().subtract(12, "M");
+const NOW = moment();
+
 const DEFAULT_FILTERS = {
   status: "all",
   type: "all",
+  startDate: TWELVE_MONTH_AGO,
+  endDate: NOW,
 };
 
 const Campaign = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [shownRows, setShownRows] = useState(5);
   const [checkedCampaigns, setCheckedCampaigns] = useState([]);
-
-  const [campaignDateRange, setCampaignDateRange] = useState([
-    moment().subtract(12, "M"),
-    moment(),
-  ]);
 
   const history = useHistory();
 
@@ -56,9 +60,24 @@ const Campaign = () => {
     DEFAULT_FILTERS.type
   );
 
+  const [startDate, setStartDate] = useMomentDateQueryParamWithDefaultValue(
+    "startDate",
+    DEFAULT_FILTERS.startDate
+  );
+
+  const [endDate, setEndDate] = useMomentDateQueryParamWithDefaultValue(
+    "endDate",
+    DEFAULT_FILTERS.endDate
+  );
+
   const filterValues = useMemo(
-    () => ({ status: campaignStatus, type: campaignType }),
-    [campaignStatus, campaignType]
+    () => ({
+      status: campaignStatus,
+      type: campaignType,
+      startDate: format(startDate.toDate(), "yyyy/MM/dd"),
+      endDate: format(endDate.toDate(), "yyyy/MM/dd"),
+    }),
+    [campaignStatus, campaignType, startDate, endDate]
   );
 
   const paginationOptions = useMemo(
@@ -78,8 +97,6 @@ const Campaign = () => {
       retrieveErrorMsg,
     },
   } = useContext(CampaignContext);
-
-  console.log(campaigns, campaignDateRange);
 
   useEffect(() => {
     const sanitizedFilterValues = omitBy(
@@ -139,8 +156,10 @@ const Campaign = () => {
           selectedTypeFilter={campaignType}
           statusFilters={statusFilters}
           typeFilters={typeFilters}
-          dateFilter={campaignDateRange}
-          setDateFilter={setCampaignDateRange}
+          startDate={startDate}
+          endDate={endDate}
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
         />
         <DataTable headers={tableHeaders} loadingData={fetchingCampaigns}>
           {fetchingCampaigns && (
@@ -243,16 +262,18 @@ const Campaign = () => {
         )}
       </div>
       <div className="flex items-center justify-end mb-20">
-        <Pagination
-          activePage={currentPage}
-          dataLength={campaignSize}
-          firstItem={indexOfFirstItem + 1}
-          lastItem={indexOfLastItem}
-          pages={pages}
-          setActivePage={setCurrentPage}
-          setVisibleRows={setShownRows}
-          visibleRows={shownRows}
-        />
+        {campaigns && campaigns.length > 0 && (
+          <Pagination
+            activePage={currentPage}
+            dataLength={campaignSize}
+            firstItem={indexOfFirstItem + 1}
+            lastItem={indexOfLastItem}
+            pages={pages}
+            setActivePage={setCurrentPage}
+            setVisibleRows={setShownRows}
+            visibleRows={shownRows}
+          />
+        )}
       </div>
     </Dashboard>
   );

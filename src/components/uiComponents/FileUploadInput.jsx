@@ -5,6 +5,11 @@ import { getVideoCover } from "../../utils/getVideoPreview";
 
 const DEFAULT_MAX_FILE_SIZE_IN_BYTES = 500000000;
 
+const mapFileFormatsToExtra = {
+  ".jpg,.png,.jpeg": "(PNG, AND JPG Files Supported)",
+  ".mp4": "(MP4 Files Supported)",
+};
+
 const FileUploadInput = ({
   label,
   multiple,
@@ -56,7 +61,12 @@ const FileUploadInput = ({
   return (
     <div className="mt-8">
       <label className="mb-2 font-medium inline-block text-white text-base">
-        {label}
+        {label}{" "}
+        <span className="text-xs font-normal ml-3">
+          {!accepts
+            ? "(PNG, JPG, AND MP4 Files Supported)"
+            : mapFileFormatsToExtra[accepts]}
+        </span>
       </label>
       <div className="rounded-md w-full bg-247-dark-mode-input-bg p-4">
         {!Object.keys(files).length && (

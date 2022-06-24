@@ -185,16 +185,18 @@ const ContentLibrary = () => {
         )}
       </div>
       <div className="flex items-center justify-end mb-20">
-        <Pagination
-          activePage={currentPage}
-          dataLength={mediaItemsSize}
-          firstItem={indexOfFirstItem + 1}
-          lastItem={indexOfLastItem}
-          pages={pages}
-          setActivePage={setCurrentPage}
-          setVisibleRows={setShownRows}
-          visibleRows={shownRows}
-        />
+        {mediaItems && mediaItems.length > 0 && (
+          <Pagination
+            activePage={currentPage}
+            dataLength={mediaItemsSize}
+            firstItem={indexOfFirstItem + 1}
+            lastItem={indexOfLastItem}
+            pages={pages}
+            setActivePage={setCurrentPage}
+            setVisibleRows={setShownRows}
+            visibleRows={shownRows}
+          />
+        )}
       </div>
       <UploadContentModal
         isOpen={uploadModalOpen}

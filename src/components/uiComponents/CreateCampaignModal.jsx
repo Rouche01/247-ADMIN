@@ -40,7 +40,9 @@ const CreateCampaignModal = ({
     setCampaignMedia(mediaContents);
   };
 
-  useToastError(createErrorMsg, clearError);
+  useToastError(createErrorMsg, () => {
+    clearError("create");
+  });
 
   const {
     register,
@@ -98,24 +100,28 @@ const CreateCampaignModal = ({
   const onSubmit = async (data) => {
     let formData = new FormData();
 
-    formData.append("campaignName", data.campaignName);
-    formData.append("advertiser", data.advertiser.id);
-    formData.append("adBudget", data.adBudget);
-    formData.append("adType", data.adType.value);
-    formData.append(
-      "duration",
-      JSON.stringify([
-        format(data.duration[0], "yyyy-MM-dd"),
-        format(data.duration[1], "yyyy-MM-dd"),
-      ])
-    );
+    if (campaignMedia[0]) {
+      formData.append("campaignName", data.campaignName);
+      formData.append("advertiser", data.advertiser.id);
+      formData.append("adBudget", parseFloat(data.adBudget.replace(/,/g, "")));
+      formData.append("adType", data.adType.value);
+      formData.append(
+        "duration",
+        JSON.stringify([
+          format(data.duration[0], "yyyy-MM-dd"),
+          format(data.duration[1], "yyyy-MM-dd"),
+        ])
+      );
 
-    formData.append("campaignMedia", campaignMedia[0]);
+      formData.append("campaignMedia", campaignMedia[0]);
 
-    await createCampaign(formData, () =>
-      toast.success("Campaign created successfully")
-    );
-    setIsOpen(false);
+      await createCampaign(formData, () =>
+        toast.success("Campaign created successfully")
+      );
+      setIsOpen(false);
+    } else {
+      toast.error("You need to upload a content for the campaign");
+    }
   };
 
   return (
@@ -193,6 +199,8 @@ const CreateCampaignModal = ({
             placeholder="enter campaign spend"
             type="string"
             registerFn={register}
+            setValue={setValue}
+            isNumeric
             name="adBudget"
             errorText={errors.adBudget?.message}
           />
