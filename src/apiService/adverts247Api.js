@@ -6,7 +6,7 @@ const instance = axios.create({
   baseURL:
     process.env.NODE_ENV === "development"
       ? "http://localhost:3005/api"
-      : "/api",
+      : "https://thawing-thicket-82190.herokuapp.com/api",
 });
 
 export default instance;
