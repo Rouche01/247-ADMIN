@@ -51,15 +51,19 @@ const AsyncSelectInput = ({
   getOptionLabel,
   getOptionValue,
   loading,
+  disabled,
   inputValue,
-  onInputValueChange
+  onInputValueChange,
 }) => {
   const customStyles = {
     control: (provided, state) => ({
       ...provided,
-      backgroundColor: state.selectProps.darkMode
-        ? "rgba(0, 0, 0, 0.25)"
-        : bgColor,
+      backgroundColor:
+        state.selectProps.darkMode && state.isDisabled
+          ? "rgba(0, 0, 0, 0.1)"
+          : state.selectProps.darkMode && !state.isDisabled
+          ? "rgba(0, 0, 0, 0.25)"
+          : bgColor,
       borderColor: state.selectProps.darkMode ? "#4D4D4D" : borderColor,
       padding: "6px 10px",
       "&:hover": {
@@ -88,7 +92,7 @@ const AsyncSelectInput = ({
     singleValue: (provided, state) => ({
       ...provided,
       fontWeight: "500",
-      color: "#fff",
+      color: state.isDisabled ? "rgba(255, 255, 255, 0.5)" : "#fff",
     }),
     menu: (provided, state) => ({
       ...provided,
@@ -125,7 +129,7 @@ const AsyncSelectInput = ({
         isClearable
         placeholder={placeholderText}
         isLoading={loading}
-        isDisabled={loading}
+        isDisabled={loading || disabled}
         maxMenuHeight={180}
       />
       {errorText && (
