@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { FiUploadCloud } from "react-icons/fi";
 import { FaTrash } from "react-icons/fa";
+import { GrPowerReset } from "react-icons/gr";
 import { getVideoCover } from "../../utils/getVideoPreview";
 
 const DEFAULT_MAX_FILE_SIZE_IN_BYTES = 500000000;
@@ -16,6 +17,8 @@ const FileUploadInput = ({
   callUpdateFilesCb,
   accepts,
   setDuration,
+  isEdit,
+  resetToDefault,
 }) => {
   const [files, setFiles] = useState({});
   const fileInputRef = useRef(null);
@@ -89,11 +92,22 @@ const FileUploadInput = ({
         {!!Object.keys(files).length && (
           <div className="rounded-md max-h-52 relative group">
             <div className="absolute flex items-end justify-end rounded-md w-full h-full group-hover:visible group-hover:bg-247-overlay">
-              <div
-                onClick={removeFile}
-                className="bg-white flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100  w-10 h-10 rounded-md mr-5 mb-5"
-              >
-                <FaTrash size={16} color="#f00" />
+              <div className="flex items-center space-x-4 mr-5 mb-5">
+                {isEdit && (
+                  <button
+                    className="bg-white rounded-md opacity-0 group-hover:opacity-100 flex items-center h-10 px-4 text-black"
+                    onClick={resetToDefault}
+                  >
+                    <GrPowerReset size={16} color="#f00" className="mr-2" />
+                    Reset
+                  </button>
+                )}
+                <div
+                  onClick={removeFile}
+                  className="bg-white flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100  w-10 h-10 rounded-md"
+                >
+                  <FaTrash size={16} color="#f00" />
+                </div>
               </div>
             </div>
             {Object.keys(files).map((fileName, index) => {

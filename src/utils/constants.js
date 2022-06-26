@@ -16,4 +16,9 @@ export const driverStatusFilters = [
   { label: "Active", id: "approved" },
   { label: "Suspended", id: "suspended" },
   { label: "Pending", id: "pending" },
-]
+];
+
+export const ADTYPES = [
+  { value: "image", label: "Image" },
+  { value: "video", label: "Video" },
+];

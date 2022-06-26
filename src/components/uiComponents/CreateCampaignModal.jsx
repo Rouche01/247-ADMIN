@@ -3,6 +3,10 @@ import { format } from "date-fns";
 import toast from "react-hot-toast";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { FaTrash } from "react-icons/fa";
+import pickBy from "lodash/pickBy";
+import isEqual from "lodash/isEqual";
+import isEmpty from "lodash/isEmpty";
 
 import CenterModal from "./CenterModal";
 import InputField from "./InputField";
@@ -16,6 +20,40 @@ import { useToastError } from "../../hooks/handleError";
 import AsyncSelectInput from "./AsyncSelectInput";
 import adverts247Api from "../../apiService/adverts247Api";
 import { resolveToken } from "../../utils/resolveToken";
+import { ADTYPES } from "../../utils/constants";
+
+const EditCampaignPreviewImage = ({ imgSrc, onRemoveExistingMedia, label }) => {
+  return (
+    <div className="mt-8">
+      <label className="mb-2 font-medium inline-block text-white text-base">
+        {label}{" "}
+        <span className="text-xs font-normal ml-3">
+          (PNG, JPG, AND MP4 Files Supported)
+        </span>
+      </label>
+      <div className="rounded-md w-full bg-247-dark-mode-input-bg p-4">
+        {" "}
+        <div className="w-full max-h-52 rounded-md relative group">
+          <div className="absolute flex items-end justify-end rounded-md w-full h-full group-hover:visible group-hover:bg-247-overlay">
+            <div
+              onClick={onRemoveExistingMedia}
+              className="bg-white flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100  w-10 h-10 rounded-md mr-5 mb-5"
+            >
+              <FaTrash size={16} color="#f00" />
+            </div>
+          </div>
+          <div>
+            <img
+              className="max-h-52 w-full object-cover rounded-md"
+              src={imgSrc}
+              alt={`campaign preview`}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const CreateCampaignModal = ({
   modalIsOpen,
@@ -23,6 +61,9 @@ const CreateCampaignModal = ({
   modalWidth,
   isEdit,
   editData,
+  editFn,
+  editing,
+  fetchCallback,
 }) => {
   const { validationSchema } = useCampaignFormValidation();
   const {
@@ -34,6 +75,8 @@ const CreateCampaignModal = ({
   const [campaignMedia, setCampaignMedia] = useState([]);
   const [inputLoading, setInputLoading] = useState(false);
   const [inputValue, setInputValue] = useState("");
+
+  const [updatingMedia, setUpdatingMedia] = useState(false);
 
   const updateUploadedFile = (fileObject) => {
     const mediaContents = Object.values(fileObject);
@@ -98,6 +141,10 @@ const CreateCampaignModal = ({
   };
 
   const onSubmit = async (data) => {
+    isEdit ? await onEditCampaign(data) : await onCampaignCreate(data);
+  };
+
+  const onCampaignCreate = async (data) => {
     let formData = new FormData();
 
     if (campaignMedia[0]) {
@@ -115,13 +162,55 @@ const CreateCampaignModal = ({
 
       formData.append("campaignMedia", campaignMedia[0]);
 
-      await createCampaign(formData, () =>
-        toast.success("Campaign created successfully")
-      );
+      await createCampaign(formData, () => {
+        toast.success("Campaign created successfully");
+        return fetchCallback();
+      });
       setIsOpen(false);
     } else {
       toast.error("You need to upload a content for the campaign");
     }
+  };
+
+  const onEditCampaign = async (data) => {
+    console.log(data);
+    const diff = pickBy(data, (val, key) => !isEqual(editData[key], val));
+    if (isEmpty(diff) && !campaignMedia[0]) {
+      toast.error("You haven't made any changes!");
+      return;
+    }
+    const formData = new FormData();
+
+    for (let key in diff) {
+      switch (key) {
+        case "campaignName":
+          formData.append("campaignName", diff[key]);
+          break;
+        case "duration":
+          const transformedDuration = JSON.stringify([
+            format(diff[key][0], "yyyy-MM-dd"),
+            format(diff[key][1], "yyyy-MM-dd"),
+          ]);
+          formData.append("duration", transformedDuration);
+          break;
+        case "adBudget":
+          const transformedBudget = parseFloat(diff[key].replace(/,/g, ""));
+          formData.append("adBudget", transformedBudget);
+          break;
+        case "adType":
+          formData.append("adType", diff[key].value);
+          break;
+        default:
+          return;
+      }
+    }
+
+    if (campaignMedia[0]) {
+      formData.append("campaignMedia", campaignMedia[0]);
+    }
+
+    await editFn(formData);
+    setIsOpen(false);
   };
 
   return (
@@ -153,6 +242,7 @@ const CreateCampaignModal = ({
               return (
                 <AsyncSelectInput
                   label="Advertiser"
+                  disabled={isEdit}
                   handleChange={(value) => field.onChange(value)}
                   darkMode
                   placeholderText="Enter advertiser name..."
@@ -212,10 +302,7 @@ const CreateCampaignModal = ({
                 <SelectInput
                   label="Ad Type"
                   darkMode
-                  options={[
-                    { value: "image", label: "Image" },
-                    { value: "video", label: "Video" },
-                  ]}
+                  options={ADTYPES}
                   placeholderText="select ad type"
                   value={field.value}
                   handleChange={(value) => field.onChange(value)}
@@ -225,16 +312,29 @@ const CreateCampaignModal = ({
             }}
           />
         </div>
-        <FileUploadInput
-          label="Upload Content"
-          multiple={false}
-          callUpdateFilesCb={updateUploadedFile}
-        />
+        {isEdit && !updatingMedia ? (
+          <EditCampaignPreviewImage
+            label="Upload Content"
+            imgSrc={editData.preview}
+            onRemoveExistingMedia={() => setUpdatingMedia(true)}
+          />
+        ) : (
+          <FileUploadInput
+            label="Upload Content"
+            multiple={false}
+            callUpdateFilesCb={updateUploadedFile}
+            isEdit={isEdit}
+            resetToDefault={() => {
+              setCampaignMedia([]);
+              setUpdatingMedia(false);
+            }}
+          />
+        )}
         <Button
           type="submit"
           className={["bg-247-red", "block", "mt-12", "px-12", "font-normal"]}
           fullWidth
-          isLoading={creatingCampaign}
+          isLoading={creatingCampaign || editing}
         >
           {isEdit ? "Submit Change" : "Create Campaign"}
         </Button>
