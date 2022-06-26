@@ -63,6 +63,7 @@ const CreateCampaignModal = ({
   editData,
   editFn,
   editing,
+  fetchCallback,
 }) => {
   const { validationSchema } = useCampaignFormValidation();
   const {
@@ -161,9 +162,10 @@ const CreateCampaignModal = ({
 
       formData.append("campaignMedia", campaignMedia[0]);
 
-      await createCampaign(formData, () =>
-        toast.success("Campaign created successfully")
-      );
+      await createCampaign(formData, () => {
+        toast.success("Campaign created successfully");
+        return fetchCallback();
+      });
       setIsOpen(false);
     } else {
       toast.error("You need to upload a content for the campaign");

@@ -98,12 +98,16 @@ const Campaign = () => {
     },
   } = useContext(CampaignContext);
 
-  useEffect(() => {
+  const loadCampaigns = async () => {
     const sanitizedFilterValues = omitBy(
       filterValues,
       (item) => item && item === "all"
     );
     fetchCampaigns({ ...sanitizedFilterValues, ...paginationOptions });
+  };
+
+  useEffect(() => {
+    loadCampaigns();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterValues, paginationOptions]);
 
@@ -126,7 +130,7 @@ const Campaign = () => {
   };
 
   return (
-    <Dashboard>
+    <Dashboard fetchCampaignsFn={loadCampaigns}>
       <div className="grid grid-cols-3 gap-6 mt-16">
         <InfoBox
           bgColor="bg-blue-gradient"

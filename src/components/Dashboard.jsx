@@ -15,7 +15,7 @@ import RoundedBtnWithIcon from "./uiComponents/RoundedBtnWithIcon";
 import CreateCampaignModal from "./uiComponents/CreateCampaignModal";
 
 const Dashboard = forwardRef(
-  ({ children, open, setOpen, customHeader }, ref) => {
+  ({ children, open, setOpen, customHeader, fetchCampaignsFn }, ref) => {
     const location = useLocation();
     const { logout } = useContext(AuthContext);
 
@@ -122,6 +122,7 @@ const Dashboard = forwardRef(
           setIsOpen={setCampaignModalIsOpen}
           modalIsOpen={campaignModalIsOpen}
           modalWidth={704}
+          fetchCallback={fetchCampaignsFn}
         />
       </div>
     );

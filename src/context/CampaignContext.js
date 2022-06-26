@@ -100,12 +100,12 @@ const fetchCampaigns = (dispatch) => async (params) => {
         type: SET_RETRIEVE_ERROR,
         payload:
           err.response.data.message ||
-          "Unable to create campaign. Something went wrong",
+          "Unable to fetch campaigns. Something went wrong",
       });
     } else {
       dispatch({
         type: SET_RETRIEVE_ERROR,
-        payload: "Unable to create campaign. Something went wrong",
+        payload: "Unable to fetch campaigns. Something went wrong",
       });
     }
     dispatch({ type: SET_LOADING_STATE, payload: false });
