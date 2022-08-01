@@ -5,14 +5,15 @@ import {
   MdOutlineArrowDownward,
   MdOutlineCalendarToday,
 } from "react-icons/md";
+import $ from "jquery";
+import moment from "moment";
+
 import ImpressionChart from "../components/ImpressionChart";
 import Checkbox from "../components/uiComponents/Checkbox";
 import { impressionData } from "../utils/dummyData";
 import { formatNum } from "../utils/numFormatter";
 import ChartUpIndicator from "../components/uiComponents/ChartUpIndicator";
 import ChartDownIndicator from "../components/uiComponents/ChartDownIndicator";
-import $ from "jquery";
-import moment from "moment";
 import { useMomentDateQueryParamWithDefaultValue } from "../hooks/useQueryParam";
 
 const TWELVE_MONTH_AGO = moment().subtract(12, "M");
@@ -121,13 +122,15 @@ const Overview = () => {
           <h2 className="text-4xl text-white">Hello, Welcome back</h2>
           <p className="text-white text-base">Today is Sunday, 22 February</p>
         </div>
-        <button
-          className="bg-transparent px-5 py-3 rounded-md text-white border border-white flex items-center text-base"
-          name="daterange"
-        >
-          <MdOutlineCalendarToday size={20} className="mr-3" />
-          Set Date Filter
-        </button>
+        <div className="flex">
+          <button
+            className="bg-transparent px-5 py-3 rounded-md text-white border border-white flex items-center text-base"
+            name="daterange"
+          >
+            <MdOutlineCalendarToday size={20} className="mr-3" />
+            Set Date Filter
+          </button>
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-8">
         <StatBox
