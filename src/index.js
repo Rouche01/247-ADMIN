@@ -14,6 +14,7 @@ import { Provider as ContentLibraryProvider } from "../src/context/ContentLibrar
 import { Provider as QuizProvider } from "../src/context/QuizContext";
 import { Provider as RevenueProvider } from "./context/RevenueContext";
 import { Provider as PayoutProvider } from "./context/PayoutContext";
+import { Provider as EarningContext } from "./context/EarningContext";
 import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
@@ -23,15 +24,17 @@ ReactDOM.render(
         <QuizProvider>
           <RevenueProvider>
             <PayoutProvider>
-              <ContentLibraryProvider>
-                <CampaignProvider>
-                  <DriverProvider>
-                    <Router history={history}>
-                      <App />
-                    </Router>
-                  </DriverProvider>
-                </CampaignProvider>
-              </ContentLibraryProvider>
+              <EarningContext>
+                <ContentLibraryProvider>
+                  <CampaignProvider>
+                    <DriverProvider>
+                      <Router history={history}>
+                        <App />
+                      </Router>
+                    </DriverProvider>
+                  </CampaignProvider>
+                </ContentLibraryProvider>
+              </EarningContext>
             </PayoutProvider>
           </RevenueProvider>
         </QuizProvider>

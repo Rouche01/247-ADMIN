@@ -186,9 +186,6 @@ const AdvertiserDetail = () => {
     }
   };
 
-  // will improve this later
-  if (fetchingAdvertiser && !advertiser) return <Spinner />;
-
   return (
     advertiser && (
       <Dashboard

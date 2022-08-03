@@ -207,7 +207,7 @@ const Drivers = () => {
                     onClick={(ev) => {
                       if (!ev.target.closest(".toggle-check")) {
                         history.push({
-                          pathname: `/driver/${driver.id.toLowerCase()}`,
+                          pathname: `/driver/${driver?.driverId || driver.id}`,
                         });
                       }
                     }}

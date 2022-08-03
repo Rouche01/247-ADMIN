@@ -1,9 +1,18 @@
 import React from "react";
 import { MdOutlineArrowUpward, MdOutlineArrowDownward } from "react-icons/md";
 
-const InfoBox = ({ infoTitle, infoValue, bgColor, statChange, btnText }) => {
+const InfoBox = ({
+  infoTitle,
+  infoValue,
+  bgColor,
+  statChange,
+  btnText,
+  btnAction,
+}) => {
   return (
-    <div className={`${bgColor} rounded-lg border-2 border-247-dark-text py-8 px-7 flex flex-col items-start justify-between`}>
+    <div
+      className={`${bgColor} rounded-lg border-2 border-247-dark-text py-8 px-7 flex flex-col items-start justify-between`}
+    >
       <h4 className="text-white font-customRoboto font-medium text-xl">
         {infoTitle}
       </h4>
@@ -25,7 +34,10 @@ const InfoBox = ({ infoTitle, infoValue, bgColor, statChange, btnText }) => {
           ))}
       </div>
       {btnText && (
-        <button className="text-lg font-semibold px-7 py-2 bg-white rounded mt-4">
+        <button
+          onClick={() => btnAction()}
+          className="text-lg font-semibold px-7 py-2 bg-white rounded mt-4"
+        >
           {btnText}
         </button>
       )}

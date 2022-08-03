@@ -2,38 +2,11 @@ import classNames from "classnames";
 import startCase from "lodash/startCase";
 import React from "react";
 import { BiCaretLeft, BiCaretRight } from "react-icons/bi";
-import { formatNum } from "../../utils/numFormatter";
+import { transformTransactionDate } from "../../utils/date";
+import { convertKoboToNaira, formatNum } from "../../utils/numFormatter";
 import CenterModal from "./CenterModal";
 
-const dummyHistory = [
-  {
-    amount: 24567,
-    date: "Oct. 11, 2021 | 12:50:32",
-    status: "pending",
-  },
-  {
-    amount: 65450,
-    date: "Apr. 11, 2021 | 08:10:32",
-    status: "success",
-  },
-  {
-    amount: 74537,
-    date: "Mar. 11, 2021 | 11:50:32",
-    status: "success",
-  },
-  {
-    amount: 165450,
-    date: "Feb. 05, 2021 | 08:34:32",
-    status: "success",
-  },
-  {
-    amount: 35450,
-    date: "Jan. 03, 2021 | 11:34:32",
-    status: "success",
-  },
-];
-
-const PayoutHistoryModal = ({ isOpen, setIsOpen }) => {
+const PayoutHistoryModal = ({ isOpen, setIsOpen, payouts }) => {
   return (
     <CenterModal modalOpen={isOpen} setModalOpen={setIsOpen}>
       <h2 className="text-white text-center text-2xl font-semibold">
@@ -41,15 +14,15 @@ const PayoutHistoryModal = ({ isOpen, setIsOpen }) => {
       </h2>
       <div className="mt-14 w-full">
         <ul>
-          {dummyHistory.map((item) => (
+          {payouts.map((item) => (
             <li className="odd:bg-247-dark-accent3 even:bg-black first:rounded-t-lg last:rounded-b-lg">
               <div className="py-4 px-7 grid grid-cols-4 items-center gap-4 ">
                 <div className="col-span-2">
                   <h4 className="text-white text-base font-semibold">
-                    {formatNum(item.amount, true, true)}
+                    {formatNum(convertKoboToNaira(item.amount), true, true)}
                   </h4>
                   <p className="text-247-timestamp-color text-sm font-semibold">
-                    {item.date}
+                    {transformTransactionDate(item.createdAt)}
                   </p>
                 </div>
                 <div className="col-span-1">
