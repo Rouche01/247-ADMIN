@@ -10,6 +10,8 @@ const SET_FETCH_BY_ID_ERROR = "set_fetch_by_id_error";
 const SET_ADVERTISER_LIST = "set_advertiser_list";
 const SET_ADVERTISER_SIZE = "set_advertiser_size";
 const SET_SINGLE_ADVERTISER = "set_single_advertiser";
+const FETCHING_TOTAL_SIZE = "fetching_total_size";
+const SET_TOTAL_SIZE = "set_total_size";
 
 const mapErrorToAction = {
   fetch: SET_FETCH_ERROR,
@@ -35,6 +37,10 @@ const advertiserReducer = (state, action) => {
       return { ...state, creatingAdvertiser: action.payload };
     case SET_CREATE_ERROR:
       return { ...state, createAdvertiserError: action.payload };
+    case FETCHING_TOTAL_SIZE:
+      return { ...state, fetchingTotalSize: action.payload };
+    case SET_TOTAL_SIZE:
+      return { ...state, advertiserTotalSize: action.payload };
     default:
       return state;
   }
@@ -100,6 +106,34 @@ const fetchAdvertisers = (dispatch) => async (params) => {
   }
 };
 
+const fetchTotalAdvertisersSize = (dispatch) => async () => {
+  dispatch({ type: FETCHING_TOTAL_SIZE, payload: true });
+  dispatch({ type: SET_FETCH_ERROR, payload: null });
+  try {
+    const response = await adverts247Api.get("/advertisers", {
+      headers: { Authorization: `Bearer ${resolveToken()}` },
+    });
+
+    dispatch({ type: SET_TOTAL_SIZE, payload: response.data.size });
+    dispatch({ type: FETCHING_TOTAL_SIZE, payload: false });
+  } catch (err) {
+    if (err.response) {
+      dispatch({
+        type: SET_FETCH_ERROR,
+        payload:
+          err.response.data.message ||
+          "Unable to fetch advertisers. Something went wrong",
+      });
+    } else {
+      dispatch({
+        type: SET_FETCH_ERROR,
+        payload: "Unable to fetch advertisers. Something went wrong",
+      });
+    }
+    dispatch({ type: FETCHING_TOTAL_SIZE, payload: false });
+  }
+};
+
 const fetchAdvertiserById = (dispatch) => async (advertiserId) => {
   console.log(advertiserId);
   dispatch({ type: SET_LOADING_STATE, payload: true });
@@ -145,10 +179,13 @@ export const { Context, Provider } = createDataContext(
     advertisers: [],
     advertiserSize: 0,
     advertiser: null,
+    advertiserTotalSize: 0,
+    fetchingTotalSize: false
   },
   {
     fetchAdvertisers,
     fetchAdvertiserById,
+    fetchTotalAdvertisersSize,
     createAdvertiser,
     clearError,
   }

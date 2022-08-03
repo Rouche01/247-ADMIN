@@ -1,9 +1,13 @@
 import React, { useContext, useEffect, useState, useMemo } from "react";
 import { useHistory } from "react-router-dom";
 import differenceInSeconds from "date-fns/differenceInSeconds";
+import PlaceholderLoading from "react-placeholder-loading";
+
 import Dashboard from "../components/Dashboard";
 import InfoBox from "../components/InfoBox";
 import { Context as AdvertiserContext } from "../context/AdvertiserContext";
+import { Context as RevenueContext } from "../context/RevenueContext";
+import { Context as CampaignContext } from "../context/CampaignContext";
 import { usePagination } from "../hooks/pagination";
 import DataTable from "../components/DataTable";
 import Checkbox from "../components/uiComponents/Checkbox";
@@ -16,6 +20,20 @@ import {
   calculateTotalAdSpend,
   calculateTotalImpression,
 } from "../utils/transformAdvertiser";
+
+const StatBoxPlaceholder = () => {
+  return (
+    <div>
+      <PlaceholderLoading
+        width="100%"
+        height="140px"
+        shape="rect"
+        colorEnd="#1A1C1F"
+        colorStart="#1D2023"
+      />
+    </div>
+  );
+};
 
 const tableHeaders = [
   "",
@@ -34,14 +52,43 @@ const Advertisers = () => {
   const history = useHistory();
 
   const {
+    state: { fetchingTotalSize: fetchingTotalCampaigns, campaignTotalSize },
+    fetchTotalCampaignSize,
+  } = useContext(CampaignContext);
+
+  const {
+    state: { fetchingRevenue, totalRevenue },
+    fetchRevenue,
+  } = useContext(RevenueContext);
+
+  const {
     state: {
       loading: fetchingAdvertisers,
       advertisers,
       advertiserSize,
       fetchError,
+      advertiserTotalSize,
+      fetchingTotalSize,
     },
     fetchAdvertisers,
+    fetchTotalAdvertisersSize,
   } = useContext(AdvertiserContext);
+
+  const loadingStats = useMemo(
+    () => fetchingTotalSize || fetchingTotalCampaigns || fetchingRevenue,
+    [fetchingTotalCampaigns, fetchingTotalSize, fetchingRevenue]
+  );
+
+  useEffect(() => {
+    (async () => {
+      await Promise.all([
+        fetchTotalAdvertisersSize(),
+        fetchTotalCampaignSize(),
+        fetchRevenue(),
+      ]);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const paginationOptions = useMemo(
     () => ({
@@ -55,8 +102,6 @@ const Advertisers = () => {
     fetchAdvertisers({ ...paginationOptions });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paginationOptions]);
-
-  console.log(advertisers);
 
   const { indexOfFirstItem, indexOfLastItem, pages } = usePagination(
     currentPage,
@@ -79,23 +124,31 @@ const Advertisers = () => {
   return (
     <>
       <Dashboard pageTitle="Advertisers">
-        <div className="grid grid-cols-3 gap-6 mt-16">
-          <InfoBox
-            bgColor="bg-blue-gradient"
-            infoTitle="No. of Advertisers"
-            infoValue={formatNum(1291)}
-          />
-          <InfoBox
-            bgColor="bg-green-gradient"
-            infoTitle="Total Revenue"
-            infoValue={formatNum(12850000, true)}
-          />
-          <InfoBox
-            bgColor="bg-yellow-gradient"
-            infoTitle="Total Campaigns"
-            infoValue={formatNum(27009, false, true)}
-          />
-        </div>
+        {loadingStats ? (
+          <div className="grid grid-cols-3 gap-6 mt-16">
+            {Array.from({ length: 3 }, (_, i) => i + 1).map((val) => (
+              <StatBoxPlaceholder key={val} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-6 mt-16">
+            <InfoBox
+              bgColor="bg-blue-gradient"
+              infoTitle="No. of Advertisers"
+              infoValue={formatNum(advertiserTotalSize)}
+            />
+            <InfoBox
+              bgColor="bg-green-gradient"
+              infoTitle="Total Revenue"
+              infoValue={formatNum(totalRevenue, true)}
+            />
+            <InfoBox
+              bgColor="bg-yellow-gradient"
+              infoTitle="Total Campaigns"
+              infoValue={formatNum(campaignTotalSize, false, true)}
+            />
+          </div>
+        )}
         <div className="mt-16 rounded-md bg-black border-2 border-247-dark-text mb-10">
           <DataTable headers={tableHeaders} loadingData={fetchingAdvertisers}>
             {fetchingAdvertisers && (

@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import Dashboard from "../components/Dashboard";
+import React, { useState, useEffect, useContext, useMemo } from "react";
 import {
   MdOutlineArrowUpward,
   MdOutlineArrowDownward,
@@ -7,7 +6,12 @@ import {
 } from "react-icons/md";
 import $ from "jquery";
 import moment from "moment";
+import PlaceholderLoading from "react-placeholder-loading";
 
+import { Context as CampaignContext } from "../context/CampaignContext";
+import { Context as DriverContext } from "../context/DriverContext";
+import { Context as RevenueContext } from "../context/RevenueContext";
+import Dashboard from "../components/Dashboard";
 import ImpressionChart from "../components/ImpressionChart";
 import Checkbox from "../components/uiComponents/Checkbox";
 import { impressionData } from "../utils/dummyData";
@@ -22,6 +26,20 @@ const NOW = moment();
 const DEFAULT_FILTERS = {
   startDate: TWELVE_MONTH_AGO,
   endDate: NOW,
+};
+
+const StatBoxPlaceholder = () => {
+  return (
+    <div>
+      <PlaceholderLoading
+        width="100%"
+        height="160px"
+        shape="rect"
+        colorEnd="#1A1C1F"
+        colorStart="#1D2023"
+      />
+    </div>
+  );
 };
 
 const StatBox = ({
@@ -67,6 +85,53 @@ const StatBox = ({
 const Overview = () => {
   const [totalChecked, setTotalChecked] = useState(true);
   const [perDayChecked, setPerDayChecked] = useState(false);
+
+  const {
+    state: {
+      fetchingTotalSize,
+      campaignTotalSize,
+      activeCampaignsSize,
+      fetchingActiveCampaigns,
+    },
+    fetchTotalCampaignSize,
+    fetchActiveCampaigns,
+  } = useContext(CampaignContext);
+
+  const {
+    state: { fetchingRevenue, totalRevenue },
+    fetchRevenue,
+  } = useContext(RevenueContext);
+
+  const {
+    state: { driverListSize, fetchingDrivers },
+    fetchDrivers,
+  } = useContext(DriverContext);
+
+  const loadingStats = useMemo(
+    () =>
+      fetchingTotalSize ||
+      fetchingActiveCampaigns ||
+      fetchingDrivers ||
+      fetchingRevenue,
+    [
+      fetchingActiveCampaigns,
+      fetchingDrivers,
+      fetchingRevenue,
+      fetchingTotalSize,
+    ]
+  );
+
+  useEffect(() => {
+    (async () => {
+      await Promise.all([
+        fetchActiveCampaigns(),
+        fetchTotalCampaignSize(),
+        fetchDrivers({ status: "approved" }),
+        fetchRevenue(),
+      ]);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [startDate, setStartDate] = useMomentDateQueryParamWithDefaultValue(
     "startDate",
@@ -132,36 +197,44 @@ const Overview = () => {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-8">
-        <StatBox
-          indicatorColor="#045684"
-          bgColor="bg-blue-gradient"
-          statChange={5.23}
-          statInfo={formatNum(1200)}
-          statName="Total Campaigns"
-        />
-        <StatBox
-          indicatorColor="#035524"
-          bgColor="bg-green-gradient"
-          statChange={-1.08}
-          statInfo={formatNum(680)}
-          statName="Active Campaigns"
-        />
-        <StatBox
-          indicatorColor="#000000"
-          bgColor="bg-yellow-gradient"
-          statChange={1.75}
-          statInfo={formatNum(800)}
-          statName="Active Drivers"
-        />
-        <StatBox
-          indicatorColor="#21A0AA"
-          bgColor="bg-orange-gradient"
-          statChange={1.75}
-          statInfo={formatNum(12850000, true)}
-          statName="Total Revenue"
-        />
-      </div>
+      {loadingStats ? (
+        <div className="grid grid-cols-2 gap-8">
+          {Array.from({ length: 4 }, (_, i) => i + 1).map((val) => (
+            <StatBoxPlaceholder key={val} />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-8">
+          <StatBox
+            indicatorColor="#045684"
+            bgColor="bg-blue-gradient"
+            statChange={5.23}
+            statInfo={formatNum(campaignTotalSize)}
+            statName="Total Campaigns"
+          />
+          <StatBox
+            indicatorColor="#035524"
+            bgColor="bg-green-gradient"
+            statChange={-1.08}
+            statInfo={formatNum(activeCampaignsSize)}
+            statName="Active Campaigns"
+          />
+          <StatBox
+            indicatorColor="#000000"
+            bgColor="bg-yellow-gradient"
+            statChange={1.75}
+            statInfo={formatNum(driverListSize)}
+            statName="Active Drivers"
+          />
+          <StatBox
+            indicatorColor="#21A0AA"
+            bgColor="bg-orange-gradient"
+            statChange={1.75}
+            statInfo={formatNum(totalRevenue, true)}
+            statName="Total Revenue"
+          />
+        </div>
+      )}
       <div className="mt-10 mb-20 w-full bg-247-secondary rounded-md border-2 border-247-dark-text pl-6 pr-10 py-10">
         <div className="flex justify-between items-center mb-10">
           <h3 className="text-white font-customRoboto text-2xl font-medium">
