@@ -15,7 +15,7 @@ import Dashboard from "../components/Dashboard";
 import ImpressionChart from "../components/ImpressionChart";
 import Checkbox from "../components/uiComponents/Checkbox";
 import { impressionData } from "../utils/dummyData";
-import { formatNum } from "../utils/numFormatter";
+import { convertKoboToNaira, formatNum } from "../utils/numFormatter";
 import ChartUpIndicator from "../components/uiComponents/ChartUpIndicator";
 import ChartDownIndicator from "../components/uiComponents/ChartDownIndicator";
 import { useMomentDateQueryParamWithDefaultValue } from "../hooks/useQueryParam";
@@ -230,7 +230,7 @@ const Overview = () => {
             indicatorColor="#21A0AA"
             bgColor="bg-orange-gradient"
             statChange={1.75}
-            statInfo={formatNum(totalRevenue, true)}
+            statInfo={formatNum(convertKoboToNaira(totalRevenue), true)}
             statName="Total Revenue"
           />
         </div>

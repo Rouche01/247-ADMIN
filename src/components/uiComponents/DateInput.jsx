@@ -10,7 +10,8 @@ const DateInput = ({
   startDate,
   endDate,
   handleChange,
-  errorText
+  errorText,
+  ...dateProps
 }) => {
   return (
     <div className="mt-8">
@@ -31,6 +32,7 @@ const DateInput = ({
           endDate={endDate}
           onChange={(update) => handleChange(update)}
           placeholderText={placeholder}
+          {...dateProps}
         />
         <MdOutlineCalendarToday
           className="absolute top-1/2 left-5 cursor-pointer z-0"

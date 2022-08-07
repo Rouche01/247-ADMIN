@@ -15,7 +15,11 @@ import Pagination from "../components/uiComponents/Pagination";
 import Spinner from "../components/uiComponents/Spinner";
 import NoDataBox from "../components/uiComponents/NoDataBox";
 import ErrorBox from "../components/uiComponents/ErrorBox";
-import { convertSecToHHMMSS, formatNum } from "../utils/numFormatter";
+import {
+  convertKoboToNaira,
+  convertSecToHHMMSS,
+  formatNum,
+} from "../utils/numFormatter";
 import {
   calculateTotalAdSpend,
   calculateTotalImpression,
@@ -140,7 +144,7 @@ const Advertisers = () => {
             <InfoBox
               bgColor="bg-green-gradient"
               infoTitle="Total Revenue"
-              infoValue={formatNum(totalRevenue, true)}
+              infoValue={formatNum(convertKoboToNaira(totalRevenue), true)}
             />
             <InfoBox
               bgColor="bg-yellow-gradient"
@@ -214,12 +218,15 @@ const Advertisers = () => {
                       {Number(impressions).toLocaleString("en-US")}
                     </td>
                     <td className="px-6 py-5">
-                      {Number(totalAdSpend).toLocaleString("en-NG", {
-                        currency: "NGN",
-                        style: "currency",
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      {Number(convertKoboToNaira(totalAdSpend)).toLocaleString(
+                        "en-NG",
+                        {
+                          currency: "NGN",
+                          style: "currency",
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }
+                      )}
                     </td>
                     <td className="px-6 py-5">{formattedDuration}</td>
                   </tr>

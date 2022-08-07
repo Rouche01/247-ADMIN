@@ -96,7 +96,8 @@ const ContentItemRow = forwardRef(
         <td className="px-6 py-5">{contentItem.duration}</td>
         <td className="px-6 py-5">{contentItem.category}</td>
         <td className="px-6 py-5">
-          {format(new Date(contentItem.createdAt), "dd LLL, yyyy")}
+          {/* {format(new Date(contentItem.createdAt), "dd LLL, yyyy")} */}
+          {"test"}
         </td>
         <td className="px-6 py-5">
           {formatNum(contentItem.plays, false, true)}

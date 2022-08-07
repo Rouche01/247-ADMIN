@@ -4,6 +4,10 @@ import omitBy from "lodash/omitBy";
 import format from "date-fns/format";
 import { MdKeyboardBackspace } from "react-icons/md";
 import { FiDownloadCloud } from "react-icons/fi";
+import moment from "moment";
+import classNames from "classnames/bind";
+import startCase from "lodash/startCase";
+
 import Dashboard from "../components/Dashboard";
 import RoundedBtnWithIcon from "../components/uiComponents/RoundedBtnWithIcon";
 import InfoBox from "../components/InfoBox";
@@ -11,25 +15,27 @@ import Checkbox from "../components/uiComponents/Checkbox";
 import TableHeader from "../components/TableHeader";
 import Spinner from "../components/uiComponents/Spinner";
 import Pagination from "../components/uiComponents/Pagination";
-import { Context as CamapignContext } from "../context/CampaignContext";
-import { Context as AdvertiserContext } from "../context/AdvertiserContext";
 import DataTable from "../components/DataTable";
 import ErrorBox from "../components/uiComponents/ErrorBox";
 import NoDataBox from "../components/uiComponents/NoDataBox";
+
+import { Context as CamapignContext } from "../context/CampaignContext";
+import { Context as AdvertiserContext } from "../context/AdvertiserContext";
+
 import { typeFilters, statusFilters } from "../utils/constants";
-import { formatNum } from "../utils/numFormatter";
-import { usePagination } from "../hooks/pagination";
-import moment from "moment";
-import classNames from "classnames/bind";
-import startCase from "lodash/startCase";
-import {
-  useMomentDateQueryParamWithDefaultValue,
-  useQueryParamWithDefaultValue,
-} from "../hooks/useQueryParam";
+import { convertKoboToNaira, formatNum } from "../utils/numFormatter";
 import {
   calculateTotalAdSpend,
   calculateTotalImpression,
 } from "../utils/transformAdvertiser";
+import { calculateDistanceInDays } from "../utils/date";
+
+import { usePagination } from "../hooks/pagination";
+import {
+  useMomentDateQueryParamWithDefaultValue,
+  useQueryParamWithDefaultValue,
+} from "../hooks/useQueryParam";
+
 import AdvertiserDetailLoading from "../components/loader/AdvertiserDetail.loader";
 
 const tableHeaders = [
@@ -209,7 +215,11 @@ const AdvertiserDetail = () => {
               <InfoBox
                 bgColor="bg-green-gradient"
                 infoTitle="Total Spend"
-                infoValue={formatNum(advertiserStat.totalAdSpend, true)}
+                infoValue={formatNum(
+                  convertKoboToNaira(advertiserStat.totalAdSpend),
+                  true,
+                  true
+                )}
               />
               <InfoBox
                 bgColor="bg-yellow-gradient"
@@ -243,74 +253,84 @@ const AdvertiserDetail = () => {
                 )}
                 {!fetchingCampaigns &&
                   campaigns.length > 0 &&
-                  campaigns.map((campaign, idx) => (
-                    <tr
-                      className={
-                        checkedCampaigns.includes(idx)
-                          ? "text-lg bg-gray-700 border border-247-dark-text cursor-pointer hover:bg-gray-700"
-                          : "text-lg border border-247-dark-text odd:bg-247-dark-accent3 cursor-pointer hover:bg-gray-700"
-                      }
-                      key={`campaign${campaign.id}`}
-                    >
-                      <td className="px-3 py-5">
-                        <Checkbox
-                          checked={
-                            checkedCampaigns.includes(idx) ? true : false
-                          }
-                          iconColor="#CACACA"
-                          name={campaign.id.toLowerCase()}
-                          handleChange={() => toggleCampaignCheck(idx)}
-                        />
-                      </td>
-                      <td className="px-6 py-5">
-                        <div className="flex items-center ">
-                          {campaign.campaignName}
-                        </div>
-                      </td>
-                      <td className="px-6 py-5">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={classNames(
-                              "rounded-full",
-                              "w-4",
-                              "h-4",
-                              {
-                                "bg-active-gradient":
-                                  campaign.status === "active",
-                              },
-                              {
-                                "bg-closed-gradient":
-                                  campaign.status === "closed",
-                              },
-                              {
-                                "bg-paused-gradient":
-                                  campaign.status === "paused",
-                              }
-                            )}
-                          ></div>
-                          {startCase(campaign.status)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-5">
-                        {campaign.advertiser.companyName}
-                      </td>
-                      <td className="px-6 py-5">
-                        {Number(
-                          campaign.campaignStat.impressions
-                        ).toLocaleString("en-NG")}
-                      </td>
-                      <td className="px-6 py-5">{10}</td>
-                      <td className="px-6 py-5">
-                        {Number(campaign.campaignStat.adSpend).toLocaleString(
-                          "en-NG",
-                          {
+                  campaigns.map((campaign, idx) => {
+                    const duration = calculateDistanceInDays(
+                      campaign.duration[1],
+                      campaign.duration[0]
+                    );
+
+                    return (
+                      <tr
+                        className={
+                          checkedCampaigns.includes(idx)
+                            ? "text-lg bg-gray-700 border border-247-dark-text cursor-pointer hover:bg-gray-700"
+                            : "text-lg border border-247-dark-text odd:bg-247-dark-accent3 cursor-pointer hover:bg-gray-700"
+                        }
+                        key={`campaign${campaign.id}`}
+                      >
+                        <td className="px-3 py-5">
+                          <Checkbox
+                            checked={
+                              checkedCampaigns.includes(idx) ? true : false
+                            }
+                            iconColor="#CACACA"
+                            name={campaign.id.toLowerCase()}
+                            handleChange={() => toggleCampaignCheck(idx)}
+                          />
+                        </td>
+                        <td className="px-6 py-5">
+                          <div className="flex items-center ">
+                            {campaign.campaignName}
+                          </div>
+                        </td>
+                        <td className="px-6 py-5">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={classNames(
+                                "rounded-full",
+                                "w-4",
+                                "h-4",
+                                {
+                                  "bg-active-gradient":
+                                    campaign.status === "active",
+                                },
+                                {
+                                  "bg-closed-gradient":
+                                    campaign.status === "closed",
+                                },
+                                {
+                                  "bg-paused-gradient":
+                                    campaign.status === "paused",
+                                }
+                              )}
+                            ></div>
+                            {startCase(campaign.status)}
+                          </div>
+                        </td>
+                        <td className="px-6 py-5">
+                          {campaign.advertiser.companyName}
+                        </td>
+                        <td className="px-6 py-5">
+                          {Number(
+                            campaign.campaignStat.impressions
+                          ).toLocaleString("en-NG")}
+                        </td>
+                        <td className="px-6 py-5">
+                          {`${duration} ${duration > 1 ? "days" : "day"}`}
+                        </td>
+                        <td className="px-6 py-5">
+                          {Number(
+                            convertKoboToNaira(
+                              campaign?.campaignStat?.adSpend?.amountInKobo || 0
+                            )
+                          ).toLocaleString("en-NG", {
                             style: "currency",
                             currency: "NGN",
-                          }
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                          })}
+                        </td>
+                      </tr>
+                    );
+                  })}
               </DataTable>
               {!fetchingCampaigns &&
                 !retrieveErrorMsg &&

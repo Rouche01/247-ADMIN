@@ -20,12 +20,12 @@ import Checkbox from "../components/uiComponents/Checkbox";
 import Pagination from "../components/uiComponents/Pagination";
 import { Context as CampaignContext } from "../context/CampaignContext";
 import { Context as RevenueContext } from "../context/RevenueContext";
-import { formatNum } from "../utils/numFormatter";
+import { convertKoboToNaira, formatNum } from "../utils/numFormatter";
 import { typeFilters, statusFilters } from "../utils/constants";
 import Spinner from "../components/uiComponents/Spinner";
 import NoDataBox from "../components/uiComponents/NoDataBox";
 import ErrorBox from "../components/uiComponents/ErrorBox";
-import { calculateDistance } from "../utils/date";
+import { calculateDistanceInDays } from "../utils/date";
 
 const StatBoxPlaceholder = () => {
   return (
@@ -186,7 +186,7 @@ const Campaign = () => {
           <InfoBox
             bgColor="bg-blue-gradient"
             infoTitle="Total Revenue"
-            infoValue={formatNum(totalRevenue, true)}
+            infoValue={formatNum(convertKoboToNaira(totalRevenue), true)}
             statChange={2.4}
           />
           <InfoBox
@@ -226,7 +226,7 @@ const Campaign = () => {
           {!fetchingCampaigns &&
             campaigns.length > 0 &&
             campaigns.map((campaign, idx) => {
-              const duration = calculateDistance(
+              const duration = calculateDistanceInDays(
                 campaign.duration[1],
                 campaign.duration[0]
               );
@@ -289,9 +289,13 @@ const Campaign = () => {
                       "en-NG"
                     )}
                   </td>
-                  <td className="px-6 py-5">{duration}</td>
+                  <td className="px-6 py-5">{`${duration} ${
+                    duration > 1 ? "days" : "day"
+                  }`}</td>
                   <td className="px-6 py-5">
-                    {Number(campaign.adBudget).toLocaleString("en-NG", {
+                    {Number(
+                      convertKoboToNaira(campaign.adBudgetInKobo)
+                    ).toLocaleString("en-NG", {
                       style: "currency",
                       currency: "NGN",
                     })}

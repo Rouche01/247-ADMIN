@@ -277,6 +277,7 @@ const CreateCampaignModal = ({
                   endDate={(field.value && field?.value[1]) || null}
                   handleChange={(date) => field.onChange(date)}
                   errorText={errors.duration?.message}
+                  minDate={new Date()}
                 />
               );
             }}
