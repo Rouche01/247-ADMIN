@@ -62,4 +62,9 @@ export const convertSecToMMSS = (secondsInput) => {
   return `${minutesOut}:${secondsOut}`;
 };
 
+export const convertMMSSToSec = (mmssInput) => {
+  const inputArray = mmssInput.split(":");
+  return parseInt(inputArray[0]) * 60 + parseInt(inputArray[1]);
+};
+
 export const convertKoboToNaira = (kobo) => kobo / 100;

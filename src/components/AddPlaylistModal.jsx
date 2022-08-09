@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { usePagination } from "../hooks/pagination";
-import { contentLibrary } from "../utils/dummyData";
 import DataTable from "./DataTable";
 import CenterModal from "./uiComponents/CenterModal";
 import Pagination from "./uiComponents/Pagination";
 import ContentItemRow from "./ContentItemRow";
 import SearchInput from "./uiComponents/SearchInput";
 import Button from "./uiComponents/Button";
+import Spinner from "./uiComponents/Spinner";
+import NoDataBox from "./uiComponents/NoDataBox";
+import ErrorBox from "./uiComponents/ErrorBox";
 
 const tableHeaders = [
   "",
@@ -18,13 +19,22 @@ const tableHeaders = [
   "Status",
 ];
 
-const AddPlaylistModal = ({ isOpen, setIsOpen }) => {
+const AddPlaylistModal = ({
+  isOpen,
+  setIsOpen,
+  currentPage,
+  indexOfFirstItem,
+  indexOfLastItem,
+  pages,
+  setCurrentPage,
+  setShownRows,
+  shownRows,
+  list,
+  listSize,
+  loadingData,
+  fetchError,
+}) => {
   const [checkedContentItem, setCheckedContentItem] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [shownRows, setShownRows] = useState(5);
-
-  const { currentList, indexOfFirstItem, indexOfLastItem, pages } =
-    usePagination(currentPage, shownRows, contentLibrary);
 
   const toggleContentItemCheck = (idx) => {
     if (checkedContentItem.includes(idx)) {
@@ -43,38 +53,71 @@ const AddPlaylistModal = ({ isOpen, setIsOpen }) => {
         <div className="flex py-4 px-8">
           <SearchInput />
         </div>
-        <DataTable headers={tableHeaders}>
-          {currentList.map((contentItem, idx) => (
-            <ContentItemRow
-              checkedItems={checkedContentItem}
-              contentItem={contentItem}
-              index={idx}
-              toggleItemCheck={toggleContentItemCheck}
-              key={`contentItem_${idx}`}
-              hideAction
-              smallText
-            />
-          ))}
+        <DataTable headers={tableHeaders} loadingData={loadingData}>
+          {loadingData && (
+            <div className="flex items-center justify-center w-full absolute py-14">
+              <Spinner size="large" />
+            </div>
+          )}
+          {!loadingData &&
+            list.length > 0 &&
+            list.map((contentItem, idx) => (
+              <ContentItemRow
+                checkedItems={checkedContentItem}
+                contentItem={contentItem}
+                index={idx}
+                toggleItemCheck={toggleContentItemCheck}
+                key={`contentItem_${idx}`}
+                hideAction
+                smallText
+              />
+            ))}
         </DataTable>
+        {!loadingData && !fetchError && list.length === 0 && (
+          <div className="w-full py-9">
+            <NoDataBox
+              title="No Campaign Found"
+              subtitle="We cannot find any campaign that fits your criteria."
+            />
+          </div>
+        )}
+        {!loadingData && fetchError && (
+          <div className="w-full py-9">
+            <ErrorBox
+              title="Error Retrieving Campaigns"
+              subtitle={fetchError}
+            />
+          </div>
+        )}
       </div>
       <div className="flex items-center justify-end mb-20">
-        <Pagination
-          activePage={currentPage}
-          dataLength={contentLibrary.length}
-          firstItem={indexOfFirstItem + 1}
-          lastItem={indexOfLastItem}
-          pages={pages}
-          setActivePage={setCurrentPage}
-          setVisibleRows={setShownRows}
-          visibleRows={shownRows}
-        />
+        {list && list.length > 0 && (
+          <Pagination
+            activePage={currentPage}
+            dataLength={listSize}
+            firstItem={indexOfFirstItem + 1}
+            lastItem={indexOfLastItem}
+            pages={pages}
+            setActivePage={setCurrentPage}
+            setVisibleRows={setShownRows}
+            visibleRows={shownRows}
+          />
+        )}
       </div>
-      <Button
-        className={["bg-247-red-straight", "block", "mt-12", "px-12", "font-normal"]}
-        fullWidth
-      >
-        Add
-      </Button>
+      {!fetchError && (
+        <Button
+          className={[
+            "bg-247-red-straight",
+            "block",
+            "mt-12",
+            "px-12",
+            "font-normal",
+          ]}
+          fullWidth
+        >
+          Add
+        </Button>
+      )}
     </CenterModal>
   );
 };

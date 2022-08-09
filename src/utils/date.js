@@ -16,3 +16,6 @@ export const convertDateToNumber = (date) => {
 
 export const transformTransactionDate = (dateString) =>
   format(new Date(dateString), "MMM dd, yyyy | HH:mm:ss");
+
+export const transformPlaylistCreateDate = (dateString) =>
+  format(new Date(dateString), "dd MMM, yyyy");

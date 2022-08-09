@@ -294,7 +294,9 @@ const Campaign = () => {
                   }`}</td>
                   <td className="px-6 py-5">
                     {Number(
-                      convertKoboToNaira(campaign.adBudgetInKobo)
+                      convertKoboToNaira(
+                        campaign.campaignStat?.adSpend?.amountInKobo || 0
+                      )
                     ).toLocaleString("en-NG", {
                       style: "currency",
                       currency: "NGN",

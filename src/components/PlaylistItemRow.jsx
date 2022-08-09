@@ -1,10 +1,12 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useMemo } from "react";
 import { FiMoreVertical } from "react-icons/fi";
 import { MdDragHandle } from "react-icons/md";
 import { Draggable } from "react-beautiful-dnd";
 import classNames from "classnames";
 import kebabCase from "lodash/kebabCase";
 import withClickOutside from "../hoc/withClickOutside";
+import { convertSecToMMSS } from "../utils/numFormatter";
+import { transformPlaylistCreateDate } from "../utils/date";
 
 const PlaylistItemRow = forwardRef(
   (
@@ -17,6 +19,7 @@ const PlaylistItemRow = forwardRef(
       setOpen,
       draggableId,
       index,
+      setCurrentItem,
     },
     ref
   ) => {
@@ -30,16 +33,31 @@ const PlaylistItemRow = forwardRef(
       onDownwardMove(item);
     };
 
-    const handleConfirmRemoveItem = () => {
+    const handleConfirmRemoveItem = (item) => {
+      setCurrentItem(item);
       setOpen(false);
       setConfirmRemoveItem(true);
     };
 
     const playlistActions = [
-      { name: "Remove content", action: handleConfirmRemoveItem },
+      playlistItem.contentType !== "campaign" && {
+        name: "Remove content",
+        action: handleConfirmRemoveItem,
+      },
       { name: "Move up", action: handleMoveUp },
       { name: "Move down", action: handleMoveDown },
-    ];
+    ].filter((val) => val);
+
+    const thumbnail = useMemo(() => {
+      if (playlistItem.contentType === "campaign") {
+        return playlistItem.mediaType === "video"
+          ? playlistItem?.resourceRef?.videoThumbnail
+          : playlistItem?.resourceRef?.campaignMedia;
+      } else {
+        return playlistItem?.resourceRef?.previewUri;
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [playlistItem.contentType]);
 
     return (
       <Draggable draggableId={draggableId} index={index}>
@@ -55,20 +73,24 @@ const PlaylistItemRow = forwardRef(
             <td className="px-6 py-5">
               <div className="flex items-center">
                 <img
-                  src={playlistItem.previewImg}
+                  src={thumbnail}
                   className="h-14 w-24 object-cover rounded"
                   alt="content thumbnail"
                 />
                 <div className="ml-4">
                   <p>{playlistItem.title}</p>
                   <p className="text-sm text-247-timestamp-color font-semibold">
-                    {playlistItem.type}
+                    {playlistItem.contentType}
                   </p>
                 </div>
               </div>
             </td>
-            <td className="px-6 py-5">{playlistItem.duration}</td>
-            <td className="px-6 py-5">{playlistItem.date}</td>
+            <td className="px-6 py-5">
+              {convertSecToMMSS(playlistItem.durationInSeconds)}
+            </td>
+            <td className="px-6 py-5">
+              {transformPlaylistCreateDate(playlistItem.createdAt)}
+            </td>
             <td className="px-6 py-5">
               <div className="relative" ref={ref}>
                 <button
