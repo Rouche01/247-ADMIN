@@ -115,7 +115,6 @@ const addItemToPlaylist = (dispatch) => async (data, cb) => {
 };
 
 const deletePlaylistItem = (dispatch) => async (playlistId, cb) => {
-  console.log("delete");
   dispatch({ type: DELETING_PLAYLIST_ITEM, payload: true });
   dispatch({ type: PLAYLIST_DELETE_ERROR, payload: null });
   try {
@@ -125,6 +124,36 @@ const deletePlaylistItem = (dispatch) => async (playlistId, cb) => {
     );
 
     console.log(response.data);
+    dispatch({ type: DELETING_PLAYLIST_ITEM, payload: false });
+    dispatch({ type: PLAYLIST_DELETE_SUCCESS, payload: response.data.message });
+    cb && cb();
+  } catch (err) {
+    if (err.response) {
+      console.log(err.response);
+      dispatch({
+        type: PLAYLIST_DELETE_ERROR,
+        payload:
+          err.response.data.message ||
+          "Unable to delete playlist item. Something went wrong",
+      });
+    } else {
+      dispatch({
+        type: PLAYLIST_DELETE_ERROR,
+        payload: "Unable to delete playlist item. Something went wrong",
+      });
+    }
+    dispatch({ type: DELETING_PLAYLIST_ITEM, payload: false });
+  }
+};
+
+const deletePlaylistItemForMedia = (dispatch) => async (mediaId, cb) => {
+  dispatch({ type: DELETING_PLAYLIST_ITEM, payload: true });
+  dispatch({ type: PLAYLIST_DELETE_ERROR, payload: null });
+  try {
+    const response = await adverts247Api.delete(`/playlists/media/${mediaId}`, {
+      headers: { Authorization: `Bearer ${resolveToken()}` },
+    });
+
     dispatch({ type: DELETING_PLAYLIST_ITEM, payload: false });
     dispatch({ type: PLAYLIST_DELETE_SUCCESS, payload: response.data.message });
     cb && cb();
@@ -164,5 +193,11 @@ export const { Context, Provider } = createDataContext(
     playlistDeleteSuccess: null,
     playlistDeleteError: null,
   },
-  { fetchGeneralPlaylist, addItemToPlaylist, clearError, deletePlaylistItem }
+  {
+    fetchGeneralPlaylist,
+    addItemToPlaylist,
+    clearError,
+    deletePlaylistItem,
+    deletePlaylistItemForMedia,
+  }
 );

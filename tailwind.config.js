@@ -31,6 +31,7 @@ module.exports = {
         "247-upload-bg": "rgba(247, 247, 247, 0.1)",
         "247-placeholder-shade": "#DFDFDF",
         "247-overlay": "rgba(0, 0, 0, 0.75)",
+        "247-overlay-2": "rgba(0, 0, 0, 0.92)",
         "247-tab-bg": "#222222",
         "247-campaign-preview": "#131313",
         "247-campaign-preview-title": "#F50606",

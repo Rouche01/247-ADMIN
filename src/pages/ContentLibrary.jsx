@@ -18,6 +18,7 @@ import { Context as ContentLibraryContext } from "../context/ContentLibraryConte
 import { Context as PlaylistContext } from "../context/PlaylistContext";
 import { convertMMSSToSec, convertSecToMMSS } from "../utils/numFormatter";
 import { useToastError } from "../hooks/handleError";
+import OverlayLoader from "../components/uiComponents/OverlayLoader";
 
 const tableHeaders = [
   "",
@@ -61,8 +62,14 @@ const ContentLibrary = () => {
   } = useContext(ContentLibraryContext);
 
   const {
-    state: { addingItemToPlaylist, playlistAddedFail },
+    state: {
+      addingItemToPlaylist,
+      playlistAddedFail,
+      deletingPlaylistItem,
+      playlistDeleteError,
+    },
     addItemToPlaylist,
+    deletePlaylistItemForMedia,
     clearError: clearPlaylistError,
   } = useContext(PlaylistContext);
 
@@ -76,6 +83,10 @@ const ContentLibrary = () => {
 
   useToastError(playlistAddedFail, () => {
     clearPlaylistError("addToPlaylist");
+  });
+
+  useToastError(playlistDeleteError, () => {
+    clearPlaylistError("deleteItem");
   });
 
   const paginationOptions = useMemo(
@@ -134,8 +145,11 @@ const ContentLibrary = () => {
     setUploadModalOpen(false);
   };
 
-  const handleRemoveItemFromPlaylist = (item) => {
-    console.log(item, "removing item from playlist...");
+  const handleRemoveItemFromPlaylist = async (item) => {
+    await deletePlaylistItemForMedia(item.id, () => {
+      toast.success("Item removed from playlist successfully!");
+      return fetchMediaItems({ ...paginationOptions });
+    });
   };
 
   const handleAddItemToPlaylist = async (item) => {
@@ -166,6 +180,7 @@ const ContentLibrary = () => {
 
   return (
     <Dashboard>
+      {(addingItemToPlaylist || deletingPlaylistItem) && <OverlayLoader />}
       <div className="mt-20 rounded-md bg-247-secondary border-2 border-247-dark-text mb-10">
         <div className="flex py-4 px-8 justify-end">
           <RoundedBtnWithIcon
