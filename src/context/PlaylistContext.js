@@ -11,10 +11,14 @@ const PLAYLIST_ADD_ERROR = "playlist_add_error";
 const DELETING_PLAYLIST_ITEM = "deleting_playlist_item";
 const PLAYLIST_DELETE_SUCCESS = "playlist_delete_success";
 const PLAYLIST_DELETE_ERROR = "playlist_delete_error";
+const ADDING_MULTIPLE_ITEM = "adding_multiple_item";
+const ADD_MULTIPLE_SUCCESS = "add_multiple_success";
+const ADD_MULTIPLE_ERROR = "add_multiple_error";
 
 const mapErrorDispatchToAction = {
   fetchGeneral: FETCH_GENERAL_PLAYLIST_ERR,
   addToPlaylist: PLAYLIST_ADD_ERROR,
+  addMultiple: ADD_MULTIPLE_ERROR,
   deleteItem: PLAYLIST_DELETE_ERROR,
 };
 
@@ -38,6 +42,12 @@ const playlistReducer = (state, action) => {
       return { ...state, playlistDeleteSuccess: action.payload };
     case PLAYLIST_DELETE_ERROR:
       return { ...state, playlistDeleteError: action.payload };
+    case ADDING_MULTIPLE_ITEM:
+      return { ...state, addingMultipleItem: action.payload };
+    case ADD_MULTIPLE_SUCCESS:
+      return { ...state, addMultipleItemSuccess: action.payload };
+    case ADD_MULTIPLE_ERROR:
+      return { ...state, addMultipleItemError: action.payload };
     default:
       return state;
   }
@@ -76,6 +86,38 @@ const fetchGeneralPlaylist = (dispatch) => async () => {
       });
     }
     dispatch({ type: FETCHING_GENERAL_PLAYLIST, payload: false });
+  }
+};
+
+const addMultipleItemToPlaylist = (dispatch) => async (data, cb) => {
+  dispatch({ type: ADDING_MULTIPLE_ITEM, payload: true });
+  dispatch({ type: ADD_MULTIPLE_ERROR, payload: null });
+  try {
+    const response = await adverts247Api.post(
+      "/playlists/item/multiple",
+      data,
+      { headers: { Authorization: `Bearer ${resolveToken()}` } }
+    );
+
+    console.log(response.data);
+    dispatch({ type: ADDING_MULTIPLE_ITEM, payload: false });
+    dispatch({ type: ADD_MULTIPLE_SUCCESS, payload: response.data.message });
+    cb && cb();
+  } catch (err) {
+    if (err.response) {
+      dispatch({
+        type: ADD_MULTIPLE_ERROR,
+        payload:
+          err.response.data.message ||
+          "Unable to add items to playlist. Something went wrong",
+      });
+    } else {
+      dispatch({
+        type: ADD_MULTIPLE_ERROR,
+        payload: "Unable to add items to playlist. Something went wrong",
+      });
+    }
+    dispatch({ type: ADDING_MULTIPLE_ITEM, payload: false });
   }
 };
 
@@ -192,6 +234,9 @@ export const { Context, Provider } = createDataContext(
     deletingPlaylistItem: false,
     playlistDeleteSuccess: null,
     playlistDeleteError: null,
+    addingMultipleItem: false,
+    addMultipleItemError: null,
+    addMultipleItemSuccess: null,
   },
   {
     fetchGeneralPlaylist,
@@ -199,5 +244,6 @@ export const { Context, Provider } = createDataContext(
     clearError,
     deletePlaylistItem,
     deletePlaylistItemForMedia,
+    addMultipleItemToPlaylist,
   }
 );

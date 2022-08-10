@@ -3,7 +3,7 @@ import Modal from "react-modal";
 
 Modal.setAppElement("#root");
 
-const CenterModal = ({ modalOpen, setModalOpen, children, width }) => {
+const CenterModal = ({ modalOpen, setModalOpen, children, width, cb }) => {
   const modalStyle = {
     content: {
       top: "50%",
@@ -29,7 +29,10 @@ const CenterModal = ({ modalOpen, setModalOpen, children, width }) => {
     <Modal
       isOpen={modalOpen}
       style={modalStyle}
-      onRequestClose={() => setModalOpen(false)}
+      onRequestClose={() => {
+        setModalOpen(false);
+        cb && cb();
+      }}
     >
       {children}
     </Modal>

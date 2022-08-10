@@ -8,6 +8,8 @@ import Button from "./uiComponents/Button";
 import Spinner from "./uiComponents/Spinner";
 import NoDataBox from "./uiComponents/NoDataBox";
 import ErrorBox from "./uiComponents/ErrorBox";
+import toast from "react-hot-toast";
+import { convertMMSSToSec } from "../utils/numFormatter";
 
 const tableHeaders = [
   "",
@@ -33,6 +35,12 @@ const AddPlaylistModal = ({
   listSize,
   loadingData,
   fetchError,
+  onMultipleAdd,
+  addingMultipleItem,
+  addCallback,
+  contentSearch,
+  setContentSearch,
+  handleSearchChange,
 }) => {
   const [checkedContentItem, setCheckedContentItem] = useState([]);
 
@@ -47,11 +55,47 @@ const AddPlaylistModal = ({
     }
   };
 
+  const addItemsToPlaylist = () => {
+    if (checkedContentItem.length === 0) {
+      toast.error("You have not selected any media item");
+    } else {
+      const preparedPayload = checkedContentItem
+        .map((item) => list[item])
+        .map((item) => {
+          const newItem = {
+            title: item.title,
+            mediaUrl: item.mediaUri,
+            durationInSeconds: convertMMSSToSec(item.duration),
+            resourceRef: item.id,
+            modelType: "MediaItem",
+            mediaType: "video",
+            contentType: "non-campaign",
+          };
+          return newItem;
+        });
+      console.log(preparedPayload);
+      onMultipleAdd({ items: preparedPayload }, () => {
+        toast.success("Items added to playlist successfully");
+        setCheckedContentItem([]);
+        setIsOpen(false);
+        return addCallback();
+      });
+    }
+  };
+
   return (
-    <CenterModal modalOpen={isOpen} setModalOpen={setIsOpen} width={1100}>
+    <CenterModal
+      modalOpen={isOpen}
+      setModalOpen={setIsOpen}
+      width={1100}
+      cb={() => setCheckedContentItem([])}
+    >
       <div className="mt-10 rounded-md bg-black border-247-dark-text mb-10">
         <div className="flex py-4 px-8">
-          <SearchInput />
+          <SearchInput
+            value={contentSearch}
+            handleChange={handleSearchChange}
+          />
         </div>
         <DataTable headers={tableHeaders} loadingData={loadingData}>
           {loadingData && (
@@ -114,6 +158,8 @@ const AddPlaylistModal = ({
             "font-normal",
           ]}
           fullWidth
+          isLoading={addingMultipleItem}
+          handleClick={addItemsToPlaylist}
         >
           Add
         </Button>

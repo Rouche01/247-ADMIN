@@ -1,7 +1,14 @@
 import React from "react";
 import Spinner from "./Spinner";
 
-const Button = ({ children, type, className, fullWidth, isLoading }) => {
+const Button = ({
+  children,
+  type,
+  className,
+  fullWidth,
+  isLoading,
+  handleClick,
+}) => {
   return (
     <button
       className={[
@@ -15,6 +22,7 @@ const Button = ({ children, type, className, fullWidth, isLoading }) => {
         ...className,
       ].join(" ")}
       type={type}
+      onClick={handleClick}
     >
       {isLoading ? <Spinner /> : children}
     </button>

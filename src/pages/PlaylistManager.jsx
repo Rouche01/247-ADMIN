@@ -1,6 +1,14 @@
-import React, { useContext, useEffect, useState, useMemo } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 import { MdAdd } from "react-icons/md";
 import { FaRegTrashAlt } from "react-icons/fa";
+import debounce from "lodash/debounce";
+import toast from "react-hot-toast";
 
 import PlaylistItemRow from "../components/PlaylistItemRow";
 import DraggableTable from "../components/DraggableTable";
@@ -16,7 +24,6 @@ import { usePagination } from "../hooks/pagination";
 
 import { Context as PlaylistContext } from "../context/PlaylistContext";
 import { Context as ContentLibraryContext } from "../context/ContentLibraryContext";
-import toast from "react-hot-toast";
 import { useToastError } from "../hooks/handleError";
 
 const tableHeaders = ["", "Title", "Duration", "Date Added", "Action"];
@@ -29,11 +36,13 @@ const PlaylistManager = () => {
   const [contentShownRows, setContentShownRows] = useState(5);
 
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
-
-  const [currenyPlaylistItem, setCurrentPlaylistItem] = useState();
   const [addModalOpen, setAddModalOpen] = useState(false);
 
+  const [currenyPlaylistItem, setCurrentPlaylistItem] = useState();
   const [playlistItems, setPlaylistItems] = useState([]);
+
+  const [contentSearchValue, setContentSearchValue] = useState("");
+
   const {
     state: {
       generalPlaylist,
@@ -41,8 +50,11 @@ const PlaylistManager = () => {
       fetchGeneralPlaylistErr,
       deletingPlaylistItem,
       playlistDeleteError,
+      addingMultipleItem,
+      addMultipleItemError,
     },
     fetchGeneralPlaylist,
+    addMultipleItemToPlaylist,
     deletePlaylistItem,
     clearError: clearPlaylistError,
   } = useContext(PlaylistContext);
@@ -60,13 +72,15 @@ const PlaylistManager = () => {
     [contentShownRows, contentCurrentPage]
   );
 
+  const fetchPlaylistAndMediaItems = async () => {
+    await Promise.all([
+      fetchGeneralPlaylist(),
+      fetchMediaItems({ ...paginationOptions, status: "not-live" }),
+    ]);
+  };
+
   useEffect(() => {
-    (async () => {
-      await Promise.all([
-        fetchGeneralPlaylist(),
-        fetchMediaItems({ ...paginationOptions }),
-      ]);
-    })();
+    fetchPlaylistAndMediaItems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -76,6 +90,10 @@ const PlaylistManager = () => {
 
   useToastError(playlistDeleteError, () => {
     clearPlaylistError("deleteItem");
+  });
+
+  useToastError(addMultipleItemError, () => {
+    clearPlaylistError("addMultiple");
   });
 
   const { currentList, indexOfFirstItem, indexOfLastItem, pages } =
@@ -96,6 +114,23 @@ const PlaylistManager = () => {
     mediaItems,
     mediaItemsSize
   );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debounceFilterMediaItems = useCallback(
+    debounce((value) => {
+      fetchMediaItems({
+        ...paginationOptions,
+        status: "not-live",
+        ...(value.length > 0 && { startsWith: value }),
+      });
+    }, 500),
+    []
+  );
+
+  const handleSearchInputChange = (value) => {
+    setContentSearchValue(value);
+    debounceFilterMediaItems(value);
+  };
 
   const reOrderPlaylist = (list, startIndex, endIndex) => {
     const result = Array.from(list);
@@ -130,7 +165,7 @@ const PlaylistManager = () => {
   const removeItemFromPlaylist = async () => {
     await deletePlaylistItem(currenyPlaylistItem.id, () => {
       toast.success("Playlist item removed successfully");
-      return fetchGeneralPlaylist();
+      return fetchPlaylistAndMediaItems();
     });
     setConfirmRemoveOpen(false);
     console.log("removing item from playlist...");
@@ -219,6 +254,12 @@ const PlaylistManager = () => {
         shownRows={contentShownRows}
         fetchError={fetchItemsError}
         loadingData={fetchingMediaItems}
+        onMultipleAdd={addMultipleItemToPlaylist}
+        addingMultipleItem={addingMultipleItem}
+        addCallback={fetchPlaylistAndMediaItems}
+        contentSearch={contentSearchValue}
+        setContentSearch={setContentSearchValue}
+        handleSearchChange={handleSearchInputChange}
       />
       <ConfirmationModal
         open={confirmRemoveOpen}
