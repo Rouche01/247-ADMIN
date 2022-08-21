@@ -1,27 +1,27 @@
 {
   "files": {
-    "main.css": "/static/css/main.1ffb1c61.chunk.css",
-    "main.js": "/static/js/main.e989d3f2.chunk.js",
-    "main.js.map": "/static/js/main.e989d3f2.chunk.js.map",
-    "runtime-main.js": "/static/js/runtime-main.2639794c.js",
-    "runtime-main.js.map": "/static/js/runtime-main.2639794c.js.map",
-    "static/css/2.f1b29fe1.chunk.css": "/static/css/2.f1b29fe1.chunk.css",
-    "static/js/2.cce56e99.chunk.js": "/static/js/2.cce56e99.chunk.js",
-    "static/js/2.cce56e99.chunk.js.map": "/static/js/2.cce56e99.chunk.js.map",
-    "static/js/3.b934b07a.chunk.js": "/static/js/3.b934b07a.chunk.js",
-    "static/js/3.b934b07a.chunk.js.map": "/static/js/3.b934b07a.chunk.js.map",
+    "main.css": "/static/css/main.aebe15ea.chunk.css",
+    "main.js": "/static/js/main.a6226353.chunk.js",
+    "main.js.map": "/static/js/main.a6226353.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.950a63e4.js",
+    "runtime-main.js.map": "/static/js/runtime-main.950a63e4.js.map",
+    "static/css/2.9b3a0b66.chunk.css": "/static/css/2.9b3a0b66.chunk.css",
+    "static/js/2.c6c2e681.chunk.js": "/static/js/2.c6c2e681.chunk.js",
+    "static/js/2.c6c2e681.chunk.js.map": "/static/js/2.c6c2e681.chunk.js.map",
+    "static/js/3.7398b05d.chunk.js": "/static/js/3.7398b05d.chunk.js",
+    "static/js/3.7398b05d.chunk.js.map": "/static/js/3.7398b05d.chunk.js.map",
     "index.html": "/index.html",
-    "static/css/2.f1b29fe1.chunk.css.map": "/static/css/2.f1b29fe1.chunk.css.map",
-    "static/css/main.1ffb1c61.chunk.css.map": "/static/css/main.1ffb1c61.chunk.css.map",
-    "static/js/2.cce56e99.chunk.js.LICENSE.txt": "/static/js/2.cce56e99.chunk.js.LICENSE.txt",
+    "static/css/2.9b3a0b66.chunk.css.map": "/static/css/2.9b3a0b66.chunk.css.map",
+    "static/css/main.aebe15ea.chunk.css.map": "/static/css/main.aebe15ea.chunk.css.map",
+    "static/js/2.c6c2e681.chunk.js.LICENSE.txt": "/static/js/2.c6c2e681.chunk.js.LICENSE.txt",
     "static/media/logo.e6dad76f.png": "/static/media/logo.e6dad76f.png",
     "static/media/index.css": "/static/media/subtle-red-curve.01f13113.svg"
   },
   "entrypoints": [
-    "static/js/runtime-main.2639794c.js",
-    "static/css/2.f1b29fe1.chunk.css",
-    "static/js/2.cce56e99.chunk.js",
-    "static/css/main.1ffb1c61.chunk.css",
-    "static/js/main.e989d3f2.chunk.js"
+    "static/js/runtime-main.950a63e4.js",
+    "static/css/2.9b3a0b66.chunk.css",
+    "static/js/2.c6c2e681.chunk.js",
+    "static/css/main.aebe15ea.chunk.css",
+    "static/js/main.a6226353.chunk.js"
   ]
 }
