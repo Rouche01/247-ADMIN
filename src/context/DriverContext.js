@@ -11,6 +11,8 @@ const UPDATE_STATUS_ERROR = "update_status_error";
 const SET_DRIVERS_LIST = "set_drivers_list";
 const SET_SINGLE_DRIVER = "set_single_driver";
 const SET_DRIVERS_LIST_SIZE = "set_drivers_list_size";
+const FETCHING_TOTAL_SIZE = "fetching_total_size";
+const SET_DRIVERS_TOTAL_SIZE = "set_drivers_total_size";
 
 const mapErrorDispatchToAction = {
   fetchDrivers: SET_FETCH_DRIVERS_ERROR,
@@ -38,6 +40,10 @@ const driverReducer = (state, action) => {
       return { ...state, drivers: action.payload };
     case SET_DRIVERS_LIST_SIZE:
       return { ...state, driverListSize: action.payload };
+    case FETCHING_TOTAL_SIZE:
+      return { ...state, fetchingTotalSize: action.payload };
+    case SET_DRIVERS_TOTAL_SIZE:
+      return { ...state, driversTotalSize: action.payload };
     default:
       return state;
   }
@@ -70,6 +76,34 @@ const fetchDrivers = (dispatch) => async (params) => {
       });
     }
     dispatch({ type: FETCHING_DRIVERS, payload: false });
+  }
+};
+
+const getDriversTotalSize = (dispatch) => async () => {
+  dispatch({ type: FETCHING_TOTAL_SIZE, payload: true });
+  dispatch({ type: SET_FETCH_DRIVERS_ERROR, payload: null });
+  try {
+    const response = await adverts247Api.get("/drivers", {
+      headers: { Authorization: `Bearer ${resolveToken()}` },
+    });
+
+    dispatch({ type: SET_DRIVERS_TOTAL_SIZE, payload: response.data.size });
+    dispatch({ type: FETCHING_TOTAL_SIZE, payload: false });
+  } catch (err) {
+    if (err.response) {
+      dispatch({
+        type: SET_FETCH_DRIVERS_ERROR,
+        payload:
+          err.response.data.message ||
+          "Unable to fetch drivers. Something went wrong",
+      });
+    } else {
+      dispatch({
+        type: SET_FETCH_DRIVERS_ERROR,
+        payload: "Unable to fetch drivers. Something went wrong",
+      });
+    }
+    dispatch({ type: FETCHING_TOTAL_SIZE, payload: false });
   }
 };
 
@@ -148,6 +182,14 @@ export const { Context, Provider } = createDataContext(
     fetchSingleDriverError: null,
     updateStatusError: null,
     driverListSize: 0,
+    fetchingTotalSize: false,
+    driversTotalSize: 0,
   },
-  { fetchDrivers, fetchDriverById, updateDriverStatus, clearError }
+  {
+    fetchDrivers,
+    fetchDriverById,
+    updateDriverStatus,
+    clearError,
+    getDriversTotalSize,
+  }
 );

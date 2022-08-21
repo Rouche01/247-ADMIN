@@ -10,6 +10,8 @@ const Spinner = ({ size = "small" }) => {
           { "h-6": size === "small" },
           { "w-12": size === "large" },
           { "h-12": size === "large" },
+          { "w-16": size === "v-large" },
+          { "h-16": size === "v-large" },
           "border-247-transparent",
           "rounded-full",
           "border-t-2",

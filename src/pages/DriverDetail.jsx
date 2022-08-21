@@ -7,18 +7,22 @@ import { AiOutlineCloseCircle } from "react-icons/ai";
 import { ImInfo } from "react-icons/im";
 import { BiUserCheck } from "react-icons/bi";
 import { FiCheckSquare } from "react-icons/fi";
+import { IoIosCash } from "react-icons/io";
 import classNames from "classnames";
+
 import Dashboard from "../components/Dashboard";
 import { Context as DriverContext } from "../context/DriverContext";
+import { Context as EarningContext } from "../context/EarningContext";
+import { Context as PayoutContext } from "../context/PayoutContext";
 import RoundedBtnWithIcon from "../components/uiComponents/RoundedBtnWithIcon";
 import ResourceMeta from "../components/uiComponents/ResourceMeta";
 import ConfirmationModal from "../components/uiComponents/ConfirmationModal";
 import InfoBox from "../components/InfoBox";
-import { formatNum } from "../utils/numFormatter";
+import { convertKoboToNaira, formatNum } from "../utils/numFormatter";
 import startCase from "lodash/startCase";
 import EditDriverInfoModal from "../components/uiComponents/EditDriverInfoModal";
 import PayoutHistoryModal from "../components/uiComponents/PayoutHistoryModal";
-import Spinner from "../components/uiComponents/Spinner";
+import SettlePayoutModal from "../components/uiComponents/SettlePayoutModal";
 import { useToastError } from "../hooks/handleError";
 import DriverDetailLoading from "../components/loader/DriverDetail.loader";
 
@@ -102,12 +106,19 @@ const DriverDetail = () => {
   const history = useHistory();
   const { driverId } = useParams();
 
+  const [settleModalOpen, setSettleModalOpen] = useState(false);
   const [payoutModalOpen, setPayoutModalOpen] = useState(false);
   const [editInfoOpen, setEditInfoOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState({
     open: false,
     action: null,
   });
+  const [confirmPayoutModalOpen, setConfirmPayoutModalOpen] = useState(false);
+
+  const {
+    state: { payoutRequests, fetchingPayouts },
+    fetchPayoutRequests,
+  } = useContext(PayoutContext);
 
   const {
     state: {
@@ -121,8 +132,42 @@ const DriverDetail = () => {
     clearError,
   } = useContext(DriverContext);
 
+  const {
+    state: {
+      fetchingLifetimeEarning,
+      fetchingDayEarning,
+      lifetimeEarning,
+      dayEarning,
+    },
+    getDriverLifetimeEarning,
+    getDriverDayEarning,
+  } = useContext(EarningContext);
+
+  const loadingStats = useMemo(
+    () =>
+      fetchingLifetimeEarning ||
+      fetchingDayEarning ||
+      fetchingSingleDriver ||
+      fetchingPayouts,
+    [
+      fetchingLifetimeEarning,
+      fetchingDayEarning,
+      fetchingSingleDriver,
+      fetchingPayouts,
+    ]
+  );
+
+  console.log(driver, lifetimeEarning, dayEarning, payoutRequests);
+
   useEffect(() => {
-    fetchDriverById(driverId);
+    (async () => {
+      await Promise.all([
+        getDriverDayEarning(driverId),
+        getDriverLifetimeEarning(driverId),
+        fetchDriverById(driverId),
+        fetchPayoutRequests({ driver: driverId }),
+      ]);
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -188,6 +233,17 @@ const DriverDetail = () => {
     console.log(data, "Editing driver info...");
   };
 
+  const handleDriverPayout = (data) => {
+    console.log(data, "confirming payout");
+    setSettleModalOpen(false);
+    setConfirmPayoutModalOpen(true);
+  };
+
+  const payoutEarningToDriver = () => {
+    console.log("paying driver...");
+    setConfirmPayoutModalOpen(false);
+  };
+
   const editData = {
     firstName: driver?.name?.split(" ")[0],
     lastName: driver?.name?.split(" ")[1],
@@ -207,9 +263,6 @@ const DriverDetail = () => {
     [driver]
   );
 
-  // will improve this later
-  if (fetchingSingleDriver && !driver) return <Spinner />;
-
   return (
     driver && (
       <Dashboard
@@ -224,7 +277,7 @@ const DriverDetail = () => {
           />
         }
       >
-        {fetchingSingleDriver ? (
+        {loadingStats ? (
           <DriverDetailLoading />
         ) : (
           <>
@@ -313,18 +366,31 @@ const DriverDetail = () => {
                 <InfoBox
                   bgColor="bg-blue-gradient"
                   infoTitle="Today's Earning"
-                  infoValue={formatNum(4557.45, true, true)}
+                  infoValue={formatNum(
+                    convertKoboToNaira(dayEarning),
+                    true,
+                    true
+                  )}
                 />
                 <InfoBox
                   bgColor="bg-green-gradient"
                   infoTitle="Total Earning"
-                  infoValue={formatNum(147557.45, true, true)}
+                  infoValue={formatNum(
+                    convertKoboToNaira(lifetimeEarning),
+                    true,
+                    true
+                  )}
                 />
                 <InfoBox
                   bgColor="bg-yellow-gradient"
                   infoTitle="Pending Payout"
-                  infoValue={formatNum(20800.45, true, true)}
+                  infoValue={formatNum(
+                    convertKoboToNaira(driver?.driverStat?.pendingPayout),
+                    true,
+                    true
+                  )}
                   btnText="Settle"
+                  btnAction={() => setSettleModalOpen(true)}
                 />
               </div>
             </div>
@@ -339,6 +405,13 @@ const DriverDetail = () => {
             mapAccountActionToValues[confirmModalOpen?.action]?.action
           }
         />
+        <ConfirmationModal
+          open={confirmPayoutModalOpen}
+          setOpen={setConfirmPayoutModalOpen}
+          text={`Continue payout for ${driver?.name}`}
+          handleConfirmation={payoutEarningToDriver}
+          icon={<IoIosCash size={32} color="#fff" />}
+        />
         <EditDriverInfoModal
           isOpen={editInfoOpen}
           setIsOpen={setEditInfoOpen}
@@ -349,6 +422,18 @@ const DriverDetail = () => {
         <PayoutHistoryModal
           isOpen={payoutModalOpen}
           setIsOpen={setPayoutModalOpen}
+          payouts={payoutRequests}
+        />
+        <SettlePayoutModal
+          isOpen={settleModalOpen}
+          setIsOpen={setSettleModalOpen}
+          driverDeets={{
+            bankName: driver?.bankInformation?.bank?.name,
+            accountNumber: driver?.bankInformation.accountNumber,
+            accountName: driver?.bankInformation.accountName,
+            pendingPayout: driver?.driverStat?.pendingPayout,
+          }}
+          handlePayout={handleDriverPayout}
         />
       </Dashboard>
     )

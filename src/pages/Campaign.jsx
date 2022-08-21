@@ -1,6 +1,12 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import format from "date-fns/format";
+import classNames from "classnames";
+import startCase from "lodash/startCase";
+import omitBy from "lodash/omitBy";
+import moment from "moment";
+import PlaceholderLoading from "react-placeholder-loading";
+
 import Dashboard from "../components/Dashboard";
 import DataTable from "../components/DataTable";
 import InfoBox from "../components/InfoBox";
@@ -13,16 +19,27 @@ import {
 import Checkbox from "../components/uiComponents/Checkbox";
 import Pagination from "../components/uiComponents/Pagination";
 import { Context as CampaignContext } from "../context/CampaignContext";
-import { formatNum } from "../utils/numFormatter";
+import { Context as RevenueContext } from "../context/RevenueContext";
+import { convertKoboToNaira, formatNum } from "../utils/numFormatter";
 import { typeFilters, statusFilters } from "../utils/constants";
-import classNames from "classnames";
-import startCase from "lodash/startCase";
-import omitBy from "lodash/omitBy";
-import moment from "moment";
 import Spinner from "../components/uiComponents/Spinner";
 import NoDataBox from "../components/uiComponents/NoDataBox";
 import ErrorBox from "../components/uiComponents/ErrorBox";
-import { calculateDistance } from "../utils/date";
+import { calculateDistanceInDays } from "../utils/date";
+
+const StatBoxPlaceholder = () => {
+  return (
+    <div>
+      <PlaceholderLoading
+        width="100%"
+        height="140px"
+        shape="rect"
+        colorEnd="#1A1C1F"
+        colorStart="#1D2023"
+      />
+    </div>
+  );
+};
 
 const tableHeaders = [
   "",
@@ -89,14 +106,41 @@ const Campaign = () => {
   );
 
   const {
+    state: { fetchingRevenue, totalRevenue },
+    fetchRevenue,
+  } = useContext(RevenueContext);
+
+  const {
     fetchCampaigns,
+    fetchTotalCampaignSize,
+    fetchActiveCampaigns,
     state: {
       loading: fetchingCampaigns,
       campaigns,
       campaignSize,
       retrieveErrorMsg,
+      fetchingTotalSize,
+      campaignTotalSize,
+      activeCampaignsSize,
+      fetchingActiveCampaigns,
     },
   } = useContext(CampaignContext);
+
+  const loadingStats = useMemo(
+    () => fetchingTotalSize || fetchingActiveCampaigns || fetchingRevenue,
+    [fetchingActiveCampaigns, fetchingTotalSize, fetchingRevenue]
+  );
+
+  useEffect(() => {
+    (async () => {
+      await Promise.all([
+        fetchActiveCampaigns(),
+        fetchTotalCampaignSize(),
+        fetchRevenue(),
+      ]);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const loadCampaigns = async () => {
     const sanitizedFilterValues = omitBy(
@@ -131,26 +175,34 @@ const Campaign = () => {
 
   return (
     <Dashboard fetchCampaignsFn={loadCampaigns}>
-      <div className="grid grid-cols-3 gap-6 mt-16">
-        <InfoBox
-          bgColor="bg-blue-gradient"
-          infoTitle="Total Revenue"
-          infoValue={formatNum(12850000, true)}
-          statChange={2.4}
-        />
-        <InfoBox
-          infoTitle="Active Campaigns"
-          infoValue={formatNum(5500)}
-          bgColor="bg-green-gradient"
-          statChange={-2.5}
-        />
-        <InfoBox
-          infoTitle="Total Campaigns"
-          infoValue={formatNum(1200)}
-          bgColor="bg-yellow-gradient"
-          statChange={2.4}
-        />
-      </div>
+      {loadingStats ? (
+        <div className="grid grid-cols-3 gap-6 mt-16">
+          {Array.from({ length: 3 }, (_, i) => i + 1).map((val) => (
+            <StatBoxPlaceholder key={val} />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-6 mt-16">
+          <InfoBox
+            bgColor="bg-blue-gradient"
+            infoTitle="Total Revenue"
+            infoValue={formatNum(convertKoboToNaira(totalRevenue), true)}
+            statChange={2.4}
+          />
+          <InfoBox
+            infoTitle="Active Campaigns"
+            infoValue={formatNum(activeCampaignsSize)}
+            bgColor="bg-green-gradient"
+            statChange={-2.5}
+          />
+          <InfoBox
+            infoTitle="Total Campaigns"
+            infoValue={formatNum(campaignTotalSize)}
+            bgColor="bg-yellow-gradient"
+            statChange={2.4}
+          />
+        </div>
+      )}
       <div className="mt-16 bg-black rounded-md border-2 border-247-dark-text mb-10">
         <TableHeader
           defaultFilters={DEFAULT_FILTERS}
@@ -174,7 +226,7 @@ const Campaign = () => {
           {!fetchingCampaigns &&
             campaigns.length > 0 &&
             campaigns.map((campaign, idx) => {
-              const duration = calculateDistance(
+              const duration = calculateDistanceInDays(
                 campaign.duration[1],
                 campaign.duration[0]
               );
@@ -237,9 +289,15 @@ const Campaign = () => {
                       "en-NG"
                     )}
                   </td>
-                  <td className="px-6 py-5">{duration}</td>
+                  <td className="px-6 py-5">{`${duration} ${
+                    duration > 1 ? "days" : "day"
+                  }`}</td>
                   <td className="px-6 py-5">
-                    {Number(campaign.adBudget).toLocaleString("en-NG", {
+                    {Number(
+                      convertKoboToNaira(
+                        campaign.campaignStat?.adSpend?.amountInKobo || 0
+                      )
+                    ).toLocaleString("en-NG", {
                       style: "currency",
                       currency: "NGN",
                     })}

@@ -3,11 +3,11 @@ import classNames from "classnames";
 import startCase from "lodash/startCase";
 import kebabCase from "lodash/kebabCase";
 import compact from "lodash/compact";
-import format from "date-fns/format";
 import { FiMoreVertical } from "react-icons/fi";
 import Checkbox from "./uiComponents/Checkbox";
 import { formatNum } from "../utils/numFormatter";
 import withClickOutside from "../hoc/withClickOutside";
+import { transformPlaylistCreateDate } from "../utils/date";
 
 const ContentItemRow = forwardRef(
   (
@@ -96,7 +96,7 @@ const ContentItemRow = forwardRef(
         <td className="px-6 py-5">{contentItem.duration}</td>
         <td className="px-6 py-5">{contentItem.category}</td>
         <td className="px-6 py-5">
-          {format(new Date(contentItem.createdAt), "dd LLL, yyyy")}
+          {transformPlaylistCreateDate(contentItem.createdAt)}
         </td>
         <td className="px-6 py-5">
           {formatNum(contentItem.plays, false, true)}

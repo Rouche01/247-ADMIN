@@ -14,11 +14,10 @@ export const formatNum = (num, isCurrency, atMillion) => {
       ? `${(num / 1000).toLocaleString("en-NG", {
           currency: "NGN",
           style: "currency",
-          maximumFractionDigits: 2,
-          minimumFractionDigits: 2,
+          maximumFractionDigits: 0,
         })} K`
       : `${(num / 1000).toLocaleString("en-NG")} K`;
-  } else if (num > 1000000) {
+  } else if (num >= 1000000) {
     return isCurrency
       ? `${(num / 1000000).toLocaleString("en-NG", {
           currency: "NGN",
@@ -62,3 +61,10 @@ export const convertSecToMMSS = (secondsInput) => {
 
   return `${minutesOut}:${secondsOut}`;
 };
+
+export const convertMMSSToSec = (mmssInput) => {
+  const inputArray = mmssInput.split(":");
+  return parseInt(inputArray[0]) * 60 + parseInt(inputArray[1]);
+};
+
+export const convertKoboToNaira = (kobo) => kobo / 100;

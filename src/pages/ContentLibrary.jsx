@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState, useMemo } from "react";
 import { FiUploadCloud } from "react-icons/fi";
 import { FaRegTrashAlt } from "react-icons/fa";
+import toast from "react-hot-toast";
+
 import Dashboard from "../components/Dashboard";
 import DataTable from "../components/DataTable";
 import Pagination from "../components/uiComponents/Pagination";
@@ -13,9 +15,10 @@ import UploadContentModal from "../components/uiComponents/UploadContentModal";
 import ContentItemRow from "../components/ContentItemRow";
 import ConfirmationModal from "../components/uiComponents/ConfirmationModal";
 import { Context as ContentLibraryContext } from "../context/ContentLibraryContext";
-import { convertSecToMMSS } from "../utils/numFormatter";
-import toast from "react-hot-toast";
+import { Context as PlaylistContext } from "../context/PlaylistContext";
+import { convertMMSSToSec, convertSecToMMSS } from "../utils/numFormatter";
 import { useToastError } from "../hooks/handleError";
+import OverlayLoader from "../components/uiComponents/OverlayLoader";
 
 const tableHeaders = [
   "",
@@ -36,7 +39,7 @@ const ContentLibrary = () => {
   const [currentMediaItem, setCurrentMediaItem] = useState();
 
   const [contentMedia, setContentMedia] = useState([]);
-  const [contentDuration, setContentDuration] = useState();
+  const [contentDuration, setContentDuration] = useState(0);
 
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -58,12 +61,32 @@ const ContentLibrary = () => {
     clearError,
   } = useContext(ContentLibraryContext);
 
+  const {
+    state: {
+      addingItemToPlaylist,
+      playlistAddedFail,
+      deletingPlaylistItem,
+      playlistDeleteError,
+    },
+    addItemToPlaylist,
+    deletePlaylistItemForMedia,
+    clearError: clearPlaylistError,
+  } = useContext(PlaylistContext);
+
   useToastError(createError, () => {
     clearError("create");
   });
 
   useToastError(deleteItemError, () => {
     clearError("deleteItem");
+  });
+
+  useToastError(playlistAddedFail, () => {
+    clearPlaylistError("addToPlaylist");
+  });
+
+  useToastError(playlistDeleteError, () => {
+    clearPlaylistError("deleteItem");
   });
 
   const paginationOptions = useMemo(
@@ -122,12 +145,32 @@ const ContentLibrary = () => {
     setUploadModalOpen(false);
   };
 
-  const handleRemoveItemFromPlaylist = (item) => {
-    console.log(item, "removing item from playlist...");
+  const handleRemoveItemFromPlaylist = async (item) => {
+    await deletePlaylistItemForMedia(item.id, () => {
+      toast.success("Item removed from playlist successfully!");
+      return fetchMediaItems({ ...paginationOptions });
+    });
   };
 
-  const handleAddItemToPlaylist = (item) => {
+  const handleAddItemToPlaylist = async (item) => {
     console.log(item, "adding item to playlist...");
+    const { id, duration, mediaUri, title } = item;
+
+    await addItemToPlaylist(
+      {
+        title,
+        mediaUrl: mediaUri,
+        durationInSeconds: convertMMSSToSec(duration),
+        resourceRef: id,
+        modelType: "MediaItem",
+        mediaType: "video",
+        contentType: "non-campaign",
+      },
+      () => {
+        toast.success("Item added to playlist successfully!");
+        return fetchMediaItems({ ...paginationOptions });
+      }
+    );
   };
 
   const handleDeleteContentItem = async () => {
@@ -137,6 +180,7 @@ const ContentLibrary = () => {
 
   return (
     <Dashboard>
+      {(addingItemToPlaylist || deletingPlaylistItem) && <OverlayLoader />}
       <div className="mt-20 rounded-md bg-247-secondary border-2 border-247-dark-text mb-10">
         <div className="flex py-4 px-8 justify-end">
           <RoundedBtnWithIcon

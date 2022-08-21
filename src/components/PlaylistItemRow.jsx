@@ -1,10 +1,12 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useMemo } from "react";
 import { FiMoreVertical } from "react-icons/fi";
 import { MdDragHandle } from "react-icons/md";
 import { Draggable } from "react-beautiful-dnd";
 import classNames from "classnames";
 import kebabCase from "lodash/kebabCase";
 import withClickOutside from "../hoc/withClickOutside";
+import { convertSecToMMSS } from "../utils/numFormatter";
+import { transformPlaylistCreateDate } from "../utils/date";
 
 const PlaylistItemRow = forwardRef(
   (
@@ -17,32 +19,49 @@ const PlaylistItemRow = forwardRef(
       setOpen,
       draggableId,
       index,
+      setCurrentItem,
+      key,
     },
     ref
   ) => {
-    const handleMoveUp = (item) => {
+    const handleMoveUp = (item, index) => {
       setOpen(false);
-      onUpwardMove(item);
+      onUpwardMove(item, index);
     };
 
-    const handleMoveDown = (item) => {
+    const handleMoveDown = (item, index) => {
       setOpen(false);
-      onDownwardMove(item);
+      onDownwardMove(item, index);
     };
 
-    const handleConfirmRemoveItem = () => {
+    const handleConfirmRemoveItem = (item) => {
+      setCurrentItem(item);
       setOpen(false);
       setConfirmRemoveItem(true);
     };
 
     const playlistActions = [
-      { name: "Remove content", action: handleConfirmRemoveItem },
+      playlistItem.contentType !== "campaign" && {
+        name: "Remove content",
+        action: handleConfirmRemoveItem,
+      },
       { name: "Move up", action: handleMoveUp },
       { name: "Move down", action: handleMoveDown },
-    ];
+    ].filter((val) => val);
+
+    const thumbnail = useMemo(() => {
+      if (playlistItem.contentType === "campaign") {
+        return playlistItem.mediaType === "video"
+          ? playlistItem?.resourceRef?.videoThumbnail
+          : playlistItem?.resourceRef?.campaignMedia;
+      } else {
+        return playlistItem?.resourceRef?.previewUri;
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [playlistItem.contentType]);
 
     return (
-      <Draggable draggableId={draggableId} index={index}>
+      <Draggable draggableId={draggableId} index={index} key={key}>
         {(provided) => (
           <tr
             ref={provided.innerRef}
@@ -55,20 +74,24 @@ const PlaylistItemRow = forwardRef(
             <td className="px-6 py-5">
               <div className="flex items-center">
                 <img
-                  src={playlistItem.previewImg}
+                  src={thumbnail}
                   className="h-14 w-24 object-cover rounded"
                   alt="content thumbnail"
                 />
                 <div className="ml-4">
                   <p>{playlistItem.title}</p>
                   <p className="text-sm text-247-timestamp-color font-semibold">
-                    {playlistItem.type}
+                    {playlistItem.contentType}
                   </p>
                 </div>
               </div>
             </td>
-            <td className="px-6 py-5">{playlistItem.duration}</td>
-            <td className="px-6 py-5">{playlistItem.date}</td>
+            <td className="px-6 py-5">
+              {convertSecToMMSS(playlistItem.durationInSeconds)}
+            </td>
+            <td className="px-6 py-5">
+              {transformPlaylistCreateDate(playlistItem.createdAt)}
+            </td>
             <td className="px-6 py-5">
               <div className="relative" ref={ref}>
                 <button
@@ -102,7 +125,7 @@ const PlaylistItemRow = forwardRef(
                     <li
                       className="w-full py-4 px-5 text-white text-sm font-semibold hover:bg-black hover:text-247-red-straight first:rounded-t-lg last:rounded-b-lg cursor-pointer"
                       key={kebabCase(action.name)}
-                      onClick={(_ev) => action.action(playlistItem)}
+                      onClick={(_ev) => action.action(playlistItem, index)}
                     >
                       {action.name}
                     </li>

@@ -13,7 +13,11 @@ import RoundedBtnWithIcon from "../components/uiComponents/RoundedBtnWithIcon";
 import { Context as CampaignContext } from "../context/CampaignContext";
 import { Context as AdvertiserContext } from "../context/AdvertiserContext";
 import InfoBox from "../components/InfoBox";
-import { convertSecToHHMMSS, formatNum } from "../utils/numFormatter";
+import {
+  convertKoboToNaira,
+  convertSecToHHMMSS,
+  formatNum,
+} from "../utils/numFormatter";
 import CampaignAnalyticsChart from "../components/CampaignAnalyticsChart";
 import { impressionData } from "../utils/dummyData";
 import ConfirmationModal from "../components/uiComponents/ConfirmationModal";
@@ -163,7 +167,7 @@ const CampaignDetail = () => {
   const handleCampaignTermination = async () => {
     await updateCampaignStatus(
       campaign.campaignID,
-      { status: "closed", action: "terminate" },
+      { action: "terminate" },
       () => {
         toast.success(`Campaign has been terminated successfully!`);
         return fetchCampaignById(campaignId);
@@ -173,21 +177,17 @@ const CampaignDetail = () => {
   };
 
   const initiateCampaignPause = async () => {
-    await updateCampaignStatus(
-      campaign.campaignID,
-      { status: "paused", action: "pause" },
-      () => {
-        toast.success(`Campaign has been paused successfully!`);
-        return fetchCampaignById(campaignId);
-      }
-    );
+    await updateCampaignStatus(campaign.campaignID, { action: "pause" }, () => {
+      toast.success(`Campaign has been paused successfully!`);
+      return fetchCampaignById(campaignId);
+    });
     setConfirmModalOpen(false);
   };
 
   const initiateCampaignResume = async () => {
     await updateCampaignStatus(
       campaign.campaignID,
-      { status: "active", action: "resume" },
+      { action: "resume" },
       () => {
         toast.success(`Campaign has resumed successfully!`);
         return fetchCampaignById(campaignId);
@@ -217,7 +217,7 @@ const CampaignDetail = () => {
       companyName: campaign?.advertiser.companyName,
     }),
     duration: campaign?.duration.map((date) => new Date(date)),
-    adBudget: campaign?.adBudget.toLocaleString(),
+    adBudget: convertKoboToNaira(campaign?.adBudgetInKobo).toLocaleString(),
     adType: find(ADTYPES, { value: campaign?.adType }),
     preview:
       campaign?.adType === "image"
@@ -296,13 +296,12 @@ const CampaignDetail = () => {
                   <div>
                     <ResourceMeta
                       label="Ad Budget"
-                      value={Number(campaign?.adBudget).toLocaleString(
-                        "en-NG",
-                        {
-                          currency: "NGN",
-                          style: "currency",
-                        }
-                      )}
+                      value={Number(
+                        convertKoboToNaira(campaign?.adBudgetInKobo)
+                      ).toLocaleString("en-NG", {
+                        currency: "NGN",
+                        style: "currency",
+                      })}
                     />
                     <ResourceMeta label="Duration" value={duration} />
                     <ResourceMeta
@@ -335,7 +334,9 @@ const CampaignDetail = () => {
               <InfoBox
                 infoTitle="Amount Spent"
                 infoValue={formatNum(
-                  campaign?.campaignStat?.adSpend,
+                  convertKoboToNaira(
+                    campaign?.campaignStat?.adSpend?.amountInKobo || 0
+                  ),
                   true,
                   true
                 )}

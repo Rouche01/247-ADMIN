@@ -72,6 +72,7 @@ const CreateCampaignModal = ({
     state: { loading: creatingCampaign, createErrorMsg },
   } = useContext(CampaignContext);
 
+  const [campaignVideoDuration, setCampaignVideoDuration] = useState(0);
   const [campaignMedia, setCampaignMedia] = useState([]);
   const [inputLoading, setInputLoading] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -150,6 +151,7 @@ const CreateCampaignModal = ({
     if (campaignMedia[0]) {
       formData.append("campaignName", data.campaignName);
       formData.append("advertiser", data.advertiser.id);
+      formData.append("videoLengthInSeconds", campaignVideoDuration);
       formData.append("adBudget", parseFloat(data.adBudget.replace(/,/g, "")));
       formData.append("adType", data.adType.value);
       formData.append(
@@ -277,6 +279,7 @@ const CreateCampaignModal = ({
                   endDate={(field.value && field?.value[1]) || null}
                   handleChange={(date) => field.onChange(date)}
                   errorText={errors.duration?.message}
+                  minDate={new Date()}
                 />
               );
             }}
@@ -328,6 +331,7 @@ const CreateCampaignModal = ({
               setCampaignMedia([]);
               setUpdatingMedia(false);
             }}
+            setDuration={setCampaignVideoDuration}
           />
         )}
         <Button

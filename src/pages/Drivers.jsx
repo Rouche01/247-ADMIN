@@ -3,6 +3,9 @@ import { useHistory } from "react-router-dom";
 import classNames from "classnames";
 import omitBy from "lodash/omitBy";
 import startCase from "lodash/startCase";
+import PlaceholderLoading from "react-placeholder-loading";
+import differenceInHours from "date-fns/differenceInHours";
+
 import Dashboard from "../components/Dashboard";
 import DataTable from "../components/DataTable";
 import InfoBox from "../components/InfoBox";
@@ -11,12 +14,27 @@ import NoDataBox from "../components/uiComponents/NoDataBox";
 import ErrorBox from "../components/uiComponents/ErrorBox";
 import DriversTableHeader from "../components/DriversTableHeader";
 import { Context as DriverContext } from "../context/DriverContext";
+import { Context as PayoutContext } from "../context/PayoutContext";
 import { driverStatusFilters } from "../utils/constants";
 import Checkbox from "../components/uiComponents/Checkbox";
 import Pagination from "../components/uiComponents/Pagination";
 import { usePagination } from "../hooks/pagination";
-import { formatNum } from "../utils/numFormatter";
+import { convertKoboToNaira, formatNum } from "../utils/numFormatter";
 import { useQueryParamWithDefaultValue } from "../hooks/useQueryParam";
+
+const StatBoxPlaceholder = () => {
+  return (
+    <div>
+      <PlaceholderLoading
+        width="100%"
+        height="140px"
+        shape="rect"
+        colorEnd="#1A1C1F"
+        colorStart="#1D2023"
+      />
+    </div>
+  );
+};
 
 const tableHeaders = [
   "",
@@ -53,10 +71,53 @@ const Drivers = () => {
     [shownRows, currentPage]
   );
 
+  console.log(
+    differenceInHours(
+      new Date("2022-08-06T00:00:00.000+00:00"),
+      new Date("2022-08-03T00:00:00.000+00:00")
+    )
+  );
+
   const {
-    state: { fetchingDrivers, drivers, fetchDriversError, driverListSize },
+    state: {
+      fetchingTotalSettled,
+      totalSettled,
+      fetchingTotalPending,
+      totalPending,
+    },
+    getTotalSettledPayouts,
+    getTotalPendingPayouts,
+  } = useContext(PayoutContext);
+
+  const {
+    state: {
+      fetchingDrivers,
+      drivers,
+      fetchDriversError,
+      driverListSize,
+      fetchingTotalSize: fetchingDriversTotalSize,
+      driversTotalSize,
+    },
     fetchDrivers,
+    getDriversTotalSize,
   } = useContext(DriverContext);
+
+  const loadingStats = useMemo(
+    () =>
+      fetchingDriversTotalSize || fetchingTotalSettled || fetchingTotalPending,
+    [fetchingDriversTotalSize, fetchingTotalSettled, fetchingTotalPending]
+  );
+
+  useEffect(() => {
+    (async () => {
+      await Promise.all([
+        getDriversTotalSize(),
+        getTotalSettledPayouts(),
+        getTotalPendingPayouts(),
+      ]);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const sanitizedFilterValues = omitBy(
@@ -66,8 +127,6 @@ const Drivers = () => {
     fetchDrivers({ ...sanitizedFilterValues, ...paginationOptions });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterValues, paginationOptions]);
-
-  console.log(drivers);
 
   const { indexOfFirstItem, indexOfLastItem, pages } = usePagination(
     currentPage,
@@ -92,23 +151,39 @@ const Drivers = () => {
   return (
     <>
       <Dashboard pageTitle="Drivers">
-        <div className="grid grid-cols-3 gap-6 mt-16">
-          <InfoBox
-            bgColor="bg-blue-gradient"
-            infoTitle="Total No. of Drivers"
-            infoValue={formatNum(800, false, true)}
-          />
-          <InfoBox
-            bgColor="bg-green-gradient"
-            infoTitle="Settled Payout"
-            infoValue={formatNum(820557.45, true, true)}
-          />
-          <InfoBox
-            bgColor="bg-yellow-gradient"
-            infoTitle="Pending Payout"
-            infoValue={formatNum(123760.87, true, true)}
-          />
-        </div>
+        {loadingStats ? (
+          <div className="grid grid-cols-3 gap-6 mt-16">
+            {Array.from({ length: 3 }, (_, i) => i + 1).map((val) => (
+              <StatBoxPlaceholder key={val} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-6 mt-16">
+            <InfoBox
+              bgColor="bg-blue-gradient"
+              infoTitle="Total No. of Drivers"
+              infoValue={formatNum(driversTotalSize, false, true)}
+            />
+            <InfoBox
+              bgColor="bg-green-gradient"
+              infoTitle="Settled Payout"
+              infoValue={formatNum(
+                convertKoboToNaira(totalSettled),
+                true,
+                true
+              )}
+            />
+            <InfoBox
+              bgColor="bg-yellow-gradient"
+              infoTitle="Pending Payout"
+              infoValue={formatNum(
+                convertKoboToNaira(totalPending),
+                true,
+                true
+              )}
+            />
+          </div>
+        )}
         <div className="mt-10 bg-247-secondary rounded-md border-2 border-247-dark-text mb-10">
           <DriversTableHeader
             defaultFilters={DEFAULT_FILTERS}
@@ -125,65 +200,95 @@ const Drivers = () => {
             )}
             {!fetchingDrivers &&
               drivers.length > 0 &&
-              drivers.map((driver, idx) => (
-                <tr
-                  onClick={(ev) => {
-                    if (!ev.target.closest(".toggle-check")) {
-                      history.push({
-                        pathname: `/driver/${driver.id.toLowerCase()}`,
-                      });
+              drivers.map((driver, idx) => {
+                const driverTrips = driver?.driverStat?.trips.length || 0;
+                const driverEarningsInKobo = driver.driverStat
+                  ? driver.driverStat.earnings
+                      .map((earned) => earned.amountInKobo)
+                      .reduce((prev, curr) => prev + curr, 0)
+                  : 0;
+                const driverPendingPayout =
+                  driver?.driverStat?.pendingPayout || 0;
+
+                return (
+                  <tr
+                    onClick={(ev) => {
+                      if (!ev.target.closest(".toggle-check")) {
+                        history.push({
+                          pathname: `/driver/${driver?.driverId || driver.id}`,
+                        });
+                      }
+                    }}
+                    className={
+                      checkedDrivers.includes(idx)
+                        ? "text-lg bg-gray-700 border border-247-dark-text cursor-pointer hover:bg-gray-700"
+                        : "text-lg border border-247-dark-text odd:bg-247-dark-accent3 cursor-pointer hover:bg-gray-700"
                     }
-                  }}
-                  className={
-                    checkedDrivers.includes(idx)
-                      ? "text-lg bg-gray-700 border border-247-dark-text cursor-pointer hover:bg-gray-700"
-                      : "text-lg border border-247-dark-text odd:bg-247-dark-accent3 cursor-pointer hover:bg-gray-700"
-                  }
-                  key={`driver_${driver.id}`}
-                >
-                  <td className="px-3 py-5 toggle-check">
-                    <Checkbox
-                      checked={checkedDrivers.includes(idx) ? true : false}
-                      iconColor="#CACACA"
-                      name={driver.id.toLowerCase()}
-                      handleChange={() => toggleDriversCheck(idx)}
-                    />
-                  </td>
-                  <td className="px-6 py-5">
-                    <div>
-                      {driver.name}
-                      <span className="block text-sm font-light">
-                        {driver.email}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={classNames(
-                          "rounded-full",
-                          "w-4",
-                          "h-4",
-                          {
-                            "bg-active-gradient": driver.status === "approved",
-                          },
-                          {
-                            "bg-closed-gradient": driver.status === "suspended",
-                          },
-                          { "bg-paused-gradient": driver.status === "pending" }
+                    key={`driver_${driver.id}`}
+                  >
+                    <td className="px-3 py-5 toggle-check">
+                      <Checkbox
+                        checked={checkedDrivers.includes(idx) ? true : false}
+                        iconColor="#CACACA"
+                        name={driver.id.toLowerCase()}
+                        handleChange={() => toggleDriversCheck(idx)}
+                      />
+                    </td>
+                    <td className="px-6 py-5">
+                      <div>
+                        {driver.name}
+                        <span className="block text-sm font-light">
+                          {driver.email}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={classNames(
+                            "rounded-full",
+                            "w-4",
+                            "h-4",
+                            {
+                              "bg-active-gradient":
+                                driver.status === "approved",
+                            },
+                            {
+                              "bg-closed-gradient":
+                                driver.status === "suspended",
+                            },
+                            {
+                              "bg-paused-gradient": driver.status === "pending",
+                            }
+                          )}
+                        ></div>
+                        {startCase(
+                          driver.status === "approved"
+                            ? "active"
+                            : driver.status
                         )}
-                      ></div>
-                      {startCase(
-                        driver.status === "approved" ? "active" : driver.status
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">{driver.city}</td>
+                    <td className="px-6 py-5">
+                      {formatNum(driverTrips, false, true)}
+                    </td>
+                    <td className="px-6 py-5">
+                      {formatNum(
+                        convertKoboToNaira(driverEarningsInKobo),
+                        true
                       )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">{driver.city}</td>
-                  <td className="px-6 py-5">{formatNum(276, false, true)}</td>
-                  <td className="px-6 py-5">{formatNum(76560, true, true)}</td>
-                  <td className="px-6 py-5">{formatNum(0, true, true)}</td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-6 py-5">
+                      {formatNum(
+                        convertKoboToNaira(driverPendingPayout),
+                        true,
+                        true
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
           </DataTable>
           {!fetchingDrivers && !fetchDriversError && drivers.length === 0 && (
             <div className="w-full py-9">

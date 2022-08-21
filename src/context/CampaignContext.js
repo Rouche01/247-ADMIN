@@ -13,6 +13,11 @@ const UPDATING_STATUS = "updating_status";
 const SET_UPDATE_STATUS_ERROR = "set_update_status_error";
 const UPDATING_ATTRIBUTES = "updating_attributes";
 const SET_UPDATE_ATTR_ERROR = "set_update_attributes_error";
+const FETCHING_ACTIVE_CAMPAIGNS = "fetching_active_campaigns";
+const SET_ACTIVE_CAMPAIGNS = "set_active_campaigns";
+const SET_ACTIVE_CAMPAIGN_SIZE = "set_active_campaigns_size";
+const FETCHING_TOTAL_SIZE = "fetching_total_size";
+const SET_TOTAL_SIZE = "set_total_size";
 
 const mapErrorToAction = {
   fetch: SET_RETRIEVE_ERROR,
@@ -46,6 +51,16 @@ const campaignReducer = (state, action) => {
       return { ...state, campaignSize: action.payload };
     case SET_SINGLE_CAMPAIGN:
       return { ...state, campaign: action.payload };
+    case FETCHING_ACTIVE_CAMPAIGNS:
+      return { ...state, fetchingActiveCampaigns: action.payload };
+    case SET_ACTIVE_CAMPAIGNS:
+      return { ...state, activeCampaigns: action.payload };
+    case SET_ACTIVE_CAMPAIGN_SIZE:
+      return { ...state, activeCampaignsSize: action.payload };
+    case FETCHING_TOTAL_SIZE:
+      return { ...state, fetchingTotalSize: action.payload };
+    case SET_TOTAL_SIZE:
+      return { ...state, campaignTotalSize: action.payload };
     default:
       return state;
   }
@@ -109,6 +124,66 @@ const fetchCampaigns = (dispatch) => async (params) => {
       });
     }
     dispatch({ type: SET_LOADING_STATE, payload: false });
+  }
+};
+
+const fetchTotalCampaignSize = (dispatch) => async () => {
+  dispatch({ type: SET_RETRIEVE_ERROR, payload: null });
+  dispatch({ type: FETCHING_TOTAL_SIZE, payload: true });
+  try {
+    const response = await adverts247Api.get("/campaigns", {
+      headers: { Authorization: `Bearer ${resolveToken()}` }
+    });
+
+    dispatch({ type: SET_TOTAL_SIZE, payload: response.data.size });
+    dispatch({ type: FETCHING_TOTAL_SIZE, payload: false });
+  } catch (err) {
+    if (err.response) {
+      console.log(err.response.data);
+      dispatch({
+        type: SET_RETRIEVE_ERROR,
+        payload:
+          err.response.data.message ||
+          "Unable to fetch campaigns. Something went wrong",
+      });
+    } else {
+      dispatch({
+        type: SET_RETRIEVE_ERROR,
+        payload: "Unable to fetch campaigns. Something went wrong",
+      });
+    }
+    dispatch({ type: FETCHING_TOTAL_SIZE, payload: false });
+  }
+};
+
+const fetchActiveCampaigns = (dispatch) => async () => {
+  dispatch({ type: SET_RETRIEVE_ERROR, payload: null });
+  dispatch({ type: FETCHING_ACTIVE_CAMPAIGNS, payload: true });
+  try {
+    const response = await adverts247Api.get("/campaigns", {
+      headers: { Authorization: `Bearer ${resolveToken()}` },
+      params: { status: 'active', sortBy: "createdAt", orderBy: "desc" },
+    });
+
+    dispatch({ type: SET_ACTIVE_CAMPAIGNS, payload: response.data.campaigns });
+    dispatch({ type: SET_ACTIVE_CAMPAIGN_SIZE, payload: response.data.size });
+    dispatch({ type: FETCHING_ACTIVE_CAMPAIGNS, payload: false });
+  } catch (err) {
+    if (err.response) {
+      console.log(err.response.data);
+      dispatch({
+        type: SET_RETRIEVE_ERROR,
+        payload:
+          err.response.data.message ||
+          "Unable to fetch campaigns. Something went wrong",
+      });
+    } else {
+      dispatch({
+        type: SET_RETRIEVE_ERROR,
+        payload: "Unable to fetch campaigns. Something went wrong",
+      });
+    }
+    dispatch({ type: FETCHING_ACTIVE_CAMPAIGNS, payload: false });
   }
 };
 
@@ -221,6 +296,11 @@ export const { Context, Provider } = createDataContext(
     updateStatusError: null,
     updatingAttributes: false,
     updateAttributesError: null,
+    fetchingActiveCampaigns: false,
+    activeCampaigns: [],
+    activeCampaignsSize: 0,
+    campaignTotalSize: 0,
+    fetchingTotalSize: false
   },
   {
     createCampaign,
@@ -229,5 +309,7 @@ export const { Context, Provider } = createDataContext(
     clearError,
     updateCampaignStatus,
     updateCampaignAttributes,
+    fetchActiveCampaigns,
+    fetchTotalCampaignSize
   }
 );
