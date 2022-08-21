@@ -429,8 +429,8 @@ const DriverDetail = () => {
           setIsOpen={setSettleModalOpen}
           driverDeets={{
             bankName: driver?.bankInformation?.bank?.name,
-            accountNumber: driver?.bankInformation.accountNumber,
-            accountName: driver?.bankInformation.accountName,
+            accountNumber: driver?.bankInformation?.accountNumber,
+            accountName: driver?.bankInformation?.accountName,
             pendingPayout: driver?.driverStat?.pendingPayout,
           }}
           handlePayout={handleDriverPayout}
