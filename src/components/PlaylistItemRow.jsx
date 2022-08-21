@@ -20,17 +20,18 @@ const PlaylistItemRow = forwardRef(
       draggableId,
       index,
       setCurrentItem,
+      key,
     },
     ref
   ) => {
-    const handleMoveUp = (item) => {
+    const handleMoveUp = (item, index) => {
       setOpen(false);
-      onUpwardMove(item);
+      onUpwardMove(item, index);
     };
 
-    const handleMoveDown = (item) => {
+    const handleMoveDown = (item, index) => {
       setOpen(false);
-      onDownwardMove(item);
+      onDownwardMove(item, index);
     };
 
     const handleConfirmRemoveItem = (item) => {
@@ -60,7 +61,7 @@ const PlaylistItemRow = forwardRef(
     }, [playlistItem.contentType]);
 
     return (
-      <Draggable draggableId={draggableId} index={index}>
+      <Draggable draggableId={draggableId} index={index} key={key}>
         {(provided) => (
           <tr
             ref={provided.innerRef}
@@ -124,7 +125,7 @@ const PlaylistItemRow = forwardRef(
                     <li
                       className="w-full py-4 px-5 text-white text-sm font-semibold hover:bg-black hover:text-247-red-straight first:rounded-t-lg last:rounded-b-lg cursor-pointer"
                       key={kebabCase(action.name)}
-                      onClick={(_ev) => action.action(playlistItem)}
+                      onClick={(_ev) => action.action(playlistItem, index)}
                     >
                       {action.name}
                     </li>

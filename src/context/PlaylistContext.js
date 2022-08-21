@@ -14,12 +14,16 @@ const PLAYLIST_DELETE_ERROR = "playlist_delete_error";
 const ADDING_MULTIPLE_ITEM = "adding_multiple_item";
 const ADD_MULTIPLE_SUCCESS = "add_multiple_success";
 const ADD_MULTIPLE_ERROR = "add_multiple_error";
+const REORDERING_PLAYLIST = "reordering_playlist";
+const REORDER_SUCCESS = "reorder_success";
+const REORDER_FAIL = "reorder_fail";
 
 const mapErrorDispatchToAction = {
   fetchGeneral: FETCH_GENERAL_PLAYLIST_ERR,
   addToPlaylist: PLAYLIST_ADD_ERROR,
   addMultiple: ADD_MULTIPLE_ERROR,
   deleteItem: PLAYLIST_DELETE_ERROR,
+  reorder: REORDER_FAIL,
 };
 
 const playlistReducer = (state, action) => {
@@ -48,6 +52,12 @@ const playlistReducer = (state, action) => {
       return { ...state, addMultipleItemSuccess: action.payload };
     case ADD_MULTIPLE_ERROR:
       return { ...state, addMultipleItemError: action.payload };
+    case REORDERING_PLAYLIST:
+      return { ...state, reorderingPlaylist: action.payload };
+    case REORDER_SUCCESS:
+      return { ...state, reorderSuccess: action.payload };
+    case REORDER_FAIL:
+      return { ...state, reorderError: action.payload };
     default:
       return state;
   }
@@ -86,6 +96,37 @@ const fetchGeneralPlaylist = (dispatch) => async () => {
       });
     }
     dispatch({ type: FETCHING_GENERAL_PLAYLIST, payload: false });
+  }
+};
+
+const reorderPlaylist = (dispatch) => async (reorderedQueue, cb) => {
+  dispatch({ type: REORDERING_PLAYLIST, payload: true });
+  dispatch({ type: REORDER_SUCCESS, payload: null });
+  try {
+    const response = await adverts247Api.post(
+      "/playlists/reorder",
+      reorderedQueue,
+      { headers: { Authorization: `Bearer ${resolveToken()}` } }
+    );
+
+    console.log(response.data);
+    dispatch({ type: REORDERING_PLAYLIST, payload: false });
+    dispatch({ type: REORDER_SUCCESS, payload: response.data.message });
+  } catch (err) {
+    if (err.response) {
+      dispatch({
+        type: REORDER_FAIL,
+        payload:
+          err.response.data.message ||
+          "Unable to reorder playlist. Something went wrong",
+      });
+    } else {
+      dispatch({
+        type: REORDER_FAIL,
+        payload: "Unable to reorder playlist. Something went wrong",
+      });
+    }
+    dispatch({ type: REORDERING_PLAYLIST, payload: false });
   }
 };
 
@@ -237,6 +278,9 @@ export const { Context, Provider } = createDataContext(
     addingMultipleItem: false,
     addMultipleItemError: null,
     addMultipleItemSuccess: null,
+    reorderingPlaylist: false,
+    reorderError: null,
+    reorderSuccess: null,
   },
   {
     fetchGeneralPlaylist,
@@ -245,5 +289,6 @@ export const { Context, Provider } = createDataContext(
     deletePlaylistItem,
     deletePlaylistItemForMedia,
     addMultipleItemToPlaylist,
+    reorderPlaylist,
   }
 );

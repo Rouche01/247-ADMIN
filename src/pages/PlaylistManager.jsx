@@ -52,10 +52,12 @@ const PlaylistManager = () => {
       playlistDeleteError,
       addingMultipleItem,
       addMultipleItemError,
+      reorderError,
     },
     fetchGeneralPlaylist,
     addMultipleItemToPlaylist,
     deletePlaylistItem,
+    reorderPlaylist: reorderPlaylistRequest,
     clearError: clearPlaylistError,
   } = useContext(PlaylistContext);
 
@@ -87,6 +89,10 @@ const PlaylistManager = () => {
   useEffect(() => {
     setPlaylistItems(generalPlaylist);
   }, [generalPlaylist]);
+
+  useToastError(reorderError, () => {
+    clearPlaylistError("reorder");
+  });
 
   useToastError(playlistDeleteError, () => {
     clearPlaylistError("deleteItem");
@@ -150,16 +156,24 @@ const PlaylistManager = () => {
       e.source.index,
       e.destination.index
     );
-    console.log(sorted);
+
+    const sortedIds = sorted.map((item) => item.id);
     setPlaylistItems(sorted);
+    reorderPlaylistRequest({ queue: sortedIds });
   };
 
-  const moveItemDown = (item) => {
-    console.log(item, "moving item down...");
+  const moveItemDown = (item, index) => {
+    const sorted = reOrderPlaylist(playlistItems, index, index + 1);
+    const sortedIds = sorted.map((item) => item.id);
+    setPlaylistItems(sorted);
+    reorderPlaylistRequest({ queue: sortedIds });
   };
 
-  const moveItemUp = (item) => {
-    console.log(item, "moving up...");
+  const moveItemUp = (item, index) => {
+    const sorted = reOrderPlaylist(playlistItems, index, index - 1);
+    const sortedIds = sorted.map((item) => item.id);
+    setPlaylistItems(sorted);
+    reorderPlaylistRequest({ queue: sortedIds });
   };
 
   const removeItemFromPlaylist = async () => {
@@ -192,7 +206,7 @@ const PlaylistManager = () => {
             currentList.map((playlistItem, idx) => (
               <PlaylistItemRow
                 playlistItem={playlistItem}
-                key={`playlistItem${idx}`}
+                key={playlistItem.id}
                 index={idx}
                 draggableId={playlistItem.id}
                 onDownwardMove={moveItemDown}

@@ -1,23 +1,38 @@
-import React, { forwardRef, useContext, useState } from "react";
+import React, { forwardRef, useContext, useState, useEffect } from "react";
+import io from "socket.io-client";
 import { Toaster } from "react-hot-toast";
 import { Link, useLocation } from "react-router-dom";
 import { MdAdd } from "react-icons/md";
+import { MdNotifications } from "react-icons/md";
+import { FaAngleDown } from "react-icons/fa";
+import classNames from "classnames/bind";
+
 import Logo from "../assets/logo.png";
 import SearchInput from "../components/uiComponents/SearchInput";
 import { routes } from "../routes/sidebarRoutes";
-import { MdNotifications } from "react-icons/md";
-import { FaAngleDown } from "react-icons/fa";
 import Avatar from "../components/uiComponents/Avatar";
-import classNames from "classnames/bind";
 import withClickOutside from "../hoc/withClickOutside";
 import { Context as AuthContext } from "../context/AuthContext";
 import RoundedBtnWithIcon from "./uiComponents/RoundedBtnWithIcon";
 import CreateCampaignModal from "./uiComponents/CreateCampaignModal";
+import { NOTIFICATION_EVENTS, NOTIFIER_SOCKET_URL } from "../utils/constants";
 
 const Dashboard = forwardRef(
   ({ children, open, setOpen, customHeader, fetchCampaignsFn }, ref) => {
     const location = useLocation();
-    const { logout } = useContext(AuthContext);
+    const {
+      state: { user },
+      logout,
+    } = useContext(AuthContext);
+
+    useEffect(() => {
+      const socket = io(NOTIFIER_SOCKET_URL);
+
+      socket.on("connect", () => {
+        socket.emit(NOTIFICATION_EVENTS.JOIN, user.id);
+      });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const [campaignModalIsOpen, setCampaignModalIsOpen] = useState(false);
 
