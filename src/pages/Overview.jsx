@@ -6,6 +6,7 @@ import {
 } from "react-icons/md";
 import $ from "jquery";
 import moment from "moment";
+import format from "date-fns/format";
 import PlaceholderLoading from "react-placeholder-loading";
 
 import { Context as CampaignContext } from "../context/CampaignContext";
@@ -121,18 +122,6 @@ const Overview = () => {
     ]
   );
 
-  useEffect(() => {
-    (async () => {
-      await Promise.all([
-        fetchActiveCampaigns(),
-        fetchTotalCampaignSize(),
-        fetchDrivers({ status: "approved" }),
-        fetchRevenue(),
-      ]);
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const [startDate, setStartDate] = useMomentDateQueryParamWithDefaultValue(
     "startDate",
     DEFAULT_FILTERS.startDate
@@ -142,6 +131,26 @@ const Overview = () => {
     "endDate",
     DEFAULT_FILTERS.endDate
   );
+
+  const filterValues = useMemo(
+    () => ({
+      startDate: format(startDate.toDate(), "yyyy/MM/dd"),
+      endDate: format(endDate.toDate(), "yyyy/MM/dd"),
+    }),
+    [startDate, endDate]
+  );
+
+  useEffect(() => {
+    (async () => {
+      await Promise.all([
+        fetchActiveCampaigns({ ...filterValues }),
+        fetchTotalCampaignSize({ ...filterValues }),
+        fetchDrivers({ status: "approved", ...filterValues }),
+        fetchRevenue(),
+      ]);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterValues]);
 
   const handleCheckBoxes = () => {
     if (totalChecked) {

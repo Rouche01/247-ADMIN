@@ -9,6 +9,9 @@ import { BiUserCheck } from "react-icons/bi";
 import { FiCheckSquare } from "react-icons/fi";
 import { IoIosCash } from "react-icons/io";
 import classNames from "classnames";
+import pickBy from "lodash/pickBy";
+import isEqual from "lodash/isEqual";
+import isEmpty from "lodash/isEmpty";
 
 import Dashboard from "../components/Dashboard";
 import { Context as DriverContext } from "../context/DriverContext";
@@ -25,6 +28,12 @@ import PayoutHistoryModal from "../components/uiComponents/PayoutHistoryModal";
 import SettlePayoutModal from "../components/uiComponents/SettlePayoutModal";
 import { useToastError } from "../hooks/handleError";
 import DriverDetailLoading from "../components/loader/DriverDetail.loader";
+import IDViewerModal from "../components/uiComponents/IDViewerModal";
+
+export const SETTLE_MODAL_TYPE = {
+  SINGLE: "single",
+  BULK: "bulk",
+};
 
 const mapBtnTextToStatus = {
   approved: {
@@ -78,9 +87,9 @@ const CustomHeader = ({
             "rounded-md",
             {
               "bg-active-gradient": status === "approved",
-            },
-            { "bg-closed-gradient": status === "suspended" },
-            { "bg-paused-gradient": status === "pending" }
+              "bg-closed-gradient": status === "suspended",
+              "bg-paused-gradient": status === "pending",
+            }
           )}
         >
           <p className="text-white font-medium text-lg">{startCase(status)}</p>
@@ -106,7 +115,10 @@ const DriverDetail = () => {
   const history = useHistory();
   const { driverId } = useParams();
 
-  const [settleModalOpen, setSettleModalOpen] = useState(false);
+  const [settleModalOpen, setSettleModalOpen] = useState({
+    open: false,
+    type: SETTLE_MODAL_TYPE.BULK,
+  });
   const [payoutModalOpen, setPayoutModalOpen] = useState(false);
   const [editInfoOpen, setEditInfoOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState({
@@ -114,6 +126,9 @@ const DriverDetail = () => {
     action: null,
   });
   const [confirmPayoutModalOpen, setConfirmPayoutModalOpen] = useState(false);
+  const [idViewerOpen, setIdViewerOpen] = useState(false);
+
+  const [selectedPayout, setSelectedPayout] = useState();
 
   const {
     state: { payoutRequests, fetchingPayouts },
@@ -126,9 +141,12 @@ const DriverDetail = () => {
       driver,
       updatingDriverStatus,
       updateStatusError,
+      updatingAttributes,
+      updateAttributesError,
     },
     fetchDriverById,
     updateDriverStatus,
+    updateDriverAttributes,
     clearError,
   } = useContext(DriverContext);
 
@@ -157,8 +175,6 @@ const DriverDetail = () => {
     ]
   );
 
-  console.log(driver, lifetimeEarning, dayEarning, payoutRequests);
-
   useEffect(() => {
     (async () => {
       await Promise.all([
@@ -171,7 +187,8 @@ const DriverDetail = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useToastError(updateStatusError, clearError);
+  useToastError(updateStatusError, () => clearError("updateStatus"));
+  useToastError(updateAttributesError, () => clearError("updateAttributes"));
 
   const confirmAccountAction = (action) => {
     setConfirmModalOpen({ open: true, action });
@@ -229,10 +246,6 @@ const DriverDetail = () => {
     },
   };
 
-  const handleDriverInfoEdit = (data) => {
-    console.log(data, "Editing driver info...");
-  };
-
   const handleDriverPayout = (data) => {
     console.log(data, "confirming payout");
     setSettleModalOpen(false);
@@ -253,6 +266,21 @@ const DriverDetail = () => {
     hobby: driver?.extraInfo?.favouriteHobby,
     askMeAbout: driver?.extraInfo?.askMeAbout,
     vacationSpot: driver?.extraInfo.vacationSpot,
+  };
+
+  const handleDriverInfoEdit = async (data) => {
+    const diff = pickBy(data, (val, key) => !isEqual(editData[key], val));
+
+    if (isEmpty(diff)) {
+      toast.error("You haven't made any changes!");
+      return;
+    }
+
+    await updateDriverAttributes(data, driverId, () => {
+      setEditInfoOpen(false);
+      toast.success(`Updated driver information successfully!`);
+      return fetchDriverById(driverId);
+    });
   };
 
   const dateCreated = useMemo(
@@ -347,7 +375,12 @@ const DriverDetail = () => {
                       label="Vacation Spot"
                       value={driver.extraInfo.vacationSpot}
                     />
-                    <ResourceMeta label="ID Upload" value="mydl.png" />
+                    <ResourceMeta
+                      label="ID Upload"
+                      value="Open ID"
+                      btnAction={() => setIdViewerOpen(true)}
+                      isButton
+                    />
                   </div>
                 </div>
               </div>
@@ -389,8 +422,14 @@ const DriverDetail = () => {
                     true,
                     true
                   )}
+                  btnActive={driver?.driverStat?.pendingPayout > 0}
                   btnText="Settle"
-                  btnAction={() => setSettleModalOpen(true)}
+                  btnAction={() =>
+                    setSettleModalOpen({
+                      open: true,
+                      type: SETTLE_MODAL_TYPE.BULK,
+                    })
+                  }
                 />
               </div>
             </div>
@@ -416,6 +455,7 @@ const DriverDetail = () => {
           isOpen={editInfoOpen}
           setIsOpen={setEditInfoOpen}
           isEdit
+          loading={updatingAttributes}
           editData={editData}
           submitAction={handleDriverInfoEdit}
         />
@@ -423,17 +463,31 @@ const DriverDetail = () => {
           isOpen={payoutModalOpen}
           setIsOpen={setPayoutModalOpen}
           payouts={payoutRequests}
+          setSettleModalOpen={setSettleModalOpen}
+          setSelectedPayout={setSelectedPayout}
         />
         <SettlePayoutModal
-          isOpen={settleModalOpen}
+          isOpen={settleModalOpen.open}
           setIsOpen={setSettleModalOpen}
           driverDeets={{
             bankName: driver?.bankInformation?.bank?.name,
-            accountNumber: driver?.bankInformation.accountNumber,
-            accountName: driver?.bankInformation.accountName,
-            pendingPayout: driver?.driverStat?.pendingPayout,
+            accountNumber: driver?.bankInformation?.accountNumber,
+            accountName: driver?.bankInformation?.accountName,
+            pendingPayout:
+              settleModalOpen.type === SETTLE_MODAL_TYPE.BULK
+                ? convertKoboToNaira(
+                    driver?.driverStat?.pendingPayout || 0
+                  ).toLocaleString()
+                : convertKoboToNaira(
+                    selectedPayout?.amount || 0
+                  ).toLocaleString(),
           }}
           handlePayout={handleDriverPayout}
+        />
+        <IDViewerModal
+          open={idViewerOpen}
+          setOpen={setIdViewerOpen}
+          idUrl={driver?.driversValidId}
         />
       </Dashboard>
     )

@@ -48,6 +48,7 @@ const SelectInput = ({
   errorText,
   placeholderText,
   handleChange,
+  ...props
 }) => {
   const customStyles = {
     control: (provided, state) => ({
@@ -83,7 +84,7 @@ const SelectInput = ({
     singleValue: (provided, state) => ({
       ...provided,
       fontWeight: "500",
-      color: "#fff",
+      color: state.isDisabled ? "rgba(255, 255, 255, 0.5)" : "#fff",
     }),
     menu: (provided, state) => ({
       ...provided,
@@ -111,6 +112,7 @@ const SelectInput = ({
         components={{
           Option: CustomOption,
         }}
+        {...props}
       />
       {errorText && (
         <p className="text-sm mt-1 ml-2 text-247-error-text">{errorText}</p>

@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState, useMemo } from "react";
 import { useHistory } from "react-router-dom";
-import differenceInSeconds from "date-fns/differenceInSeconds";
 import PlaceholderLoading from "react-placeholder-loading";
 
 import Dashboard from "../components/Dashboard";
@@ -144,7 +143,11 @@ const Advertisers = () => {
             <InfoBox
               bgColor="bg-green-gradient"
               infoTitle="Total Revenue"
-              infoValue={formatNum(convertKoboToNaira(totalRevenue), true)}
+              infoValue={formatNum(
+                convertKoboToNaira(totalRevenue),
+                true,
+                true
+              )}
             />
             <InfoBox
               bgColor="bg-yellow-gradient"
@@ -167,11 +170,8 @@ const Advertisers = () => {
                 const totalAdSpend = calculateTotalAdSpend(advtr);
 
                 const totalDurationInSecs = advtr.campaigns
-                  .map((campaign) =>
-                    differenceInSeconds(
-                      new Date(campaign.duration[1]),
-                      new Date(campaign.duration[0])
-                    )
+                  .map(
+                    (campaign) => campaign?.campaignStat?.playTimeInSeconds || 0
                   )
                   .reduce((prev, curr) => prev + curr, 0);
 

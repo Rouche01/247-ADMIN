@@ -12,6 +12,7 @@ const EditDriverInfoModal = ({
   isEdit,
   editData,
   submitAction,
+  loading,
 }) => {
   const validationSchema = useDriverInfoFormValidation();
   const {
@@ -41,6 +42,7 @@ const EditDriverInfoModal = ({
             registerFn={register}
             name="firstName"
             errorText={errors.firstName?.message}
+            disabled
           />
           <InputField
             label="Last Name"
@@ -50,6 +52,7 @@ const EditDriverInfoModal = ({
             registerFn={register}
             name="lastName"
             errorText={errors.lastName?.message}
+            disabled
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -61,6 +64,7 @@ const EditDriverInfoModal = ({
             registerFn={register}
             name="emailAddress"
             errorText={errors.emailAddress?.message}
+            disabled
           />
           <InputField
             label="Phone Number"
@@ -116,6 +120,7 @@ const EditDriverInfoModal = ({
           type="submit"
           className={["bg-247-red", "block", "mt-12", "px-12", "font-normal"]}
           fullWidth
+          isLoading={loading}
         >
           {isEdit ? "Save Changes" : "Create New Driver"}
         </Button>

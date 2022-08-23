@@ -175,7 +175,6 @@ const CreateCampaignModal = ({
   };
 
   const onEditCampaign = async (data) => {
-    console.log(data);
     const diff = pickBy(data, (val, key) => !isEqual(editData[key], val));
     if (isEmpty(diff) && !campaignMedia[0]) {
       toast.error("You haven't made any changes!");
@@ -306,6 +305,7 @@ const CreateCampaignModal = ({
                   label="Ad Type"
                   darkMode
                   options={ADTYPES}
+                  isDisabled={true}
                   placeholderText="select ad type"
                   value={field.value}
                   handleChange={(value) => field.onChange(value)}

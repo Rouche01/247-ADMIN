@@ -127,12 +127,13 @@ const fetchCampaigns = (dispatch) => async (params) => {
   }
 };
 
-const fetchTotalCampaignSize = (dispatch) => async () => {
+const fetchTotalCampaignSize = (dispatch) => async (params) => {
   dispatch({ type: SET_RETRIEVE_ERROR, payload: null });
   dispatch({ type: FETCHING_TOTAL_SIZE, payload: true });
   try {
     const response = await adverts247Api.get("/campaigns", {
-      headers: { Authorization: `Bearer ${resolveToken()}` }
+      headers: { Authorization: `Bearer ${resolveToken()}` },
+      params: { ...params },
     });
 
     dispatch({ type: SET_TOTAL_SIZE, payload: response.data.size });
@@ -156,13 +157,18 @@ const fetchTotalCampaignSize = (dispatch) => async () => {
   }
 };
 
-const fetchActiveCampaigns = (dispatch) => async () => {
+const fetchActiveCampaigns = (dispatch) => async (params) => {
   dispatch({ type: SET_RETRIEVE_ERROR, payload: null });
   dispatch({ type: FETCHING_ACTIVE_CAMPAIGNS, payload: true });
   try {
     const response = await adverts247Api.get("/campaigns", {
       headers: { Authorization: `Bearer ${resolveToken()}` },
-      params: { status: 'active', sortBy: "createdAt", orderBy: "desc" },
+      params: {
+        ...params,
+        status: "active",
+        sortBy: "createdAt",
+        orderBy: "desc",
+      },
     });
 
     dispatch({ type: SET_ACTIVE_CAMPAIGNS, payload: response.data.campaigns });
@@ -300,7 +306,7 @@ export const { Context, Provider } = createDataContext(
     activeCampaigns: [],
     activeCampaignsSize: 0,
     campaignTotalSize: 0,
-    fetchingTotalSize: false
+    fetchingTotalSize: false,
   },
   {
     createCampaign,
@@ -310,6 +316,6 @@ export const { Context, Provider } = createDataContext(
     updateCampaignStatus,
     updateCampaignAttributes,
     fetchActiveCampaigns,
-    fetchTotalCampaignSize
+    fetchTotalCampaignSize,
   }
 );

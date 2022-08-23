@@ -186,7 +186,7 @@ const Campaign = () => {
           <InfoBox
             bgColor="bg-blue-gradient"
             infoTitle="Total Revenue"
-            infoValue={formatNum(convertKoboToNaira(totalRevenue), true)}
+            infoValue={formatNum(convertKoboToNaira(totalRevenue), true, true)}
             statChange={2.4}
           />
           <InfoBox

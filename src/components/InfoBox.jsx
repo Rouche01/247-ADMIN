@@ -1,4 +1,5 @@
 import React from "react";
+import classNames from "classnames";
 import { MdOutlineArrowUpward, MdOutlineArrowDownward } from "react-icons/md";
 
 const InfoBox = ({
@@ -7,6 +8,7 @@ const InfoBox = ({
   bgColor,
   statChange,
   btnText,
+  btnActive,
   btnAction,
 }) => {
   return (
@@ -36,7 +38,19 @@ const InfoBox = ({
       {btnText && (
         <button
           onClick={() => btnAction()}
-          className="text-lg font-semibold px-7 py-2 bg-white rounded mt-4"
+          className={classNames(
+            "text-lg",
+            "font-semibold",
+            "px-7",
+            "py-2",
+            "rounded",
+            "mt-4",
+            "bg-white",
+            "disabled:bg-247-inactive-btn",
+            "disabled:text-247-gray-accent5",
+            "disabled:cursor-not-allowed"
+          )}
+          disabled={!btnActive}
         >
           {btnText}
         </button>

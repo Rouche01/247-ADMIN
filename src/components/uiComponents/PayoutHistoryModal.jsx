@@ -2,11 +2,18 @@ import classNames from "classnames";
 import startCase from "lodash/startCase";
 import React from "react";
 import { BiCaretLeft, BiCaretRight } from "react-icons/bi";
+import { SETTLE_MODAL_TYPE } from "../../pages/DriverDetail";
 import { transformTransactionDate } from "../../utils/date";
 import { convertKoboToNaira, formatNum } from "../../utils/numFormatter";
 import CenterModal from "./CenterModal";
 
-const PayoutHistoryModal = ({ isOpen, setIsOpen, payouts }) => {
+const PayoutHistoryModal = ({
+  isOpen,
+  setIsOpen,
+  payouts,
+  setSettleModalOpen,
+  setSelectedPayout,
+}) => {
   return (
     <CenterModal modalOpen={isOpen} setModalOpen={setIsOpen}>
       <h2 className="text-white text-center text-2xl font-semibold">
@@ -38,6 +45,15 @@ const PayoutHistoryModal = ({ isOpen, setIsOpen, payouts }) => {
                       "disabled:cursor-not-allowed"
                     )}
                     disabled={item.status === "success"}
+                    onClick={() => {
+                      console.log("settle");
+                      setIsOpen(false);
+                      setSelectedPayout(item);
+                      setSettleModalOpen({
+                        open: true,
+                        type: SETTLE_MODAL_TYPE.SINGLE,
+                      });
+                    }}
                   >
                     Settle
                   </button>

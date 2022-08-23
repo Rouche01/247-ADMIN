@@ -276,6 +276,7 @@ const Drivers = () => {
                     <td className="px-6 py-5">
                       {formatNum(
                         convertKoboToNaira(driverEarningsInKobo),
+                        true,
                         true
                       )}
                     </td>

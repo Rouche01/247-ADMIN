@@ -38,6 +38,7 @@ module.exports = {
         "247-timestamp-color": "#A7A7A7",
         "247-inactive-btn": "#CFCECE",
         "247-not-live": "#FF6B00",
+        "247-disabled-input": "rgba(255, 255, 255, 0.5)",
       },
       backgroundImage: {
         "subtle-curve": "url('/src/assets/subtle-curve.svg')",
@@ -65,6 +66,7 @@ module.exports = {
   variants: {
     extend: {
       backgroundColor: ["odd", "even", "disabled"],
+      textColor: ["disabled"],
       cursor: ["disabled"],
       borderRadius: ["first", "last"],
     },

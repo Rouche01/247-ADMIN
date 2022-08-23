@@ -24,7 +24,7 @@ export const ADTYPES = [
 ];
 
 export const NOTIFIER_SOCKET_URL =
-  "https://2ec4-2001-4dd6-af6b-0-28b6-820a-ab86-f642.ngrok.io/notifier";
+  "http://localhost:3005/notifier";
 
 export const NOTIFICATION_EVENTS = {
   JOIN: "notification::join",

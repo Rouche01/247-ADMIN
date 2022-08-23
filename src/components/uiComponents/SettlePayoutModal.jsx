@@ -17,6 +17,7 @@ const SettlePayoutModal = ({
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -34,15 +35,6 @@ const SettlePayoutModal = ({
       </h2>
       <form className="mt-10" onSubmit={handleSubmit(handlePayout)}>
         <InputField
-          label="Bank Name"
-          darkMode={true}
-          placeholder="enter bank name"
-          type="text"
-          registerFn={register}
-          name="bankName"
-          errorText={errors.bankName?.message}
-        />
-        <InputField
           label="Account Number"
           darkMode={true}
           placeholder="enter account number"
@@ -52,6 +44,16 @@ const SettlePayoutModal = ({
           errorText={errors.accountNumber?.message}
         />
         <InputField
+          label="Bank Name"
+          darkMode={true}
+          placeholder="enter bank name"
+          type="text"
+          registerFn={register}
+          name="bankName"
+          errorText={errors.bankName?.message}
+          disabled
+        />
+        <InputField
           label="Account Name"
           darkMode={true}
           placeholder="enter account name"
@@ -59,15 +61,19 @@ const SettlePayoutModal = ({
           registerFn={register}
           name="accountName"
           errorText={errors.accountName?.message}
+          disabled
         />
         <InputField
           label="Pending Payout"
           darkMode={true}
           placeholder="enter amount to payout"
           type="text"
+          isNumeric
+          setValue={setValue}
           registerFn={register}
           name="pendingPayout"
           errorText={errors.pendingPayout?.message}
+          disabled
         />
         <Button
           type="submit"
