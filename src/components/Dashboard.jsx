@@ -44,7 +44,7 @@ const Dashboard = forwardRef(
       <div className="h-screen max-h-screen overflow-y-hidden">
         <Toaster position="top-center" />
         <div className="grid grid-cols-5 gap-0 max-h-screen h-screen">
-          <div className="h-screen min-h-screen border-r-2 border-247-dark-text bg-247-secondary">
+          <div className="overflow-y-scroll scrollbar-hide h-screen min-h-screen border-r-2 border-247-dark-text bg-247-secondary min-w-min">
             <img src={Logo} alt="logo" width="160" className="ml-10 mt-10" />
             <ul className="ml-10 mt-20">
               {routes.map((route) => {
@@ -54,7 +54,7 @@ const Dashboard = forwardRef(
                       <Link to={route.link}>
                         <span className="flex items-center space-x-6">
                           <route.icon size={22} color="#FF0000" />
-                          <span className="text-white text-xl font-customRoboto">
+                          <span className="text-white text-xl font-customRoboto whitespace-nowrap">
                             {route.label}
                           </span>
                         </span>
@@ -67,7 +67,7 @@ const Dashboard = forwardRef(
                       <Link to={route.link}>
                         <span className="flex items-center space-x-6">
                           <route.icon size={22} color="#959698" />
-                          <span className="text-247-inactive-link text-xl font-customRoboto">
+                          <span className="text-247-inactive-link text-xl font-customRoboto whitespace-nowrap">
                             {route.label}
                           </span>
                         </span>

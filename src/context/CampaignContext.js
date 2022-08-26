@@ -18,6 +18,9 @@ const SET_ACTIVE_CAMPAIGNS = "set_active_campaigns";
 const SET_ACTIVE_CAMPAIGN_SIZE = "set_active_campaigns_size";
 const FETCHING_TOTAL_SIZE = "fetching_total_size";
 const SET_TOTAL_SIZE = "set_total_size";
+const FETCHING_DAILY_STAT = "fetching_daily_stat";
+const FETCH_DAILY_STAT_FAIL = "fetch_daily_stat_fail";
+const FETCH_DAILY_STAT_SUCCESS = "fetch_daily_stat_success";
 
 const mapErrorToAction = {
   fetch: SET_RETRIEVE_ERROR,
@@ -25,6 +28,7 @@ const mapErrorToAction = {
   fetchById: SET_FETCH_BY_ID_ERROR,
   updateStatus: SET_UPDATE_STATUS_ERROR,
   updateAttributes: SET_UPDATE_ATTR_ERROR,
+  fetchDailyStat: FETCH_DAILY_STAT_FAIL,
 };
 
 const campaignReducer = (state, action) => {
@@ -61,6 +65,12 @@ const campaignReducer = (state, action) => {
       return { ...state, fetchingTotalSize: action.payload };
     case SET_TOTAL_SIZE:
       return { ...state, campaignTotalSize: action.payload };
+    case FETCHING_DAILY_STAT:
+      return { ...state, fetchingDailyStat: action.payload };
+    case FETCH_DAILY_STAT_FAIL:
+      return { ...state, fetchDailyStatError: action.payload };
+    case FETCH_DAILY_STAT_SUCCESS:
+      return { ...state, campaignDailyStat: action.payload };
     default:
       return state;
   }
@@ -284,6 +294,36 @@ const updateCampaignAttributes =
     }
   };
 
+const fetchDailyCampaignStat = (dispatch) => async (params) => {
+  dispatch({ type: FETCHING_DAILY_STAT, payload: true });
+  dispatch({ type: FETCH_DAILY_STAT_FAIL, payload: null });
+  try {
+    const response = await adverts247Api.get("/campaigns/stat/range", {
+      headers: { Authorization: `Bearer ${resolveToken()}` },
+      params: { ...params },
+    });
+
+    dispatch({ type: FETCH_DAILY_STAT_SUCCESS, payload: response.data });
+    dispatch({ type: FETCHING_DAILY_STAT, payload: false });
+  } catch (err) {
+    if (err.response) {
+      dispatch({
+        type: FETCH_DAILY_STAT_FAIL,
+        payload:
+          err.response.data.message ||
+          "Unable to fetch daily stats for campaign(s). Something went wrong",
+      });
+    } else {
+      dispatch({
+        type: FETCH_DAILY_STAT_FAIL,
+        payload:
+          "Unable to fetch daily stats for campaign(s). Something went wrong",
+      });
+    }
+    dispatch({ type: FETCHING_DAILY_STAT, payload: false });
+  }
+};
+
 const clearError = (dispatch) => (actionType) => {
   dispatch({ type: mapErrorToAction[actionType], payload: null });
 };
@@ -307,6 +347,9 @@ export const { Context, Provider } = createDataContext(
     activeCampaignsSize: 0,
     campaignTotalSize: 0,
     fetchingTotalSize: false,
+    fetchingDailyStat: false,
+    campaignDailyStat: [],
+    fetchDailyStatError: null,
   },
   {
     createCampaign,
@@ -317,5 +360,6 @@ export const { Context, Provider } = createDataContext(
     updateCampaignAttributes,
     fetchActiveCampaigns,
     fetchTotalCampaignSize,
+    fetchDailyCampaignStat,
   }
 );

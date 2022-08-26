@@ -19,14 +19,14 @@ import {
   formatNum,
 } from "../utils/numFormatter";
 import CampaignAnalyticsChart from "../components/CampaignAnalyticsChart";
-import { impressionData } from "../utils/dummyData";
 import ConfirmationModal from "../components/uiComponents/ConfirmationModal";
 import CreateCampaignModal from "../components/uiComponents/CreateCampaignModal";
 import ResourceMeta from "../components/uiComponents/ResourceMeta";
-import { calculateDistance } from "../utils/date";
+import { calculateDistance, transformChartDate } from "../utils/date";
 import CampaignDetailLoading from "../components/loader/CampaignDetail.loader";
 import { useToastError } from "../hooks/handleError";
 import { ADTYPES } from "../utils/constants";
+import { rangeEndDate, rangeStartDate } from "../utils/campaignStat";
 
 const mapBtnTextAndActionToStatus = {
   active: [
@@ -117,12 +117,14 @@ const CampaignDetail = () => {
     state: {
       loading: fetchingCampaign,
       campaign,
+      campaignDailyStat,
       updatingStatus,
       updateStatusError,
       updatingAttributes,
       updateAttributesError,
     },
     fetchCampaignById,
+    fetchDailyCampaignStat,
     updateCampaignStatus,
     updateCampaignAttributes,
     clearError,
@@ -141,19 +143,31 @@ const CampaignDetail = () => {
     clearError("updateAttributes");
   });
 
+  const fetchDataForCampaignDetail = async () => {
+    await Promise.all([
+      fetchAdvertisers({}),
+      fetchCampaignById(campaignId),
+      fetchDailyCampaignStat({
+        startDate: rangeStartDate,
+        endDate: rangeEndDate,
+        campaignId,
+      }),
+    ]);
+  };
+
   useEffect(() => {
-    fetchAdvertisers({});
+    fetchDataForCampaignDetail();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  console.log(advertisers);
-
-  useEffect(() => {
-    fetchCampaignById(campaignId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  console.log(campaign);
+  const impressionChartData = useMemo(
+    () =>
+      campaignDailyStat.map((stat) => ({
+        impressions: stat.impressions,
+        date: transformChartDate(stat.date),
+      })),
+    [campaignDailyStat]
+  );
 
   const initiateCampaignAttributesUpdate = async (data) => {
     await updateCampaignAttributes(data, campaignId, () => {
@@ -350,22 +364,15 @@ const CampaignDetail = () => {
                 </h3>
                 <div className="flex gap-10">
                   <div className="flex items-center">
-                    <div className="w-5 h-5 rounded-full border-4 border-247-red-straight"></div>
-                    <label className="text-247-gray-accent2 text-2xl ml-4">
-                      Impressions
-                    </label>
-                  </div>
-                  <div className="flex items-center">
                     <div className="w-5 h-5 rounded-full border-4 border-247-green"></div>
                     <label className="text-247-gray-accent2 text-2xl ml-4">
-                      Interactions
+                      Impressions
                     </label>
                   </div>
                 </div>
               </div>
               <CampaignAnalyticsChart
-                data={impressionData}
-                interactionsDataKey="interactions"
+                data={impressionChartData}
                 impressionDataKey="impressions"
                 xDataKey="date"
               />

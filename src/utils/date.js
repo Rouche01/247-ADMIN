@@ -19,3 +19,6 @@ export const transformTransactionDate = (dateString) =>
 
 export const transformPlaylistCreateDate = (dateString) =>
   format(new Date(dateString), "dd MMM, yyyy");
+
+export const transformChartDate = (dateString) =>
+  format(new Date(dateString), "dd/MM");
