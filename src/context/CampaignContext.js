@@ -21,6 +21,7 @@ const SET_TOTAL_SIZE = "set_total_size";
 const FETCHING_DAILY_STAT = "fetching_daily_stat";
 const FETCH_DAILY_STAT_FAIL = "fetch_daily_stat_fail";
 const FETCH_DAILY_STAT_SUCCESS = "fetch_daily_stat_success";
+const SET_CAMPAIGNS_WITH_SEARCH_INPUT = "set_campaigns_with_search_input";
 
 const mapErrorToAction = {
   fetch: SET_RETRIEVE_ERROR,
@@ -71,6 +72,8 @@ const campaignReducer = (state, action) => {
       return { ...state, fetchDailyStatError: action.payload };
     case FETCH_DAILY_STAT_SUCCESS:
       return { ...state, campaignDailyStat: action.payload };
+    case SET_CAMPAIGNS_WITH_SEARCH_INPUT:
+      return { ...state, campaignsWithSearchInput: action.payload };
     default:
       return state;
   }
@@ -117,6 +120,39 @@ const fetchCampaigns = (dispatch) => async (params) => {
 
     dispatch({ type: SET_CAMPAIGN_LIST, payload: response.data.campaigns });
     dispatch({ type: SET_CAMPAIGN_SIZE, payload: response.data.size });
+    dispatch({ type: SET_LOADING_STATE, payload: false });
+  } catch (err) {
+    if (err.response) {
+      console.log(err.response.data);
+      dispatch({
+        type: SET_RETRIEVE_ERROR,
+        payload:
+          err.response.data.message ||
+          "Unable to fetch campaigns. Something went wrong",
+      });
+    } else {
+      dispatch({
+        type: SET_RETRIEVE_ERROR,
+        payload: "Unable to fetch campaigns. Something went wrong",
+      });
+    }
+    dispatch({ type: SET_LOADING_STATE, payload: false });
+  }
+};
+
+const fetchCampaignsWithSearchInput = (dispatch) => async (params) => {
+  dispatch({ type: SET_RETRIEVE_ERROR, payload: null });
+  dispatch({ type: SET_LOADING_STATE, payload: true });
+  try {
+    const response = await adverts247Api.get("/campaigns", {
+      headers: { Authorization: `Bearer ${resolveToken()}` },
+      params: { ...params, sortBy: "createdAt", orderBy: "desc" },
+    });
+
+    dispatch({
+      type: SET_CAMPAIGNS_WITH_SEARCH_INPUT,
+      payload: response.data.campaigns,
+    });
     dispatch({ type: SET_LOADING_STATE, payload: false });
   } catch (err) {
     if (err.response) {
@@ -350,10 +386,12 @@ export const { Context, Provider } = createDataContext(
     fetchingDailyStat: false,
     campaignDailyStat: [],
     fetchDailyStatError: null,
+    campaignsWithSearchInput: [],
   },
   {
     createCampaign,
     fetchCampaigns,
+    fetchCampaignsWithSearchInput,
     fetchCampaignById,
     clearError,
     updateCampaignStatus,

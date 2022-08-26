@@ -12,6 +12,7 @@ const SET_ADVERTISER_SIZE = "set_advertiser_size";
 const SET_SINGLE_ADVERTISER = "set_single_advertiser";
 const FETCHING_TOTAL_SIZE = "fetching_total_size";
 const SET_TOTAL_SIZE = "set_total_size";
+const SET_ADVERTISERS_WITH_SEARCH_INPUT = "set_advertisers_with_search_input";
 
 const mapErrorToAction = {
   fetch: SET_FETCH_ERROR,
@@ -41,6 +42,8 @@ const advertiserReducer = (state, action) => {
       return { ...state, fetchingTotalSize: action.payload };
     case SET_TOTAL_SIZE:
       return { ...state, advertiserTotalSize: action.payload };
+    case SET_ADVERTISERS_WITH_SEARCH_INPUT:
+      return { ...state, advertisersWithSearchInput: action.payload };
     default:
       return state;
   }
@@ -87,6 +90,39 @@ const fetchAdvertisers = (dispatch) => async (params) => {
 
     dispatch({ type: SET_ADVERTISER_LIST, payload: response.data.advertisers });
     dispatch({ type: SET_ADVERTISER_SIZE, payload: response.data.size });
+    dispatch({ type: SET_LOADING_STATE, payload: false });
+  } catch (err) {
+    if (err.response) {
+      dispatch({
+        type: SET_FETCH_ERROR,
+        payload:
+          err.response.data.message ||
+          "Unable to fetch advertisers. Something went wrong",
+      });
+    } else {
+      dispatch({
+        type: SET_FETCH_ERROR,
+        payload: "Unable to fetch advertisers. Something went wrong",
+      });
+    }
+    dispatch({ type: SET_LOADING_STATE, payload: false });
+  }
+};
+
+const fetchAdvertisersWithSearchInput = (dispatch) => async (params) => {
+  dispatch({ type: SET_LOADING_STATE, payload: true });
+  dispatch({ type: SET_FETCH_ERROR, payload: null });
+  dispatch({ type: SET_ADVERTISERS_WITH_SEARCH_INPUT, payload: [] });
+  try {
+    const response = await adverts247Api.get("/advertisers", {
+      headers: { Authorization: `Bearer ${resolveToken()}` },
+      params: { ...params, sortBy: "createdAt", orderBy: "desc" },
+    });
+
+    dispatch({
+      type: SET_ADVERTISERS_WITH_SEARCH_INPUT,
+      payload: response.data.advertisers,
+    });
     dispatch({ type: SET_LOADING_STATE, payload: false });
   } catch (err) {
     if (err.response) {
@@ -180,10 +216,12 @@ export const { Context, Provider } = createDataContext(
     advertiserSize: 0,
     advertiser: null,
     advertiserTotalSize: 0,
-    fetchingTotalSize: false
+    fetchingTotalSize: false,
+    advertisersWithSearchInput: [],
   },
   {
     fetchAdvertisers,
+    fetchAdvertisersWithSearchInput,
     fetchAdvertiserById,
     fetchTotalAdvertisersSize,
     createAdvertiser,

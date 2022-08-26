@@ -1,4 +1,10 @@
-import React, { forwardRef, useContext, useState, useEffect } from "react";
+import React, {
+  forwardRef,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import io from "socket.io-client";
 import { Toaster } from "react-hot-toast";
 import { Link, useLocation } from "react-router-dom";
@@ -6,6 +12,7 @@ import { MdAdd } from "react-icons/md";
 import { MdNotifications } from "react-icons/md";
 import { FaAngleDown } from "react-icons/fa";
 import classNames from "classnames/bind";
+import debounce from "lodash/debounce";
 
 import Logo from "../assets/logo.png";
 import SearchInput from "../components/uiComponents/SearchInput";
@@ -13,9 +20,14 @@ import { routes } from "../routes/sidebarRoutes";
 import Avatar from "../components/uiComponents/Avatar";
 import withClickOutside from "../hoc/withClickOutside";
 import { Context as AuthContext } from "../context/AuthContext";
+import { Context as CampaignContext } from "../context/CampaignContext";
+import { Context as AdvertiserContext } from "../context/AdvertiserContext";
+import { Context as DriverContext } from "../context/DriverContext";
 import RoundedBtnWithIcon from "./uiComponents/RoundedBtnWithIcon";
 import CreateCampaignModal from "./uiComponents/CreateCampaignModal";
 import { NOTIFICATION_EVENTS, NOTIFIER_SOCKET_URL } from "../utils/constants";
+import { useMemo } from "react";
+import SearchResultList from "./SearchResultList";
 
 const Dashboard = forwardRef(
   ({ children, open, setOpen, customHeader, fetchCampaignsFn }, ref) => {
@@ -24,6 +36,23 @@ const Dashboard = forwardRef(
       state: { user },
       logout,
     } = useContext(AuthContext);
+
+    const {
+      state: { loading: fetchingCampaigns, campaignsWithSearchInput },
+      fetchCampaignsWithSearchInput,
+    } = useContext(CampaignContext);
+
+    const {
+      state: { loading: fetchingAdvertisers, advertisersWithSearchInput },
+      fetchAdvertisersWithSearchInput,
+    } = useContext(AdvertiserContext);
+
+    const {
+      state: { fetchingDrivers, driversWithSearchInput },
+      fetchDriversWithSearchInput,
+    } = useContext(DriverContext);
+
+    const [globalSearchValue, setGlobalSearchValue] = useState("");
 
     useEffect(() => {
       const socket = io(NOTIFIER_SOCKET_URL);
@@ -39,6 +68,80 @@ const Dashboard = forwardRef(
     const toggleDropdown = () => {
       setOpen(!open);
     };
+
+    const fetchResourcesWithGlobalSearch = async (value) => {
+      const payload = { startsWith: value };
+      await Promise.all([
+        fetchCampaignsWithSearchInput(payload),
+        fetchAdvertisersWithSearchInput(payload),
+        fetchDriversWithSearchInput(payload),
+      ]);
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const debounceGlobalSearchFetch = useCallback(
+      debounce((value) => {
+        fetchResourcesWithGlobalSearch(value);
+      }, 500),
+      []
+    );
+
+    const handleGlobalSearchInputChange = (val) => {
+      setGlobalSearchValue(val);
+      debounceGlobalSearchFetch(val);
+    };
+
+    const loadingSearch = useMemo(
+      () => fetchingAdvertisers || fetchingCampaigns || fetchingDrivers,
+      [fetchingAdvertisers, fetchingCampaigns, fetchingDrivers]
+    );
+
+    const searchResults = useMemo(() => {
+      const transformedDrivers = driversWithSearchInput.map((driver) => ({
+        type: "driver",
+        name: driver.name,
+        recordInfo: {
+          phoneNumber: `0${driver.phoneNumber}`,
+          email: driver.email,
+          city: driver.city,
+        },
+        id: driver.driverId,
+      }));
+
+      const transformedCampaigns = campaignsWithSearchInput.map((campaign) => ({
+        type: "campaign",
+        campaignName: campaign.campaignName,
+        id: campaign.campaignID,
+        recordInfo: {
+          adType: campaign.adType,
+          impressions: `${campaign?.campaignStat?.impressions} impressions`,
+          status: campaign.status,
+        },
+      }));
+
+      const transformedAdvertisers = advertisersWithSearchInput.map(
+        (advertiser) => ({
+          type: "advertiser",
+          advertiserName: advertiser.companyName,
+          id: advertiser.advertiserId,
+          recordInfo: {
+            email: advertiser.email,
+          },
+        })
+      );
+
+      return [
+        ...transformedDrivers,
+        ...transformedCampaigns,
+        ...transformedAdvertisers,
+      ];
+    }, [
+      driversWithSearchInput,
+      campaignsWithSearchInput,
+      advertisersWithSearchInput,
+    ]);
+
+    console.log(searchResults);
 
     return (
       <div className="h-screen max-h-screen overflow-y-hidden">
@@ -83,7 +186,11 @@ const Dashboard = forwardRef(
               customHeader
             ) : (
               <div className="flex items-center justify-between pb-4">
-                <SearchInput />
+                <SearchInput
+                  value={globalSearchValue}
+                  handleChange={handleGlobalSearchInputChange}
+                  placeholderText="Search Campaigns, Advertisers & Drivers"
+                />
                 <div className="flex space-x-8 items-center">
                   <RoundedBtnWithIcon
                     onBtnClick={() => setCampaignModalIsOpen(true)}
@@ -129,7 +236,14 @@ const Dashboard = forwardRef(
               </div>
             )}
             <div className="overflow-y-scroll max-h-full scrollbar-hide">
-              {children}
+              {globalSearchValue.length > 0 ? (
+                <SearchResultList
+                  results={searchResults}
+                  loadingResults={globalSearchValue.length > 0 && loadingSearch}
+                />
+              ) : (
+                children
+              )}
             </div>
           </div>
         </div>

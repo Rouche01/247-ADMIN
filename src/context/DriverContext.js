@@ -16,6 +16,7 @@ const SET_DRIVERS_TOTAL_SIZE = "set_drivers_total_size";
 const UPDATING_ATTRIBUTES = "updating_attributes";
 const UPDATE_ATTRIBUTES_SUCCESS = "update_attributes_success";
 const UPDATE_ATTRIBUTES_FAIL = "update_attributes_fail";
+const SET_DRIVERS_WITH_SEARCH_INPUT = "set_drivers_with_search_input";
 
 const mapErrorDispatchToAction = {
   fetchDrivers: SET_FETCH_DRIVERS_ERROR,
@@ -54,6 +55,8 @@ const driverReducer = (state, action) => {
       return { ...state, updateAttributesSuccess: action.payload };
     case UPDATE_ATTRIBUTES_FAIL:
       return { ...state, updateAttributesError: action.payload };
+    case SET_DRIVERS_WITH_SEARCH_INPUT:
+      return { ...state, driversWithSearchInput: action.payload };
     default:
       return state;
   }
@@ -70,6 +73,38 @@ const fetchDrivers = (dispatch) => async (params) => {
 
     dispatch({ type: SET_DRIVERS_LIST, payload: response.data.drivers });
     dispatch({ type: SET_DRIVERS_LIST_SIZE, payload: response.data.size });
+    dispatch({ type: FETCHING_DRIVERS, payload: false });
+  } catch (err) {
+    if (err.response) {
+      dispatch({
+        type: SET_FETCH_DRIVERS_ERROR,
+        payload:
+          err.response.data.message ||
+          "Unable to fetch drivers. Something went wrong",
+      });
+    } else {
+      dispatch({
+        type: SET_FETCH_DRIVERS_ERROR,
+        payload: "Unable to fetch drivers. Something went wrong",
+      });
+    }
+    dispatch({ type: FETCHING_DRIVERS, payload: false });
+  }
+};
+
+const fetchDriversWithSearchInput = (dispatch) => async (params) => {
+  dispatch({ type: FETCHING_DRIVERS, payload: true });
+  dispatch({ type: SET_FETCH_DRIVERS_ERROR, payload: null });
+  try {
+    const response = await adverts247Api.get("/drivers", {
+      headers: { Authorization: `Bearer ${resolveToken()}` },
+      params: { ...params, sortBy: "createdAt", orderBy: "desc" },
+    });
+
+    dispatch({
+      type: SET_DRIVERS_WITH_SEARCH_INPUT,
+      payload: response.data.drivers,
+    });
     dispatch({ type: FETCHING_DRIVERS, payload: false });
   } catch (err) {
     if (err.response) {
@@ -229,9 +264,11 @@ export const { Context, Provider } = createDataContext(
     updatingAttributes: false,
     updateAttributesError: null,
     updateAttributesSuccess: null,
+    driversWithSearchInput: [],
   },
   {
     fetchDrivers,
+    fetchDriversWithSearchInput,
     fetchDriverById,
     updateDriverStatus,
     clearError,
