@@ -128,7 +128,7 @@ const DriverDetail = () => {
   const [confirmPayoutModalOpen, setConfirmPayoutModalOpen] = useState(false);
   const [idViewerOpen, setIdViewerOpen] = useState(false);
 
-  const [singlePayoutPayload, setSinglePayoutPayload] = useState();
+  const [payoutPayload, setPayoutPayload] = useState();
   const [selectedPayout, setSelectedPayout] = useState();
 
   const {
@@ -137,9 +137,12 @@ const DriverDetail = () => {
       fetchingPayouts,
       settlingSinglePayout,
       singlePayoutError,
+      settlingBulkPayout,
+      bulkPayoutError,
     },
     fetchPayoutRequests,
     settleSinglePayoutRequest,
+    settleBulkPayoutRequest,
     clearError: clearPayoutError,
   } = useContext(PayoutContext);
 
@@ -198,6 +201,7 @@ const DriverDetail = () => {
   useToastError(updateStatusError, () => clearError("updateStatus"));
   useToastError(updateAttributesError, () => clearError("updateAttributes"));
   useToastError(singlePayoutError, () => clearPayoutError("settleSingle"));
+  useToastError(bulkPayoutError, () => clearPayoutError("settleBulk"));
 
   const confirmAccountAction = (action) => {
     setConfirmModalOpen({ open: true, action });
@@ -258,13 +262,34 @@ const DriverDetail = () => {
   const handleDriverPayout = (data) => {
     console.log(data, driver, "confirming payout");
 
-    setSinglePayoutPayload({
-      payoutData: {
-        recepientCode: data.recipientCode,
-        driver: data.driverId,
-      },
-      requestId: data.requestId,
-    });
+    let payload;
+
+    if (data.settlementType === "single") {
+      payload = {
+        payoutData: {
+          recepientCode: data.recipientCode,
+          driver: data.driverId,
+        },
+        requestId: data.requestId,
+        settlementType: data.settlementType,
+      };
+    } else {
+      const pendingPayoutList = payoutRequests
+        .filter((request) => request.status === "pending")
+        .map((request) => ({
+          requestId: request.id,
+          driver: driver.id,
+          recepientCode: driver?.bankInformation?.recipientCode,
+          amount: request.amount,
+        }));
+
+      payload = {
+        settlementType: data.settlementType,
+        payoutData: pendingPayoutList,
+      };
+    }
+
+    setPayoutPayload(payload);
 
     setSettleModalOpen(false);
     setConfirmPayoutModalOpen(true);
@@ -272,10 +297,17 @@ const DriverDetail = () => {
 
   const payoutEarningToDriver = async () => {
     console.log("paying driver...");
-    await settleSinglePayoutRequest(
-      singlePayoutPayload.payoutData,
-      singlePayoutPayload.requestId
-    );
+    const successCb = () => {
+      toast.success(`Successfully settled payout request(s)`);
+      return fetchDriverById(driverId);
+    };
+    payoutPayload.settlementType === "single"
+      ? await settleSinglePayoutRequest(
+          payoutPayload.payoutData,
+          payoutPayload.requestId,
+          successCb
+        )
+      : await settleBulkPayoutRequest(payoutPayload.payoutData, successCb);
     setConfirmPayoutModalOpen(false);
   };
 
@@ -312,6 +344,8 @@ const DriverDetail = () => {
         : "12/12/2021",
     [driver]
   );
+
+  console.log(payoutRequests);
 
   return (
     driver && (
@@ -475,6 +509,7 @@ const DriverDetail = () => {
             setConfirmPayoutModalOpen(false);
           }}
           icon={<IoIosCash size={32} color="#fff" />}
+          processingConfirm={settlingSinglePayout || settlingBulkPayout}
         />
         <EditDriverInfoModal
           isOpen={editInfoOpen}
@@ -512,7 +547,6 @@ const DriverDetail = () => {
                   ).toLocaleString(),
           }}
           handlePayout={handleDriverPayout}
-          loading={settlingSinglePayout}
         />
         <IDViewerModal
           open={idViewerOpen}

@@ -44,7 +44,9 @@ const PayoutHistoryModal = ({
                       "disabled:bg-247-inactive-btn",
                       "disabled:cursor-not-allowed"
                     )}
-                    disabled={item.status === "success"}
+                    disabled={
+                      item.status === "success" || item.status === "failed"
+                    }
                     onClick={() => {
                       setIsOpen(false);
                       setSelectedPayout(item);
@@ -59,14 +61,11 @@ const PayoutHistoryModal = ({
                 </div>
                 <div className="col-span-1">
                   <p
-                    className={classNames(
-                      "text-base",
-                      "font-bold",
-                      {
-                        "text-247-red-straight": item.status === "pending",
-                      },
-                      { "text-247-increment-green": item.status === "success" }
-                    )}
+                    className={classNames("text-base", "font-bold", {
+                      "text-247-red-straight": item.status === "pending",
+                      "text-247-inactive-link": item.status === "failed",
+                      "text-247-increment-green": item.status === "success",
+                    })}
                   >
                     {startCase(item.status)}
                   </p>

@@ -76,7 +76,7 @@ const fetchPayoutRequests = (dispatch) => async (params) => {
   try {
     const response = await adverts247Api.get("/payouts", {
       headers: { Authorization: `Bearer ${resolveToken()}` },
-      params: { ...params },
+      params: { ...params, sortBy: "createdAt", orderBy: "desc" },
     });
 
     dispatch({ type: FETCHING_PAYOUT_REQUESTS, payload: false });
@@ -106,7 +106,7 @@ const settleBulkPayoutRequest = (dispatch) => async (payoutList, cb) => {
   try {
     const response = await adverts247Api.post(
       "/payouts/settle/bulk",
-      payoutList,
+      { requests: payoutList },
       { headers: { Authorization: `Bearer ${resolveToken()}` } }
     );
 
