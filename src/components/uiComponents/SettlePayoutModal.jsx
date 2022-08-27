@@ -11,6 +11,7 @@ const SettlePayoutModal = ({
   setIsOpen,
   driverDeets,
   handlePayout,
+  loading,
 }) => {
   const validationSchema = useSettlePayoutFormValidation();
   const {
@@ -79,6 +80,7 @@ const SettlePayoutModal = ({
           type="submit"
           className={["bg-247-red", "block", "mt-12", "px-12", "font-normal"]}
           fullWidth
+          isLoading={loading}
         >
           Payout
         </Button>

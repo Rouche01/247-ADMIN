@@ -128,11 +128,19 @@ const DriverDetail = () => {
   const [confirmPayoutModalOpen, setConfirmPayoutModalOpen] = useState(false);
   const [idViewerOpen, setIdViewerOpen] = useState(false);
 
+  const [singlePayoutPayload, setSinglePayoutPayload] = useState();
   const [selectedPayout, setSelectedPayout] = useState();
 
   const {
-    state: { payoutRequests, fetchingPayouts },
+    state: {
+      payoutRequests,
+      fetchingPayouts,
+      settlingSinglePayout,
+      singlePayoutError,
+    },
     fetchPayoutRequests,
+    settleSinglePayoutRequest,
+    clearError: clearPayoutError,
   } = useContext(PayoutContext);
 
   const {
@@ -189,6 +197,7 @@ const DriverDetail = () => {
 
   useToastError(updateStatusError, () => clearError("updateStatus"));
   useToastError(updateAttributesError, () => clearError("updateAttributes"));
+  useToastError(singlePayoutError, () => clearPayoutError("settleSingle"));
 
   const confirmAccountAction = (action) => {
     setConfirmModalOpen({ open: true, action });
@@ -247,13 +256,26 @@ const DriverDetail = () => {
   };
 
   const handleDriverPayout = (data) => {
-    console.log(data, "confirming payout");
+    console.log(data, driver, "confirming payout");
+
+    setSinglePayoutPayload({
+      payoutData: {
+        recepientCode: data.recipientCode,
+        driver: data.driverId,
+      },
+      requestId: data.requestId,
+    });
+
     setSettleModalOpen(false);
     setConfirmPayoutModalOpen(true);
   };
 
-  const payoutEarningToDriver = () => {
+  const payoutEarningToDriver = async () => {
     console.log("paying driver...");
+    await settleSinglePayoutRequest(
+      singlePayoutPayload.payoutData,
+      singlePayoutPayload.requestId
+    );
     setConfirmPayoutModalOpen(false);
   };
 
@@ -449,6 +471,9 @@ const DriverDetail = () => {
           setOpen={setConfirmPayoutModalOpen}
           text={`Continue payout for ${driver?.name}`}
           handleConfirmation={payoutEarningToDriver}
+          handleReject={() => {
+            setConfirmPayoutModalOpen(false);
+          }}
           icon={<IoIosCash size={32} color="#fff" />}
         />
         <EditDriverInfoModal
@@ -473,6 +498,10 @@ const DriverDetail = () => {
             bankName: driver?.bankInformation?.bank?.name,
             accountNumber: driver?.bankInformation?.accountNumber,
             accountName: driver?.bankInformation?.accountName,
+            requestId: selectedPayout?.id,
+            driverId: driver.id,
+            recipientCode: driver?.bankInformation?.recipientCode,
+            settlementType: settleModalOpen.type,
             pendingPayout:
               settleModalOpen.type === SETTLE_MODAL_TYPE.BULK
                 ? convertKoboToNaira(
@@ -483,6 +512,7 @@ const DriverDetail = () => {
                   ).toLocaleString(),
           }}
           handlePayout={handleDriverPayout}
+          loading={settlingSinglePayout}
         />
         <IDViewerModal
           open={idViewerOpen}

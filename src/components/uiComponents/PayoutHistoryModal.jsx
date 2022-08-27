@@ -46,7 +46,6 @@ const PayoutHistoryModal = ({
                     )}
                     disabled={item.status === "success"}
                     onClick={() => {
-                      console.log("settle");
                       setIsOpen(false);
                       setSelectedPayout(item);
                       setSettleModalOpen({
