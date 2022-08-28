@@ -13,11 +13,15 @@ const SET_SINGLE_ADVERTISER = "set_single_advertiser";
 const FETCHING_TOTAL_SIZE = "fetching_total_size";
 const SET_TOTAL_SIZE = "set_total_size";
 const SET_ADVERTISERS_WITH_SEARCH_INPUT = "set_advertisers_with_search_input";
+const GENERATING_REPORT = "generating_report";
+const GENERATE_REPORT_SUCCESS = "generate_report_success";
+const GENERATE_REPORT_FAIL = "generate_report_fail";
 
 const mapErrorToAction = {
   fetch: SET_FETCH_ERROR,
   fetchById: SET_FETCH_BY_ID_ERROR,
   createAdvertiser: SET_CREATE_ERROR,
+  generateReport: GENERATE_REPORT_FAIL,
 };
 
 const advertiserReducer = (state, action) => {
@@ -44,6 +48,12 @@ const advertiserReducer = (state, action) => {
       return { ...state, advertiserTotalSize: action.payload };
     case SET_ADVERTISERS_WITH_SEARCH_INPUT:
       return { ...state, advertisersWithSearchInput: action.payload };
+    case GENERATING_REPORT:
+      return { ...state, generatingReport: action.payload };
+    case GENERATE_REPORT_SUCCESS:
+      return { ...state, generateReportSuccess: action.payload };
+    case GENERATE_REPORT_FAIL:
+      return { ...state, generateReportError: action.payload };
     default:
       return state;
   }
@@ -200,6 +210,53 @@ const fetchAdvertiserById = (dispatch) => async (advertiserId) => {
   }
 };
 
+const generateAdvertiserReport =
+  (dispatch) => async (advertiserId, advertiserName) => {
+    dispatch({ type: GENERATING_REPORT, payload: true });
+    dispatch({ type: GENERATE_REPORT_FAIL, payload: null });
+    try {
+      const response = await adverts247Api.get("/advertisers/report/generate", {
+        headers: { Authorization: `Bearer ${resolveToken()}` },
+        params: {
+          advertiser: advertiserId,
+        },
+        responseType: "arraybuffer",
+      });
+
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(blob);
+
+      const nowTimestamp = new Date().getTime();
+      link.download = `${advertiserName}_AdReport_${nowTimestamp}`;
+      link.click();
+
+      console.log(response.data);
+
+      dispatch({ type: GENERATING_REPORT, payload: false });
+      dispatch({
+        type: GENERATE_REPORT_SUCCESS,
+        payload: "Report generated successfully!",
+      });
+    } catch (err) {
+      if (err.response) {
+        dispatch({
+          type: GENERATE_REPORT_FAIL,
+          payload:
+            err.response.data.message ||
+            "Unable to generate report for advertiser. Something went wrong",
+        });
+      } else {
+        dispatch({
+          type: GENERATE_REPORT_FAIL,
+          payload:
+            "Unable to generate report for advertiser. Something went wrong",
+        });
+      }
+      dispatch({ type: GENERATING_REPORT, payload: false });
+    }
+  };
+
 const clearError = (dispatch) => (actionType) => {
   dispatch({ type: mapErrorToAction[actionType], payload: null });
 };
@@ -218,6 +275,9 @@ export const { Context, Provider } = createDataContext(
     advertiserTotalSize: 0,
     fetchingTotalSize: false,
     advertisersWithSearchInput: [],
+    generatingReport: false,
+    generateReportSuccess: null,
+    generateReportError: null,
   },
   {
     fetchAdvertisers,
@@ -225,6 +285,7 @@ export const { Context, Provider } = createDataContext(
     fetchAdvertiserById,
     fetchTotalAdvertisersSize,
     createAdvertiser,
+    generateAdvertiserReport,
     clearError,
   }
 );
