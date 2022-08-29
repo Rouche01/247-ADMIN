@@ -1,11 +1,4 @@
-import React, {
-  forwardRef,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
-import io from "socket.io-client";
+import React, { forwardRef, useContext, useState, useCallback } from "react";
 import { Toaster } from "react-hot-toast";
 import { Link, useLocation } from "react-router-dom";
 import { MdAdd } from "react-icons/md";
@@ -25,9 +18,9 @@ import { Context as AdvertiserContext } from "../context/AdvertiserContext";
 import { Context as DriverContext } from "../context/DriverContext";
 import RoundedBtnWithIcon from "./uiComponents/RoundedBtnWithIcon";
 import CreateCampaignModal from "./uiComponents/CreateCampaignModal";
-import { NOTIFICATION_EVENTS, NOTIFIER_SOCKET_URL } from "../utils/constants";
 import { useMemo } from "react";
 import SearchResultList from "./SearchResultList";
+import { useNotifSubscription } from "../hooks/notificationSubscriptions";
 
 const Dashboard = forwardRef(
   ({ children, open, setOpen, customHeader, fetchCampaignsFn }, ref) => {
@@ -54,16 +47,8 @@ const Dashboard = forwardRef(
 
     const [globalSearchValue, setGlobalSearchValue] = useState("");
 
-    useEffect(() => {
-      const socket = io(NOTIFIER_SOCKET_URL);
-
-      socket.on("connect", () => {
-        socket.emit(NOTIFICATION_EVENTS.JOIN, user.id);
-      });
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
     const [campaignModalIsOpen, setCampaignModalIsOpen] = useState(false);
+    useNotifSubscription(user.id);
 
     const toggleDropdown = () => {
       setOpen(!open);

@@ -1,52 +1,44 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
+import { useState } from "react";
+
 import Dashboard from "../components/Dashboard";
 import Button from "../components/uiComponents/Button";
 import TextArea from "../components/uiComponents/TextArea";
+import { Context as AuthContext } from "../context/AuthContext";
 
-const TabButton = ({ btnValue, clickFn, active }) => {
-  return (
-    <div
-      className={`w-36 cursor-pointer text-xl flex justify-center items-center rounded-md border border-247-dark-text text-247-gray-accent2 py-2 ${
-        active ? "bg-247-gray-accent3" : "bg-transparent"
-      }`}
-      onClick={clickFn}
-    >
-      {btnValue}
-    </div>
-  );
-};
+import { useNotifSubscription } from "../hooks/notificationSubscriptions";
+import { NOTIFICATION_EVENTS } from "../utils/constants";
 
 const SendNotifs = () => {
-  const [userType, setUserType] = useState("all");
+  const [inputValue, setInputValue] = useState("");
 
-  const handleTabClick = (category) => {
-    setUserType(category);
+  const {
+    state: { user },
+  } = useContext(AuthContext);
+
+  const { emitEvent } = useNotifSubscription(user.id);
+
+  const handleNotificationBroadcast = () => {
+    emitEvent(NOTIFICATION_EVENTS.DRIVER_BROADCAST, {
+      message: inputValue,
+      sender: user.id,
+    });
+    setInputValue("");
   };
 
   return (
     <Dashboard pageTitle="Send Notifs">
-      <div className="mt-16 flex items-center gap-5">
-        <TabButton
-          btnValue="All"
-          active={userType === "all"}
-          clickFn={() => handleTabClick("all")}
-        />
-        <TabButton
-          btnValue="Advertisers"
-          active={userType === "advertisers"}
-          clickFn={() => handleTabClick("advertisers")}
-        />
-        <TabButton
-          btnValue="Drivers"
-          active={userType === "drivers"}
-          clickFn={() => handleTabClick("drivers")}
-        />
-      </div>
       <div className="mt-14">
-        <TextArea name="notif-text" />
+        <TextArea
+          name="notif-text"
+          value={inputValue}
+          handleChange={(ev) => setInputValue(ev.target.value)}
+        />
         <Button
           type="submit"
           className={["bg-247-red", "block", "mt-12", "px-10"]}
+          handleClick={handleNotificationBroadcast}
+          disabled={false}
         >
           Send Notification
         </Button>

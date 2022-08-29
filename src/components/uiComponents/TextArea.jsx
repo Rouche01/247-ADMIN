@@ -1,6 +1,6 @@
 import React from "react";
 
-const TextArea = ({ name }) => {
+const TextArea = ({ name, value, handleChange }) => {
   return (
     <>
       <textarea
@@ -10,7 +10,9 @@ const TextArea = ({ name }) => {
         id={name}
         cols="30"
         rows="10"
-      ></textarea>
+        value={value}
+        onChange={handleChange}
+      />
     </>
   );
 };

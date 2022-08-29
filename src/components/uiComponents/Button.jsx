@@ -8,6 +8,7 @@ const Button = ({
   fullWidth,
   isLoading,
   handleClick,
+  ...props
 }) => {
   return (
     <button
@@ -23,6 +24,7 @@ const Button = ({
       ].join(" ")}
       type={type}
       onClick={handleClick}
+      {...props}
     >
       {isLoading ? <Spinner /> : children}
     </button>
