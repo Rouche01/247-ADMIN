@@ -30,4 +30,6 @@ export const NOTIFICATION_EVENTS = {
   DRIVER_REQUEST_APPROVE: "notification::driver_request_approve",
   DRIVER_BROADCAST: "notification::driver_broadcast",
   DRIVER_PAYOUT_REQUEST: "notification::driver_payout_request",
+  DRIVER_PAYOUT_FAIL: "notification::driver_payout_fail",
+  DRIVER_PAYOUT_SUCCESS: "notification::driver_payout_success",
 };

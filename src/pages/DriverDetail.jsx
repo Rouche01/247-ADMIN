@@ -16,6 +16,7 @@ import isEmpty from "lodash/isEmpty";
 import Dashboard from "../components/Dashboard";
 import { Context as DriverContext } from "../context/DriverContext";
 import { Context as EarningContext } from "../context/EarningContext";
+import { Context as AuthContext } from "../context/AuthContext";
 import { Context as PayoutContext } from "../context/PayoutContext";
 import RoundedBtnWithIcon from "../components/uiComponents/RoundedBtnWithIcon";
 import ResourceMeta from "../components/uiComponents/ResourceMeta";
@@ -30,6 +31,8 @@ import { useToastError } from "../hooks/handleError";
 import DriverDetailLoading from "../components/loader/DriverDetail.loader";
 import IDViewerModal from "../components/uiComponents/IDViewerModal";
 import { useQueryParam } from "../hooks/useQueryParam";
+import { useNotification } from "../hooks/notificationSubscriptions";
+import { NOTIFICATION_EVENTS } from "../utils/constants";
 
 export const SETTLE_MODAL_TYPE = {
   SINGLE: "single",
@@ -116,6 +119,8 @@ const DriverDetail = () => {
   const history = useHistory();
   const { driverId } = useParams();
 
+  const { emitEvent } = useNotification();
+
   const [settleModalOpen, setSettleModalOpen] = useState({
     open: false,
     type: SETTLE_MODAL_TYPE.BULK,
@@ -131,6 +136,10 @@ const DriverDetail = () => {
 
   const [payoutPayload, setPayoutPayload] = useState();
   const [selectedPayout, setSelectedPayout] = useState();
+
+  const {
+    state: { user },
+  } = useContext(AuthContext);
 
   const {
     state: {
@@ -303,20 +312,47 @@ const DriverDetail = () => {
   };
 
   const payoutEarningToDriver = async () => {
-    console.log("paying driver...");
+    const payoutAmount =
+      settleModalOpen.type === SETTLE_MODAL_TYPE.BULK
+        ? convertKoboToNaira(
+            driver?.driverStat?.pendingPayout || 0
+          ).toLocaleString()
+        : convertKoboToNaira(selectedPayout?.amount || 0).toLocaleString();
+
     const successCb = () => {
+      emitEvent(NOTIFICATION_EVENTS.DRIVER_PAYOUT_SUCCESS, {
+        sender: user.id,
+        recipient: driver.id,
+        payoutRequest: payoutPayload.requestId || payoutPayload.payoutData,
+        title: "Payout Success",
+        message: `Your pending payout request for ${payoutAmount} was settled to your bank account successfully.`,
+      });
       toast.success(`Successfully settled payout request(s)`);
       return fetchDriverById(driverId);
     };
+
+    const errorCb = () => {
+      emitEvent(NOTIFICATION_EVENTS.DRIVER_PAYOUT_FAIL, {
+        sender: user.id,
+        recipient: driver.id,
+        payoutRequest: payoutPayload.requestId || payoutPayload.payoutData,
+        title: "Payout Failed",
+        message: `Settlement for your pending payout request for ${payoutAmount} has failed. Please make another request or contact support`,
+      });
+      return fetchDriverById(driverId);
+    };
+
     payoutPayload.settlementType === "single"
       ? await settleSinglePayoutRequest(
           payoutPayload.payoutData,
           payoutPayload.requestId,
           successCb,
-          () => fetchDriverById(driverId)
+          errorCb
         )
-      : await settleBulkPayoutRequest(payoutPayload.payoutData, successCb, () =>
-          fetchDriverById(driverId)
+      : await settleBulkPayoutRequest(
+          payoutPayload.payoutData,
+          successCb,
+          errorCb
         );
     setConfirmPayoutModalOpen(false);
   };
