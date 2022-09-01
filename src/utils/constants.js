@@ -29,4 +29,5 @@ export const NOTIFICATION_EVENTS = {
   JOIN: "notification::join",
   DRIVER_REQUEST_APPROVE: "notification::driver_request_approve",
   DRIVER_BROADCAST: "notification::driver_broadcast",
+  DRIVER_PAYOUT_REQUEST: "notification::driver_payout_request",
 };

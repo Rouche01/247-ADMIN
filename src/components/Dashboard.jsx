@@ -20,15 +20,18 @@ import RoundedBtnWithIcon from "./uiComponents/RoundedBtnWithIcon";
 import CreateCampaignModal from "./uiComponents/CreateCampaignModal";
 import { useMemo } from "react";
 import SearchResultList from "./SearchResultList";
-import { useNotifSubscription } from "../hooks/notificationSubscriptions";
+import { useNotification } from "../hooks/notificationSubscriptions";
+import NotificationList from "./NotificationList";
 
 const Dashboard = forwardRef(
   ({ children, open, setOpen, customHeader, fetchCampaignsFn }, ref) => {
     const location = useLocation();
-    const {
-      state: { user },
-      logout,
-    } = useContext(AuthContext);
+    const { logout } = useContext(AuthContext);
+    const { notifications, notificationCount } = useNotification();
+
+    const [showNotifications, setShowNotifications] = useState(false);
+
+    console.log(notifications);
 
     const {
       state: { loading: fetchingCampaigns, campaignsWithSearchInput },
@@ -48,7 +51,6 @@ const Dashboard = forwardRef(
     const [globalSearchValue, setGlobalSearchValue] = useState("");
 
     const [campaignModalIsOpen, setCampaignModalIsOpen] = useState(false);
-    useNotifSubscription(user.id);
 
     const toggleDropdown = () => {
       setOpen(!open);
@@ -126,11 +128,13 @@ const Dashboard = forwardRef(
       advertisersWithSearchInput,
     ]);
 
-    console.log(searchResults);
-
     return (
       <div className="h-screen max-h-screen overflow-y-hidden">
         <Toaster position="top-center" />
+        <NotificationList
+          notifications={notifications}
+          show={showNotifications}
+        />
         <div className="grid grid-cols-5 gap-0 max-h-screen h-screen">
           <div className="overflow-y-scroll scrollbar-hide h-screen min-h-screen border-r-2 border-247-dark-text bg-247-secondary min-w-min">
             <img src={Logo} alt="logo" width="160" className="ml-10 mt-10" />
@@ -182,9 +186,18 @@ const Dashboard = forwardRef(
                     title="Create Campaign"
                     icon={<MdAdd className="mr-2" size={22} />}
                   />
-                  <div className="relative cursor-pointer">
+                  <div
+                    className="relative cursor-pointer"
+                    onClick={() => setShowNotifications(!showNotifications)}
+                  >
                     <MdNotifications color="#979797" size={28} />
-                    <div className="w-3 h-3 border-2 border-247-main rounded-full bg-red-500 absolute top-0 right-0"></div>
+                    {notificationCount > 0 && (
+                      <div className="w-5 h-5 flex items-center justify-center border-2 border-247-main rounded-full bg-red-500 absolute -top-2 -right-1">
+                        <span className="text-xs text-247-transparent">
+                          {notificationCount}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center">
                     <Avatar />

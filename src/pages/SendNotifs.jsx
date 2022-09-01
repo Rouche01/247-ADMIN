@@ -6,7 +6,7 @@ import Button from "../components/uiComponents/Button";
 import TextArea from "../components/uiComponents/TextArea";
 import { Context as AuthContext } from "../context/AuthContext";
 
-import { useNotifSubscription } from "../hooks/notificationSubscriptions";
+import { useNotification } from "../hooks/notificationSubscriptions";
 import { NOTIFICATION_EVENTS } from "../utils/constants";
 
 const SendNotifs = () => {
@@ -16,13 +16,14 @@ const SendNotifs = () => {
     state: { user },
   } = useContext(AuthContext);
 
-  const { emitEvent } = useNotifSubscription(user.id);
+  const { emitEvent } = useNotification();
 
   const handleNotificationBroadcast = () => {
     emitEvent(NOTIFICATION_EVENTS.DRIVER_BROADCAST, {
       message: inputValue,
       sender: user.id,
     });
+
     setInputValue("");
   };
 

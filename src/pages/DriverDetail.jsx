@@ -345,8 +345,6 @@ const DriverDetail = () => {
     [driver]
   );
 
-  console.log(payoutRequests);
-
   return (
     driver && (
       <Dashboard
