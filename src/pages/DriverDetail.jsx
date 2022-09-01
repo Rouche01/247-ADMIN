@@ -305,7 +305,8 @@ const DriverDetail = () => {
       ? await settleSinglePayoutRequest(
           payoutPayload.payoutData,
           payoutPayload.requestId,
-          successCb
+          successCb,
+          () => fetchDriverById(driverId)
         )
       : await settleBulkPayoutRequest(payoutPayload.payoutData, successCb);
     setConfirmPayoutModalOpen(false);

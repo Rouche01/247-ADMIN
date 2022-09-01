@@ -134,7 +134,7 @@ const settleBulkPayoutRequest = (dispatch) => async (payoutList, cb) => {
 };
 
 const settleSinglePayoutRequest =
-  (dispatch) => async (payoutData, requestId, cb) => {
+  (dispatch) => async (payoutData, requestId, onSuccess, onError) => {
     dispatch({ type: SETTLING_SINGLE_PAYOUT, payload: true });
     dispatch({ type: SINGLE_PAYOUT_FAIL, payload: null });
     try {
@@ -146,7 +146,7 @@ const settleSinglePayoutRequest =
       console.log(response.data);
       dispatch({ type: SINGLE_PAYOUT_SUCCESS, payload: response.data.message });
       dispatch({ type: SETTLING_SINGLE_PAYOUT, payload: false });
-      cb && cb();
+      onSuccess();
     } catch (err) {
       if (err.response) {
         dispatch({
@@ -162,6 +162,7 @@ const settleSinglePayoutRequest =
         });
       }
       dispatch({ type: SETTLING_SINGLE_PAYOUT, payload: false });
+      onError();
     }
   };
 
