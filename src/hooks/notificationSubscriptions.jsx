@@ -11,6 +11,7 @@ const NotificationContext = createContext({
   notificationCount: 0,
   emitEvent: () => {},
   fetchNotifications: () => {},
+  closeNotification: () => {},
   testNotif: () => {},
 });
 
@@ -33,6 +34,12 @@ export const NotificationProvider = ({ children }) => {
     });
 
     return response.data;
+  };
+
+  const updateNotificationReadStatus = async (notificationId, data) => {
+    await adverts247Api.patch(`/notifications/${notificationId}/read`, data, {
+      headers: { Authorization: `Bearer ${resolveToken()}` },
+    });
   };
 
   const [notifications, setNotifications] = useState([]);
@@ -69,6 +76,16 @@ export const NotificationProvider = ({ children }) => {
     socketRef.current.emit(event, data);
   };
 
+  const closeNotification = async (notificationId) => {
+    const newNotifications = notifications.filter(
+      (notif) => notif.id !== notificationId
+    );
+
+    setNotifications(newNotifications);
+    setNotificationCount(newNotifications.length);
+    await updateNotificationReadStatus(notificationId, { read: true });
+  };
+
   return (
     <NotificationContext.Provider
       value={{
@@ -76,6 +93,7 @@ export const NotificationProvider = ({ children }) => {
         notifications,
         emitEvent,
         fetchNotifications,
+        closeNotification,
       }}
     >
       {children}

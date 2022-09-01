@@ -5,7 +5,7 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import NotificationBox from "./uiComponents/NotificationBox";
 import { mapNotificationTypeToAction } from "../utils/notification";
 
-const NotificationList = ({ notifications, show }) => {
+const NotificationList = ({ notifications, show, handleNotificationClose }) => {
   return (
     <div
       className={classNames([
@@ -29,6 +29,9 @@ const NotificationList = ({ notifications, show }) => {
           message={notif.notification}
           subject={notif.subject}
           time={formatDistanceToNow(new Date(notif.createdAt))}
+          handleClose={() =>
+            handleNotificationClose(notif.id || notif.notificationId)
+          }
         />
       ))}
     </div>

@@ -5,6 +5,7 @@ const NotificationBox = ({
   message,
   actionText,
   handleAction,
+  handleClose,
   time,
 }) => {
   return (
@@ -25,7 +26,10 @@ const NotificationBox = ({
         >
           {actionText}
         </button>
-        <button className="bg-247-gray-accent2 w-full py-3 rounded-br-md flex-grow text-sm font-bold cursor-pointer">
+        <button
+          onClick={handleClose}
+          className="bg-247-gray-accent2 w-full py-3 rounded-br-md flex-grow text-sm font-bold cursor-pointer"
+        >
           Close
         </button>
       </div>

@@ -27,7 +27,8 @@ const Dashboard = forwardRef(
   ({ children, open, setOpen, customHeader, fetchCampaignsFn }, ref) => {
     const location = useLocation();
     const { logout } = useContext(AuthContext);
-    const { notifications, notificationCount } = useNotification();
+    const { notifications, notificationCount, closeNotification } =
+      useNotification();
 
     const [showNotifications, setShowNotifications] = useState(false);
 
@@ -134,6 +135,7 @@ const Dashboard = forwardRef(
         <NotificationList
           notifications={notifications}
           show={showNotifications}
+          handleNotificationClose={closeNotification}
         />
         <div className="grid grid-cols-5 gap-0 max-h-screen h-screen">
           <div className="overflow-y-scroll scrollbar-hide h-screen min-h-screen border-r-2 border-247-dark-text bg-247-secondary min-w-min">
