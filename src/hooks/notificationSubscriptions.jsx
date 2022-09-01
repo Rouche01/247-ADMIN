@@ -42,9 +42,30 @@ export const NotificationProvider = ({ children }) => {
     });
   };
 
-  const [notifications, setNotifications] = useState([]);
-  const [notificationCount, setNotificationCount] = useState(0);
+  const [notifications, _setNotifications] = useState([]);
+  const [notificationCount, _setNotificationCount] = useState(0);
+
+  const notificationsRef = useRef(notifications);
+  const notificationCountRef = useRef(notificationCount);
+
+  const setNotifications = (data) => {
+    notificationsRef.current = data;
+    _setNotifications(data);
+  };
+
+  const setNotificationCount = (data) => {
+    notificationCountRef.current = data;
+    _setNotificationCount(data);
+  };
+
   const socketRef = useRef();
+
+  const onPayoutRequested = (data) => {
+    console.log(data);
+    const newNotifications = [data, ...notificationsRef.current];
+    setNotifications(newNotifications);
+    setNotificationCount(notificationCountRef.current + 1);
+  };
 
   useEffect(() => {
     socketRef.current = io(NOTIFIER_SOCKET_URL);
@@ -52,13 +73,6 @@ export const NotificationProvider = ({ children }) => {
       setNotifications(data.notifications);
       setNotificationCount(data.count);
     });
-
-    const onPayoutRequested = (data) => {
-      console.log(data);
-      console.log(notifications, "before");
-      setNotifications([data, ...notifications]);
-      setNotificationCount(notificationCount + 1);
-    };
 
     socketRef.current.on("connect", () => {
       console.log("connected");

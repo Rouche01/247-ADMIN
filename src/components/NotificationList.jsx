@@ -24,6 +24,7 @@ const NotificationList = ({ notifications, show, handleNotificationClose }) => {
     >
       {notifications.map((notif) => (
         <NotificationBox
+          key={notif.id}
           actionText={mapNotificationTypeToAction[notif.type].actionText}
           handleAction={() => console.log("action")}
           message={notif.notification}

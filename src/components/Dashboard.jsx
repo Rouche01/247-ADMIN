@@ -2,7 +2,6 @@ import React, { forwardRef, useContext, useState, useCallback } from "react";
 import { Toaster } from "react-hot-toast";
 import { Link, useLocation } from "react-router-dom";
 import { MdAdd } from "react-icons/md";
-import { MdNotifications } from "react-icons/md";
 import { FaAngleDown } from "react-icons/fa";
 import classNames from "classnames/bind";
 import debounce from "lodash/debounce";
@@ -21,7 +20,7 @@ import CreateCampaignModal from "./uiComponents/CreateCampaignModal";
 import { useMemo } from "react";
 import SearchResultList from "./SearchResultList";
 import { useNotification } from "../hooks/notificationSubscriptions";
-import NotificationList from "./NotificationList";
+import NotificationBtnWithDropdown from "./NotificationBtnWithDropdown";
 
 const Dashboard = forwardRef(
   ({ children, open, setOpen, customHeader, fetchCampaignsFn }, ref) => {
@@ -29,10 +28,6 @@ const Dashboard = forwardRef(
     const { logout } = useContext(AuthContext);
     const { notifications, notificationCount, closeNotification } =
       useNotification();
-
-    const [showNotifications, setShowNotifications] = useState(false);
-
-    console.log(notifications);
 
     const {
       state: { loading: fetchingCampaigns, campaignsWithSearchInput },
@@ -132,11 +127,6 @@ const Dashboard = forwardRef(
     return (
       <div className="h-screen max-h-screen overflow-y-hidden">
         <Toaster position="top-center" />
-        <NotificationList
-          notifications={notifications}
-          show={showNotifications}
-          handleNotificationClose={closeNotification}
-        />
         <div className="grid grid-cols-5 gap-0 max-h-screen h-screen">
           <div className="overflow-y-scroll scrollbar-hide h-screen min-h-screen border-r-2 border-247-dark-text bg-247-secondary min-w-min">
             <img src={Logo} alt="logo" width="160" className="ml-10 mt-10" />
@@ -188,19 +178,11 @@ const Dashboard = forwardRef(
                     title="Create Campaign"
                     icon={<MdAdd className="mr-2" size={22} />}
                   />
-                  <div
-                    className="relative cursor-pointer"
-                    onClick={() => setShowNotifications(!showNotifications)}
-                  >
-                    <MdNotifications color="#979797" size={28} />
-                    {notificationCount > 0 && (
-                      <div className="w-5 h-5 flex items-center justify-center border-2 border-247-main rounded-full bg-red-500 absolute -top-2 -right-1">
-                        <span className="text-xs text-247-transparent">
-                          {notificationCount}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  <NotificationBtnWithDropdown
+                    count={notificationCount}
+                    notifications={notifications}
+                    onNotificationRead={closeNotification}
+                  />
                   <div className="flex items-center">
                     <Avatar />
                     <div className="relative" ref={ref}>
