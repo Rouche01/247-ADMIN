@@ -29,6 +29,7 @@ import SettlePayoutModal from "../components/uiComponents/SettlePayoutModal";
 import { useToastError } from "../hooks/handleError";
 import DriverDetailLoading from "../components/loader/DriverDetail.loader";
 import IDViewerModal from "../components/uiComponents/IDViewerModal";
+import { useQueryParam } from "../hooks/useQueryParam";
 
 export const SETTLE_MODAL_TYPE = {
   SINGLE: "single",
@@ -186,7 +187,13 @@ const DriverDetail = () => {
     ]
   );
 
+  const [payoutHistoryOpen, setPayoutHistoryOpen] =
+    useQueryParam("payoutModalOpen");
+
   useEffect(() => {
+    if (payoutHistoryOpen === "true") {
+      setPayoutModalOpen(true);
+    }
     (async () => {
       await Promise.all([
         getDriverDayEarning(driverId),
@@ -308,7 +315,9 @@ const DriverDetail = () => {
           successCb,
           () => fetchDriverById(driverId)
         )
-      : await settleBulkPayoutRequest(payoutPayload.payoutData, successCb);
+      : await settleBulkPayoutRequest(payoutPayload.payoutData, successCb, () =>
+          fetchDriverById(driverId)
+        );
     setConfirmPayoutModalOpen(false);
   };
 
@@ -521,6 +530,7 @@ const DriverDetail = () => {
         <PayoutHistoryModal
           isOpen={payoutModalOpen}
           setIsOpen={setPayoutModalOpen}
+          setPayoutHistoryQueryParam={setPayoutHistoryOpen}
           payouts={payoutRequests}
           setSettleModalOpen={setSettleModalOpen}
           setSelectedPayout={setSelectedPayout}

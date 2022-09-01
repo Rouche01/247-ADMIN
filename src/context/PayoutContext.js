@@ -100,38 +100,41 @@ const fetchPayoutRequests = (dispatch) => async (params) => {
   }
 };
 
-const settleBulkPayoutRequest = (dispatch) => async (payoutList, cb) => {
-  dispatch({ type: SETTLING_BULK_PAYOUT, payload: true });
-  dispatch({ type: BULK_PAYOUT_FAIL, payload: null });
-  try {
-    const response = await adverts247Api.post(
-      "/payouts/settle/bulk",
-      { requests: payoutList },
-      { headers: { Authorization: `Bearer ${resolveToken()}` } }
-    );
+const settleBulkPayoutRequest =
+  (dispatch) => async (payoutList, onSuccess, onError) => {
+    dispatch({ type: SETTLING_BULK_PAYOUT, payload: true });
+    dispatch({ type: BULK_PAYOUT_FAIL, payload: null });
+    try {
+      const response = await adverts247Api.post(
+        "/payouts/settle/bulk",
+        { requests: payoutList },
+        { headers: { Authorization: `Bearer ${resolveToken()}` } }
+      );
 
-    console.log(response.data);
-    dispatch({ type: BULK_PAYOUT_SUCCESS, payload: response.data.message });
-    dispatch({ type: SETTLING_BULK_PAYOUT, payload: false });
+      console.log(response.data);
+      dispatch({ type: BULK_PAYOUT_SUCCESS, payload: response.data.message });
+      dispatch({ type: SETTLING_BULK_PAYOUT, payload: false });
 
-    cb && cb();
-  } catch (err) {
-    if (err.response) {
-      dispatch({
-        type: BULK_PAYOUT_FAIL,
-        payload:
-          err.response.data.message ||
-          "Unable to settle bulk payout requests. Something went wrong",
-      });
-    } else {
-      dispatch({
-        type: BULK_PAYOUT_FAIL,
-        payload: "Unable to settle bulk payout requests. Something went wrong",
-      });
+      onSuccess && onSuccess();
+    } catch (err) {
+      if (err.response) {
+        dispatch({
+          type: BULK_PAYOUT_FAIL,
+          payload:
+            err.response.data.message ||
+            "Unable to settle bulk payout requests. Something went wrong",
+        });
+      } else {
+        dispatch({
+          type: BULK_PAYOUT_FAIL,
+          payload:
+            "Unable to settle bulk payout requests. Something went wrong",
+        });
+      }
+      dispatch({ type: SETTLING_BULK_PAYOUT, payload: false });
+      onError && onError();
     }
-    dispatch({ type: SETTLING_BULK_PAYOUT, payload: false });
-  }
-};
+  };
 
 const settleSinglePayoutRequest =
   (dispatch) => async (payoutData, requestId, onSuccess, onError) => {

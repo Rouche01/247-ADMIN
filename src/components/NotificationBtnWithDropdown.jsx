@@ -6,6 +6,7 @@ import NotificationList from "./NotificationList";
 
 const NotificationBtnWithDropdown = forwardRef(
   ({ open, setOpen, count, notifications, onNotificationRead }, ref) => {
+    console.log(notifications);
     return (
       <div
         ref={ref}

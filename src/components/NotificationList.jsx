@@ -22,19 +22,26 @@ const NotificationList = ({ notifications, show, handleNotificationClose }) => {
         { "opacity-100": show },
       ])}
     >
-      {notifications.map((notif) => (
-        <NotificationBox
-          key={notif.id}
-          actionText={mapNotificationTypeToAction[notif.type].actionText}
-          handleAction={() => console.log("action")}
-          message={notif.notification}
-          subject={notif.subject}
-          time={formatDistanceToNow(new Date(notif.createdAt))}
-          handleClose={() =>
-            handleNotificationClose(notif.id || notif.notificationId)
-          }
-        />
-      ))}
+      {notifications.map((notif) => {
+        return (
+          <NotificationBox
+            key={notif.id}
+            actionText={mapNotificationTypeToAction[notif.type].actionText}
+            handleAction={() =>
+              mapNotificationTypeToAction[notif.type].action(
+                notif.sender.driverId,
+                () => handleNotificationClose(notif.id)
+              )
+            }
+            message={notif.notification}
+            subject={notif.subject}
+            time={formatDistanceToNow(new Date(notif.createdAt))}
+            handleClose={() =>
+              handleNotificationClose(notif.id || notif.notificationId)
+            }
+          />
+        );
+      })}
     </div>
   );
 };

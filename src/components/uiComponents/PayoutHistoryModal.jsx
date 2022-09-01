@@ -13,9 +13,14 @@ const PayoutHistoryModal = ({
   payouts,
   setSettleModalOpen,
   setSelectedPayout,
+  setPayoutHistoryQueryParam,
 }) => {
   return (
-    <CenterModal modalOpen={isOpen} setModalOpen={setIsOpen}>
+    <CenterModal
+      cb={() => setPayoutHistoryQueryParam("")}
+      modalOpen={isOpen}
+      setModalOpen={setIsOpen}
+    >
       <h2 className="text-white text-center text-2xl font-semibold">
         Payout History
       </h2>
