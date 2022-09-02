@@ -53,6 +53,7 @@ const PayoutHistoryModal = ({
                       item.status === "success" || item.status === "failed"
                     }
                     onClick={() => {
+                      setPayoutHistoryQueryParam("");
                       setIsOpen(false);
                       setSelectedPayout(item);
                       setSettleModalOpen({

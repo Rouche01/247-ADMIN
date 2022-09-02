@@ -78,3 +78,12 @@ export const useNewQuizFormValidation = () => {
 
   return validationSchema;
 };
+
+export const useSendNotifFormValidation = () => {
+  const validationSchema = Yup.object({
+    subject: Yup.string().required("Subject is required"),
+    message: Yup.string().required("Message is required"),
+  });
+
+  return validationSchema;
+};

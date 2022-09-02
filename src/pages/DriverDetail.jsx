@@ -33,6 +33,7 @@ import IDViewerModal from "../components/uiComponents/IDViewerModal";
 import { useQueryParam } from "../hooks/useQueryParam";
 import { useNotification } from "../hooks/notificationSubscriptions";
 import { NOTIFICATION_EVENTS } from "../utils/constants";
+import OverlayLoader from "../components/uiComponents/OverlayLoader";
 
 export const SETTLE_MODAL_TYPE = {
   SINGLE: "single",
@@ -63,7 +64,6 @@ const CustomHeader = ({
   status,
   accountAction,
   createdDate,
-  loadingState,
 }) => {
   return (
     <div className="flex items-center justify-between">
@@ -103,16 +103,30 @@ const CustomHeader = ({
         title={mapBtnTextToStatus[status].title}
         icon={mapBtnTextToStatus[status].icon}
         onBtnClick={() => accountAction(mapBtnTextToStatus[status].action)}
-        isLoading={loadingState}
       />
     </div>
   );
 };
 
-const mapActionToStatus = {
-  suspend: "suspended",
-  activate: "approved",
-  reactivate: "approved",
+const mapActionToStatusAndEvent = {
+  suspend: {
+    status: "suspended",
+    successEvent: NOTIFICATION_EVENTS.DRIVER_SUSPENDED,
+    sucessEventTitle: "Account Suspended",
+    successEventMessage: `Your account has been suspended based on breaking the guidelines. You can contact support for help`,
+  },
+  activate: {
+    status: "approved",
+    successEvent: NOTIFICATION_EVENTS.DRIVER_APPROVED,
+    sucessEventTitle: "Account Approved",
+    successEventMessage: `Your account has been approved. Log in and start earning from your trips`,
+  },
+  reactivate: {
+    status: "approved",
+    successEvent: NOTIFICATION_EVENTS.DRIVER_APPROVED,
+    sucessEventTitle: "Account Re-Approved",
+    successEventMessage: `Your account has been re-approved. Log in and start earning from your trips`,
+  },
 };
 
 const DriverDetail = () => {
@@ -224,8 +238,18 @@ const DriverDetail = () => {
   };
 
   const statusUpdateCallback = () => {
+    emitEvent(mapActionToStatusAndEvent[confirmModalOpen.action].successEvent, {
+      sender: user.id,
+      recipient: driver.id,
+      title:
+        mapActionToStatusAndEvent[confirmModalOpen.action].sucessEventTitle,
+      message:
+        mapActionToStatusAndEvent[confirmModalOpen.action].successEventMessage,
+    });
     toast.success(
-      `Driver is ${mapActionToStatus[confirmModalOpen.action]} successfully!`
+      `Driver is ${
+        mapActionToStatusAndEvent[confirmModalOpen.action].status
+      } successfully!`
     );
     return fetchDriverById(driverId);
   };
@@ -234,7 +258,7 @@ const DriverDetail = () => {
     console.log("suspending...");
     await updateDriverStatus(
       driverId,
-      mapActionToStatus[confirmModalOpen.action],
+      mapActionToStatusAndEvent[confirmModalOpen.action].status,
       statusUpdateCallback
     );
     setConfirmModalOpen({ open: false, action: null });
@@ -244,7 +268,7 @@ const DriverDetail = () => {
     console.log("activating...");
     await updateDriverStatus(
       driverId,
-      mapActionToStatus[confirmModalOpen.action],
+      mapActionToStatusAndEvent[confirmModalOpen.action].status,
       statusUpdateCallback
     );
     setConfirmModalOpen({ open: false, action: null });
@@ -254,7 +278,7 @@ const DriverDetail = () => {
     console.log("reactivating...");
     await updateDriverStatus(
       driverId,
-      mapActionToStatus[confirmModalOpen.action],
+      mapActionToStatusAndEvent[confirmModalOpen.action].status,
       statusUpdateCallback
     );
     setConfirmModalOpen({ open: false, action: null });
@@ -401,10 +425,12 @@ const DriverDetail = () => {
             status={driver.status}
             accountAction={confirmAccountAction}
             createdDate={dateCreated}
-            loadingState={updatingDriverStatus}
           />
         }
       >
+        {(updatingDriverStatus ||
+          settlingBulkPayout ||
+          settlingSinglePayout) && <OverlayLoader />}
         {loadingStats ? (
           <DriverDetailLoading />
         ) : (

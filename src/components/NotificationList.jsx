@@ -5,7 +5,12 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import NotificationBox from "./uiComponents/NotificationBox";
 import { mapNotificationTypeToAction } from "../utils/notification";
 
-const NotificationList = ({ notifications, show, handleNotificationClose }) => {
+const NotificationList = ({
+  notifications,
+  show,
+  handleNotificationClose,
+  setShow,
+}) => {
   return (
     <div
       className={classNames([
@@ -23,16 +28,17 @@ const NotificationList = ({ notifications, show, handleNotificationClose }) => {
       ])}
     >
       {notifications.map((notif) => {
+        const driverId = notif?.sender?.driverId || notif?.driverId;
         return (
           <NotificationBox
             key={notif.id}
             actionText={mapNotificationTypeToAction[notif.type].actionText}
-            handleAction={() =>
-              mapNotificationTypeToAction[notif.type].action(
-                notif.sender.driverId,
-                () => handleNotificationClose(notif.id)
-              )
-            }
+            handleAction={() => {
+              setShow(false);
+              mapNotificationTypeToAction[notif.type].action(driverId, () =>
+                handleNotificationClose(notif.id)
+              );
+            }}
             message={notif.notification}
             subject={notif.subject}
             time={formatDistanceToNow(new Date(notif.createdAt))}

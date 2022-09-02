@@ -14,12 +14,16 @@ const handlePayoutRequest = (driverId, cb) => {
   cb && cb();
 };
 
+const handleDriverApprovalRequest = (driverId, cb) => {
+  const driverPayoutUrl = `/driver/${driverId}`;
+  history.push(driverPayoutUrl);
+  cb && cb();
+};
+
 export const mapNotificationTypeToAction = {
   [DRIVER_APPROVAL_REQUEST]: {
     actionText: "Approve",
-    action: () => {
-      console.log("go to approve driver");
-    },
+    action: handleDriverApprovalRequest,
   },
   [PAYOUT_REQUEST]: {
     actionText: "Settle",

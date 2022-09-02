@@ -27,6 +27,10 @@ export const NOTIFIER_SOCKET_URL = "http://localhost:3005/notifier";
 
 export const NOTIFICATION_EVENTS = {
   JOIN: "notification::join",
+  DRIVER_APPROVAL_REQUEST: "notification::driver_approval_request",
+  DRIVER_APPROVED: "notification::driver_approved",
+  DRIVER_SUSPENDED: "notification::driver_suspended",
+  DRIVER_REJECTED: "notification::driver_rejected",
   DRIVER_REQUEST_APPROVE: "notification::driver_request_approve",
   DRIVER_BROADCAST: "notification::driver_broadcast",
   DRIVER_PAYOUT_REQUEST: "notification::driver_payout_request",

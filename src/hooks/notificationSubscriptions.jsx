@@ -67,6 +67,13 @@ export const NotificationProvider = ({ children }) => {
     setNotificationCount(notificationCountRef.current + 1);
   };
 
+  const onDriverApproveRequest = (data) => {
+    console.log(data);
+    const newNotifications = [data, ...notificationsRef.current];
+    setNotifications(newNotifications);
+    setNotificationCount(notificationCountRef.current + 1);
+  };
+
   useEffect(() => {
     socketRef.current = io(NOTIFIER_SOCKET_URL);
     fetchNotifications().then((data) => {
@@ -82,6 +89,11 @@ export const NotificationProvider = ({ children }) => {
     socketRef.current.on(
       NOTIFICATION_EVENTS.DRIVER_PAYOUT_REQUEST,
       onPayoutRequested
+    );
+
+    socketRef.current.on(
+      NOTIFICATION_EVENTS.DRIVER_APPROVAL_REQUEST,
+      onDriverApproveRequest
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
