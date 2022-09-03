@@ -40,21 +40,36 @@ export const SETTLE_MODAL_TYPE = {
   BULK: "bulk",
 };
 
+const PROFILE_IMAGE_PLACEHOLDER =
+  "https://fakeimg.pl/700x1200/282828/eae0d0/?retina=1&text=No%20Profile%20Image&font_size=64";
+
 const mapBtnTextToStatus = {
   approved: {
     title: "Suspend Account",
     icon: <AiOutlineCloseCircle className="mr-2" size={22} />,
     action: "suspend",
   },
-  pending: {
-    title: "Activate Account",
-    icon: <FiCheckSquare className="mr-2" size={22} />,
-    action: "activate",
-  },
+  pending: [
+    {
+      title: "Activate Account",
+      icon: <FiCheckSquare className="mr-2" size={22} />,
+      action: "activate",
+    },
+    {
+      title: "Reject Account",
+      icon: <AiOutlineCloseCircle className="mr-2" size={22} />,
+      action: "rejectApprovalRequest",
+    },
+  ],
   suspended: {
     title: "Reactivate Account",
     icon: <BiUserCheck className="mr-2" size={22} />,
     action: "reactivate",
+  },
+  rejected: {
+    title: "Activate Account",
+    icon: <FiCheckSquare className="mr-2" size={22} />,
+    action: "activate",
   },
 };
 
@@ -91,7 +106,7 @@ const CustomHeader = ({
             "rounded-md",
             {
               "bg-active-gradient": status === "approved",
-              "bg-closed-gradient": status === "suspended",
+              "bg-closed-gradient": status === "suspended" || "rejected",
               "bg-paused-gradient": status === "pending",
             }
           )}
@@ -99,11 +114,23 @@ const CustomHeader = ({
           <p className="text-white font-medium text-lg">{startCase(status)}</p>
         </div>
       </div>
-      <RoundedBtnWithIcon
-        title={mapBtnTextToStatus[status].title}
-        icon={mapBtnTextToStatus[status].icon}
-        onBtnClick={() => accountAction(mapBtnTextToStatus[status].action)}
-      />
+      <div className="flex gap-5">
+        {Array.isArray(mapBtnTextToStatus[status]) ? (
+          mapBtnTextToStatus[status].map((item) => (
+            <RoundedBtnWithIcon
+              title={item.title}
+              icon={item.icon}
+              onBtnClick={() => accountAction(item.action)}
+            />
+          ))
+        ) : (
+          <RoundedBtnWithIcon
+            title={mapBtnTextToStatus[status].title}
+            icon={mapBtnTextToStatus[status].icon}
+            onBtnClick={() => accountAction(mapBtnTextToStatus[status].action)}
+          />
+        )}
+      </div>
     </div>
   );
 };
@@ -126,6 +153,13 @@ const mapActionToStatusAndEvent = {
     successEvent: NOTIFICATION_EVENTS.DRIVER_APPROVED,
     sucessEventTitle: "Account Re-Approved",
     successEventMessage: `Your account has been re-approved. Log in and start earning from your trips`,
+  },
+  rejectApprovalRequest: {
+    status: "rejected",
+    successEvent: NOTIFICATION_EVENTS.DRIVER_REJECTED,
+    successEventTitle: "Account Approval Failed",
+    successEventMessage:
+      "We are unable to approve your profile. Please upload clear and accurate documents",
   },
 };
 
@@ -242,7 +276,7 @@ const DriverDetail = () => {
       sender: user.id,
       recipient: driver.id,
       title:
-        mapActionToStatusAndEvent[confirmModalOpen.action].sucessEventTitle,
+        mapActionToStatusAndEvent[confirmModalOpen.action].successEventTitle,
       message:
         mapActionToStatusAndEvent[confirmModalOpen.action].successEventMessage,
     });
@@ -284,6 +318,16 @@ const DriverDetail = () => {
     setConfirmModalOpen({ open: false, action: null });
   };
 
+  const rejectApprovalRequest = async () => {
+    console.log("rejecting approval...");
+    await updateDriverStatus(
+      driverId,
+      mapActionToStatusAndEvent[confirmModalOpen.action].status,
+      statusUpdateCallback
+    );
+    setConfirmModalOpen({ open: false, action: null });
+  };
+
   const mapAccountActionToValues = {
     suspend: {
       confirmText: "Are you sure you want to suspend this account?",
@@ -296,6 +340,10 @@ const DriverDetail = () => {
     reactivate: {
       confirmText: "Are you sure you want to reactivate this account?",
       action: handleAccountReactivate,
+    },
+    rejectApprovalRequest: {
+      confirmText: "Are you sure you want to reject this approval request?",
+      action: rejectApprovalRequest,
     },
   };
 
@@ -449,7 +497,7 @@ const DriverDetail = () => {
               </div>
               <div className="flex py-5 px-6">
                 <img
-                  src={driver.profilePhoto}
+                  src={driver?.profilePhoto || PROFILE_IMAGE_PLACEHOLDER}
                   alt="profile"
                   className="h-full drop-shadow-sm w-full object-cover rounded-md"
                   style={{ maxWidth: "300px", maxHeight: "300px" }}
@@ -579,7 +627,6 @@ const DriverDetail = () => {
             setConfirmPayoutModalOpen(false);
           }}
           icon={<IoIosCash size={32} color="#fff" />}
-          processingConfirm={settlingSinglePayout || settlingBulkPayout}
         />
         <EditDriverInfoModal
           isOpen={editInfoOpen}

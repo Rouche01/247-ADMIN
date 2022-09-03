@@ -247,7 +247,8 @@ const Drivers = () => {
                             },
                             {
                               "bg-closed-gradient":
-                                driver.status === "suspended",
+                                driver.status === "suspended" ||
+                                driver.status === "rejected",
                             },
                             {
                               "bg-paused-gradient": driver.status === "pending",
