@@ -564,7 +564,8 @@ const DriverDetail = () => {
                 <h4 className="text-white text-xl font-medium">Earnings</h4>
                 <button
                   onClick={() => setPayoutModalOpen(true)}
-                  className="text-247-campaign-preview-title bg-white px-5 py-2 rounded-md font-medium"
+                  className="text-247-campaign-preview-title bg-white px-5 py-2 rounded-md font-medium disabled:bg-247-inactive-btn disabled:text-247-gray-accent5 disabled:cursor-not-allowed"
+                  disabled={payoutRequests.length === 0}
                 >
                   Payout History
                 </button>
