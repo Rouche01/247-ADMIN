@@ -176,7 +176,7 @@ const QuizCentre = () => {
               <QuizItemRow
                 quizItem={quiz}
                 index={idx}
-                key={quiz._id}
+                key={quiz.id}
                 checkedItems={checkedQuizItems}
                 toggleItemCheck={toggleQuizCheck}
                 setConfirmDeleteItem={setConfirmModalOpen}

@@ -305,7 +305,7 @@ const CreateCampaignModal = ({
                   label="Ad Type"
                   darkMode
                   options={ADTYPES}
-                  isDisabled={true}
+                  isDisabled={isEdit}
                   placeholderText="select ad type"
                   value={field.value}
                   handleChange={(value) => field.onChange(value)}

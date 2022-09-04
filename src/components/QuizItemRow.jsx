@@ -45,7 +45,7 @@ const QuizItemRow = forwardRef(
           <Checkbox
             checked={checkedItems.includes(index) ? true : false}
             iconColor="#CACACA"
-            name={quizItem._id.toLowerCase()}
+            name={quizItem.id.toLowerCase()}
             handleChange={() => toggleItemCheck(index)}
           />
         </td>

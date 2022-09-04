@@ -15,6 +15,7 @@ const TextArea = ({ name, value, handleChange, errorText }) => {
           "text-white",
           "text-lg",
           "focus:outline-none",
+          "bg-247-dark-mode-input-bg",
           { "border-247-dark-text": !!!errorText },
           { "border-247-error-text": !!errorText },
           "outline-none",
