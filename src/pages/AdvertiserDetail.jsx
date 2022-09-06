@@ -35,8 +35,10 @@ import {
   useMomentDateQueryParamWithDefaultValue,
   useQueryParamWithDefaultValue,
 } from "../hooks/useQueryParam";
+import { useToastError } from "../hooks/handleError";
 
 import AdvertiserDetailLoading from "../components/loader/AdvertiserDetail.loader";
+import OverlayLoader from "../components/uiComponents/OverlayLoader";
 
 const tableHeaders = [
   "",
@@ -51,7 +53,11 @@ const tableHeaders = [
 const TWELVE_MONTH_AGO = moment().subtract(12, "M");
 const NOW = moment();
 
-const CustomHeader = ({ advertiserName, goToPrevPage }) => {
+const CustomHeader = ({
+  advertiserName,
+  goToPrevPage,
+  handleReportDownload,
+}) => {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center">
@@ -70,7 +76,7 @@ const CustomHeader = ({ advertiserName, goToPrevPage }) => {
       <RoundedBtnWithIcon
         title="Download report"
         icon={<FiDownloadCloud className="mr-2" size={22} />}
-        onBtnClick={() => console.log("Handle report downloading")}
+        onBtnClick={handleReportDownload}
       />
     </div>
   );
@@ -112,8 +118,15 @@ const AdvertiserDetail = () => {
   );
 
   const {
-    state: { loading: fetchingAdvertiser, advertiser },
+    state: {
+      loading: fetchingAdvertiser,
+      advertiser,
+      generatingReport,
+      generateReportError,
+    },
     fetchAdvertiserById,
+    generateAdvertiserReport,
+    clearError,
   } = useContext(AdvertiserContext);
 
   useEffect(() => {
@@ -181,6 +194,10 @@ const AdvertiserDetail = () => {
     campaignSize
   );
 
+  useToastError(generateReportError, () => {
+    clearError("generateReport");
+  });
+
   const toggleCampaignCheck = (idx) => {
     if (checkedCampaigns.includes(idx)) {
       const index = checkedCampaigns.indexOf(idx);
@@ -199,9 +216,14 @@ const AdvertiserDetail = () => {
           <CustomHeader
             goToPrevPage={() => history.push("/advertisers")}
             advertiserName={advertiser?.companyName}
+            handleReportDownload={() => {
+              console.log("downloading advertiser report");
+              generateAdvertiserReport(advertiser.id, advertiser.companyName);
+            }}
           />
         }
       >
+        {generatingReport && <OverlayLoader />}
         {fetchingAdvertiser ? (
           <AdvertiserDetailLoading />
         ) : (

@@ -13,11 +13,16 @@ const SET_SINGLE_DRIVER = "set_single_driver";
 const SET_DRIVERS_LIST_SIZE = "set_drivers_list_size";
 const FETCHING_TOTAL_SIZE = "fetching_total_size";
 const SET_DRIVERS_TOTAL_SIZE = "set_drivers_total_size";
+const UPDATING_ATTRIBUTES = "updating_attributes";
+const UPDATE_ATTRIBUTES_SUCCESS = "update_attributes_success";
+const UPDATE_ATTRIBUTES_FAIL = "update_attributes_fail";
+const SET_DRIVERS_WITH_SEARCH_INPUT = "set_drivers_with_search_input";
 
 const mapErrorDispatchToAction = {
   fetchDrivers: SET_FETCH_DRIVERS_ERROR,
   fetchDriverById: FETCH_SINGLE_DRIVER_ERROR,
   updateStatus: UPDATE_STATUS_ERROR,
+  updateAttributes: UPDATE_ATTRIBUTES_FAIL,
 };
 
 const driverReducer = (state, action) => {
@@ -44,6 +49,14 @@ const driverReducer = (state, action) => {
       return { ...state, fetchingTotalSize: action.payload };
     case SET_DRIVERS_TOTAL_SIZE:
       return { ...state, driversTotalSize: action.payload };
+    case UPDATING_ATTRIBUTES:
+      return { ...state, updatingAttributes: action.payload };
+    case UPDATE_ATTRIBUTES_SUCCESS:
+      return { ...state, updateAttributesSuccess: action.payload };
+    case UPDATE_ATTRIBUTES_FAIL:
+      return { ...state, updateAttributesError: action.payload };
+    case SET_DRIVERS_WITH_SEARCH_INPUT:
+      return { ...state, driversWithSearchInput: action.payload };
     default:
       return state;
   }
@@ -60,6 +73,38 @@ const fetchDrivers = (dispatch) => async (params) => {
 
     dispatch({ type: SET_DRIVERS_LIST, payload: response.data.drivers });
     dispatch({ type: SET_DRIVERS_LIST_SIZE, payload: response.data.size });
+    dispatch({ type: FETCHING_DRIVERS, payload: false });
+  } catch (err) {
+    if (err.response) {
+      dispatch({
+        type: SET_FETCH_DRIVERS_ERROR,
+        payload:
+          err.response.data.message ||
+          "Unable to fetch drivers. Something went wrong",
+      });
+    } else {
+      dispatch({
+        type: SET_FETCH_DRIVERS_ERROR,
+        payload: "Unable to fetch drivers. Something went wrong",
+      });
+    }
+    dispatch({ type: FETCHING_DRIVERS, payload: false });
+  }
+};
+
+const fetchDriversWithSearchInput = (dispatch) => async (params) => {
+  dispatch({ type: FETCHING_DRIVERS, payload: true });
+  dispatch({ type: SET_FETCH_DRIVERS_ERROR, payload: null });
+  try {
+    const response = await adverts247Api.get("/drivers", {
+      headers: { Authorization: `Bearer ${resolveToken()}` },
+      params: { ...params, sortBy: "createdAt", orderBy: "desc" },
+    });
+
+    dispatch({
+      type: SET_DRIVERS_WITH_SEARCH_INPUT,
+      payload: response.data.drivers,
+    });
     dispatch({ type: FETCHING_DRIVERS, payload: false });
   } catch (err) {
     if (err.response) {
@@ -135,17 +180,49 @@ const fetchDriverById = (dispatch) => async (driverId) => {
   }
 };
 
+const updateDriverAttributes = (dispatch) => async (data, driverId, cb) => {
+  dispatch({ type: UPDATING_ATTRIBUTES, payload: true });
+  dispatch({ type: UPDATE_ATTRIBUTES_FAIL, payload: null });
+  try {
+    const response = await adverts247Api.patch(`/drivers/${driverId}`, data, {
+      headers: { Authorization: `Bearer ${resolveToken()}` },
+    });
+
+    console.log(response.data);
+    dispatch({
+      type: UPDATE_ATTRIBUTES_SUCCESS,
+      payload: response.data.message,
+    });
+    dispatch({ type: UPDATING_ATTRIBUTES, payload: false });
+    cb && cb();
+  } catch (err) {
+    if (err.response) {
+      dispatch({
+        type: UPDATE_ATTRIBUTES_FAIL,
+        payload:
+          err.response.data.message ||
+          "Unable to update driver attributes. Something went wrong",
+      });
+    } else {
+      dispatch({
+        type: UPDATE_ATTRIBUTES_FAIL,
+        payload: "Unable to update driver attributes. Something went wrong",
+      });
+    }
+    dispatch({ type: UPDATING_ATTRIBUTES, payload: false });
+  }
+};
+
 const updateDriverStatus = (dispatch) => async (driverId, newStatus, cb) => {
   dispatch({ type: UPDATING_STATUS, payload: true });
   dispatch({ type: UPDATE_STATUS_ERROR, payload: null });
   try {
-    const response = await adverts247Api.patch(
+    const _response = await adverts247Api.patch(
       `/driver/change-status?driver=${driverId}`,
       { status: newStatus },
       { headers: { Authorization: `Bearer ${resolveToken()}` } }
     );
 
-    console.log(response);
     cb && cb();
     dispatch({ type: UPDATING_STATUS, payload: false });
   } catch (err) {
@@ -184,12 +261,18 @@ export const { Context, Provider } = createDataContext(
     driverListSize: 0,
     fetchingTotalSize: false,
     driversTotalSize: 0,
+    updatingAttributes: false,
+    updateAttributesError: null,
+    updateAttributesSuccess: null,
+    driversWithSearchInput: [],
   },
   {
     fetchDrivers,
+    fetchDriversWithSearchInput,
     fetchDriverById,
     updateDriverStatus,
     clearError,
     getDriversTotalSize,
+    updateDriverAttributes,
   }
 );

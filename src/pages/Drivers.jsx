@@ -4,7 +4,6 @@ import classNames from "classnames";
 import omitBy from "lodash/omitBy";
 import startCase from "lodash/startCase";
 import PlaceholderLoading from "react-placeholder-loading";
-import differenceInHours from "date-fns/differenceInHours";
 
 import Dashboard from "../components/Dashboard";
 import DataTable from "../components/DataTable";
@@ -69,13 +68,6 @@ const Drivers = () => {
       skip: (currentPage - 1) * shownRows,
     }),
     [shownRows, currentPage]
-  );
-
-  console.log(
-    differenceInHours(
-      new Date("2022-08-06T00:00:00.000+00:00"),
-      new Date("2022-08-03T00:00:00.000+00:00")
-    )
   );
 
   const {
@@ -255,7 +247,8 @@ const Drivers = () => {
                             },
                             {
                               "bg-closed-gradient":
-                                driver.status === "suspended",
+                                driver.status === "suspended" ||
+                                driver.status === "rejected",
                             },
                             {
                               "bg-paused-gradient": driver.status === "pending",
@@ -276,6 +269,7 @@ const Drivers = () => {
                     <td className="px-6 py-5">
                       {formatNum(
                         convertKoboToNaira(driverEarningsInKobo),
+                        true,
                         true
                       )}
                     </td>

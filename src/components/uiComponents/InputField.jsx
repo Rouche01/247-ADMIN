@@ -52,7 +52,9 @@ const InputField = (props) => {
             "text-lg",
             { "bg-247-dark-mode-input-bg": darkMode },
             "font-customRoboto",
-            { "text-white": darkMode },
+            { "text-white": darkMode && !inputProps.disabled },
+            { "text-247-disabled-input": darkMode && inputProps.disabled },
+            { "cursor-not-allowed": inputProps.disabled },
             "outline-none"
           )}
         />

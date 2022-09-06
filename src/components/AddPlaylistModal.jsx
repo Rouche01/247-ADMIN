@@ -39,7 +39,6 @@ const AddPlaylistModal = ({
   addingMultipleItem,
   addCallback,
   contentSearch,
-  setContentSearch,
   handleSearchChange,
 }) => {
   const [checkedContentItem, setCheckedContentItem] = useState([]);
@@ -95,6 +94,7 @@ const AddPlaylistModal = ({
           <SearchInput
             value={contentSearch}
             handleChange={handleSearchChange}
+            placeholderText="Search Content Library"
           />
         </div>
         <DataTable headers={tableHeaders} loadingData={loadingData}>
@@ -120,8 +120,8 @@ const AddPlaylistModal = ({
         {!loadingData && !fetchError && list.length === 0 && (
           <div className="w-full py-9">
             <NoDataBox
-              title="No Campaign Found"
-              subtitle="We cannot find any campaign that fits your criteria."
+              title="No Media Content Found"
+              subtitle="We cannot find any media content that's not on the playlist"
             />
           </div>
         )}

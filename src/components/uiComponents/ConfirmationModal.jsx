@@ -8,6 +8,7 @@ const ConfirmationModal = ({
   icon,
   text,
   handleConfirmation,
+  handleReject,
   processingConfirm,
 }) => {
   return (
@@ -23,7 +24,7 @@ const ConfirmationModal = ({
             {processingConfirm ? <Spinner /> : "Yes"}
           </button>
           <button
-            onClick={() => setOpen(false)}
+            onClick={handleReject}
             className="text-247-campaign-preview-title bg-white px-5 py-2 rounded-md font-medium"
           >
             No

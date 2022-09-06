@@ -16,6 +16,7 @@ import { Provider as RevenueProvider } from "./context/RevenueContext";
 import { Provider as PayoutProvider } from "./context/PayoutContext";
 import { Provider as EarningContext } from "./context/EarningContext";
 import { Provider as PlaylistProvider } from "./context/PlaylistContext";
+import { NotificationProvider } from "./hooks/notificationSubscriptions";
 import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
@@ -30,9 +31,11 @@ ReactDOM.render(
                   <ContentLibraryProvider>
                     <CampaignProvider>
                       <DriverProvider>
-                        <Router history={history}>
-                          <App />
-                        </Router>
+                        <NotificationProvider>
+                          <Router history={history}>
+                            <App />
+                          </Router>
+                        </NotificationProvider>
                       </DriverProvider>
                     </CampaignProvider>
                   </ContentLibraryProvider>

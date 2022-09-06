@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useMemo } from "react";
+import React, { useEffect, useContext, useMemo } from "react";
 import {
   MdOutlineArrowUpward,
   MdOutlineArrowDownward,
@@ -6,6 +6,7 @@ import {
 } from "react-icons/md";
 import $ from "jquery";
 import moment from "moment";
+import format from "date-fns/format";
 import PlaceholderLoading from "react-placeholder-loading";
 
 import { Context as CampaignContext } from "../context/CampaignContext";
@@ -13,12 +14,12 @@ import { Context as DriverContext } from "../context/DriverContext";
 import { Context as RevenueContext } from "../context/RevenueContext";
 import Dashboard from "../components/Dashboard";
 import ImpressionChart from "../components/ImpressionChart";
-import Checkbox from "../components/uiComponents/Checkbox";
-import { impressionData } from "../utils/dummyData";
 import { convertKoboToNaira, formatNum } from "../utils/numFormatter";
 import ChartUpIndicator from "../components/uiComponents/ChartUpIndicator";
 import ChartDownIndicator from "../components/uiComponents/ChartDownIndicator";
 import { useMomentDateQueryParamWithDefaultValue } from "../hooks/useQueryParam";
+import { transformChartDate } from "../utils/date";
+import { rangeEndDate, rangeStartDate } from "../utils/campaignStat";
 
 const TWELVE_MONTH_AGO = moment().subtract(12, "M");
 const NOW = moment();
@@ -83,18 +84,18 @@ const StatBox = ({
 };
 
 const Overview = () => {
-  const [totalChecked, setTotalChecked] = useState(true);
-  const [perDayChecked, setPerDayChecked] = useState(false);
-
   const {
     state: {
       fetchingTotalSize,
       campaignTotalSize,
       activeCampaignsSize,
       fetchingActiveCampaigns,
+      fetchingDailyStat,
+      campaignDailyStat,
     },
     fetchTotalCampaignSize,
     fetchActiveCampaigns,
+    fetchDailyCampaignStat,
   } = useContext(CampaignContext);
 
   const {
@@ -112,26 +113,25 @@ const Overview = () => {
       fetchingTotalSize ||
       fetchingActiveCampaigns ||
       fetchingDrivers ||
-      fetchingRevenue,
+      fetchingRevenue ||
+      fetchingDailyStat,
     [
       fetchingActiveCampaigns,
       fetchingDrivers,
       fetchingRevenue,
       fetchingTotalSize,
+      fetchingDailyStat,
     ]
   );
 
-  useEffect(() => {
-    (async () => {
-      await Promise.all([
-        fetchActiveCampaigns(),
-        fetchTotalCampaignSize(),
-        fetchDrivers({ status: "approved" }),
-        fetchRevenue(),
-      ]);
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const impressionChartData = useMemo(
+    () =>
+      campaignDailyStat.map((stat) => ({
+        impressions: stat.impressions,
+        date: transformChartDate(stat.date),
+      })),
+    [campaignDailyStat]
+  );
 
   const [startDate, setStartDate] = useMomentDateQueryParamWithDefaultValue(
     "startDate",
@@ -143,16 +143,38 @@ const Overview = () => {
     DEFAULT_FILTERS.endDate
   );
 
-  const handleCheckBoxes = () => {
-    if (totalChecked) {
-      setTotalChecked(false);
-      setPerDayChecked(true);
-    }
-    if (perDayChecked) {
-      setPerDayChecked(false);
-      setTotalChecked(true);
-    }
+  const filterValues = useMemo(
+    () => ({
+      startDate: format(startDate.toDate(), "yyyy/MM/dd"),
+      endDate: format(endDate.toDate(), "yyyy/MM/dd"),
+    }),
+    [startDate, endDate]
+  );
+
+  const fetchOverviewData = async (filterValues) => {
+    await Promise.all([
+      fetchActiveCampaigns({ ...filterValues }),
+      fetchTotalCampaignSize({ ...filterValues }),
+      fetchDrivers({ status: "approved", ...filterValues }),
+      fetchRevenue(),
+    ]);
   };
+
+  useEffect(() => {
+    fetchOverviewData(filterValues);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterValues]);
+
+  // const handleCheckBoxes = () => {
+  //   if (totalChecked) {
+  //     setTotalChecked(false);
+  //     setPerDayChecked(true);
+  //   }
+  //   if (perDayChecked) {
+  //     setPerDayChecked(false);
+  //     setTotalChecked(true);
+  //   }
+  // };
 
   useEffect(() => {
     $('button[name="daterange"]').daterangepicker(
@@ -177,6 +199,10 @@ const Overview = () => {
         setEndDate(end);
       }
     );
+    fetchDailyCampaignStat({
+      startDate: rangeStartDate,
+      endDate: rangeEndDate,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -237,10 +263,10 @@ const Overview = () => {
       )}
       <div className="mt-10 mb-20 w-full bg-247-secondary rounded-md border-2 border-247-dark-text pl-6 pr-10 py-10">
         <div className="flex justify-between items-center mb-10">
-          <h3 className="text-white font-customRoboto text-2xl font-medium">
+          <h3 className="text-white font-customRoboto text-3xl font-medium">
             Impressions
           </h3>
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <div className="flex items-center">
               <Checkbox
                 checked={totalChecked}
@@ -257,10 +283,10 @@ const Overview = () => {
                 iconColor="#FF0000"
               />
             </div>
-          </div>
+          </div> */}
         </div>
         <ImpressionChart
-          data={impressionData}
+          data={impressionChartData}
           xDataKey="date"
           yDataKey="impressions"
         />
