@@ -139,19 +139,19 @@ const mapActionToStatusAndEvent = {
   suspend: {
     status: "suspended",
     successEvent: NOTIFICATION_EVENTS.DRIVER_SUSPENDED,
-    sucessEventTitle: "Account Suspended",
+    successEventTitle: "Account Suspended",
     successEventMessage: `Your account has been suspended based on breaking the guidelines. You can contact support for help`,
   },
   activate: {
     status: "approved",
     successEvent: NOTIFICATION_EVENTS.DRIVER_APPROVED,
-    sucessEventTitle: "Account Approved",
+    successEventTitle: "Account Approved",
     successEventMessage: `Your account has been approved. Log in and start earning from your trips`,
   },
   reactivate: {
     status: "approved",
     successEvent: NOTIFICATION_EVENTS.DRIVER_APPROVED,
-    sucessEventTitle: "Account Re-Approved",
+    successEventTitle: "Account Re-Approved",
     successEventMessage: `Your account has been re-approved. Log in and start earning from your trips`,
   },
   rejectApprovalRequest: {
