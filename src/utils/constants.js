@@ -23,7 +23,10 @@ export const ADTYPES = [
   { value: "video", label: "Video" },
 ];
 
-export const NOTIFIER_SOCKET_URL = "http://localhost:3005/notifier";
+export const NOTIFIER_SOCKET_URL =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:3005/notifier"
+    : "https://api.adverts247.com/notifier";
 
 export const NOTIFICATION_EVENTS = {
   JOIN: "notification::join",
