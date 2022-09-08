@@ -106,7 +106,8 @@ const CustomHeader = ({
             "rounded-md",
             {
               "bg-active-gradient": status === "approved",
-              "bg-closed-gradient": status === "suspended" || "rejected",
+              "bg-closed-gradient":
+                status === "suspended" || status === "rejected",
               "bg-paused-gradient": status === "pending",
             }
           )}
