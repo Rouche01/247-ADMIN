@@ -387,6 +387,9 @@ const CampaignDetail = () => {
               handleConfirmation={
                 mapCampaignActionToValues[confirmModalOpen?.action]?.handleFn
               }
+              handleReject={() =>
+                setConfirmModalOpen({ open: false, action: null })
+              }
             />
             <CreateCampaignModal
               modalIsOpen={editCampaignOpen}

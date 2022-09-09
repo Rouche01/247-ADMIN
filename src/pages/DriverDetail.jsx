@@ -619,6 +619,9 @@ const DriverDetail = () => {
           handleConfirmation={
             mapAccountActionToValues[confirmModalOpen?.action]?.action
           }
+          handleReject={() =>
+            setConfirmModalOpen({ open: false, action: null })
+          }
         />
         <ConfirmationModal
           open={confirmPayoutModalOpen}
