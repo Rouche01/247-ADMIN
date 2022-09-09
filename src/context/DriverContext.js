@@ -188,7 +188,6 @@ const updateDriverAttributes = (dispatch) => async (data, driverId, cb) => {
       headers: { Authorization: `Bearer ${resolveToken()}` },
     });
 
-    console.log(response.data);
     dispatch({
       type: UPDATE_ATTRIBUTES_SUCCESS,
       payload: response.data.message,

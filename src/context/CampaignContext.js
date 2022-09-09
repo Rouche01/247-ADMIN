@@ -92,7 +92,6 @@ const createCampaign = (dispatch) => async (createCampaignData, cb) => {
     cb && cb();
   } catch (err) {
     if (err.response) {
-      console.log(err.response.data);
       dispatch({
         type: SET_CREATE_ERROR,
         payload:
@@ -123,7 +122,6 @@ const fetchCampaigns = (dispatch) => async (params) => {
     dispatch({ type: SET_LOADING_STATE, payload: false });
   } catch (err) {
     if (err.response) {
-      console.log(err.response.data);
       dispatch({
         type: SET_RETRIEVE_ERROR,
         payload:
@@ -156,7 +154,6 @@ const fetchCampaignsWithSearchInput = (dispatch) => async (params) => {
     dispatch({ type: SET_LOADING_STATE, payload: false });
   } catch (err) {
     if (err.response) {
-      console.log(err.response.data);
       dispatch({
         type: SET_RETRIEVE_ERROR,
         payload:
@@ -186,7 +183,6 @@ const fetchTotalCampaignSize = (dispatch) => async (params) => {
     dispatch({ type: FETCHING_TOTAL_SIZE, payload: false });
   } catch (err) {
     if (err.response) {
-      console.log(err.response.data);
       dispatch({
         type: SET_RETRIEVE_ERROR,
         payload:
@@ -222,7 +218,6 @@ const fetchActiveCampaigns = (dispatch) => async (params) => {
     dispatch({ type: FETCHING_ACTIVE_CAMPAIGNS, payload: false });
   } catch (err) {
     if (err.response) {
-      console.log(err.response.data);
       dispatch({
         type: SET_RETRIEVE_ERROR,
         payload:
@@ -302,13 +297,10 @@ const updateCampaignAttributes =
     dispatch({ type: UPDATING_ATTRIBUTES, payload: true });
     dispatch({ type: SET_UPDATE_ATTR_ERROR, payload: null });
     try {
-      const response = await adverts247Api.patch(
-        `campaigns/${campaignId}`,
-        editData,
-        { headers: { Authorization: `Bearer ${resolveToken()}` } }
-      );
+      await adverts247Api.patch(`campaigns/${campaignId}`, editData, {
+        headers: { Authorization: `Bearer ${resolveToken()}` },
+      });
 
-      console.log(response.data);
       dispatch({ type: UPDATING_ATTRIBUTES, payload: true });
       cb && cb();
     } catch (err) {

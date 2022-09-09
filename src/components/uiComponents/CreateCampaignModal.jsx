@@ -125,7 +125,6 @@ const CreateCampaignModal = ({
       setInputLoading(false);
       setValue("advertiser", response.data);
     } catch (err) {
-      console.log(err.response);
       if (err.response) {
         setError("advertiser", {
           message:

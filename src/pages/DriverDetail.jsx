@@ -290,7 +290,6 @@ const DriverDetail = () => {
   };
 
   const handleAccountSuspend = async () => {
-    console.log("suspending...");
     await updateDriverStatus(
       driverId,
       mapActionToStatusAndEvent[confirmModalOpen.action].status,
@@ -300,7 +299,6 @@ const DriverDetail = () => {
   };
 
   const handleAccountActivate = async () => {
-    console.log("activating...");
     await updateDriverStatus(
       driverId,
       mapActionToStatusAndEvent[confirmModalOpen.action].status,
@@ -310,7 +308,6 @@ const DriverDetail = () => {
   };
 
   const handleAccountReactivate = async () => {
-    console.log("reactivating...");
     await updateDriverStatus(
       driverId,
       mapActionToStatusAndEvent[confirmModalOpen.action].status,
@@ -320,7 +317,6 @@ const DriverDetail = () => {
   };
 
   const rejectApprovalRequest = async () => {
-    console.log("rejecting approval...");
     await updateDriverStatus(
       driverId,
       mapActionToStatusAndEvent[confirmModalOpen.action].status,
@@ -349,8 +345,6 @@ const DriverDetail = () => {
   };
 
   const handleDriverPayout = (data) => {
-    console.log(data, driver, "confirming payout");
-
     let payload;
 
     if (data.settlementType === "single") {

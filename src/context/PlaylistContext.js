@@ -75,7 +75,6 @@ const fetchGeneralPlaylist = (dispatch) => async () => {
       params: { name: "general" },
     });
 
-    console.log(response.data.playlist);
     dispatch({ type: FETCHING_GENERAL_PLAYLIST, payload: false });
     dispatch({
       type: SET_GENERAL_PLAYLIST,
@@ -109,7 +108,6 @@ const reorderPlaylist = (dispatch) => async (reorderedQueue, cb) => {
       { headers: { Authorization: `Bearer ${resolveToken()}` } }
     );
 
-    console.log(response.data);
     dispatch({ type: REORDERING_PLAYLIST, payload: false });
     dispatch({ type: REORDER_SUCCESS, payload: response.data.message });
   } catch (err) {
@@ -140,7 +138,6 @@ const addMultipleItemToPlaylist = (dispatch) => async (data, cb) => {
       { headers: { Authorization: `Bearer ${resolveToken()}` } }
     );
 
-    console.log(response.data);
     dispatch({ type: ADDING_MULTIPLE_ITEM, payload: false });
     dispatch({ type: ADD_MULTIPLE_SUCCESS, payload: response.data.message });
     cb && cb();
@@ -173,8 +170,6 @@ const addItemToPlaylist = (dispatch) => async (data, cb) => {
       headers: { Authorization: `Bearer ${resolveToken()}` },
     });
 
-    console.log(response.data.message);
-
     dispatch({ type: ADDING_PLAYLIST_ITEM, payload: false });
     dispatch({ type: PLAYLIST_ADD_SUCCESS, payload: response.data.message });
 
@@ -206,13 +201,11 @@ const deletePlaylistItem = (dispatch) => async (playlistId, cb) => {
       { headers: { Authorization: `Bearer ${resolveToken()}` } }
     );
 
-    console.log(response.data);
     dispatch({ type: DELETING_PLAYLIST_ITEM, payload: false });
     dispatch({ type: PLAYLIST_DELETE_SUCCESS, payload: response.data.message });
     cb && cb();
   } catch (err) {
     if (err.response) {
-      console.log(err.response);
       dispatch({
         type: PLAYLIST_DELETE_ERROR,
         payload:
@@ -242,7 +235,6 @@ const deletePlaylistItemForMedia = (dispatch) => async (mediaId, cb) => {
     cb && cb();
   } catch (err) {
     if (err.response) {
-      console.log(err.response);
       dispatch({
         type: PLAYLIST_DELETE_ERROR,
         payload:

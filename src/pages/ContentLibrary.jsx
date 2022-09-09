@@ -131,9 +131,6 @@ const ContentLibrary = () => {
   };
 
   const handleUploadNewContent = async (data) => {
-    console.log(data, "uploading new content...");
-    console.log(contentMedia, convertSecToMMSS(contentDuration));
-
     let formData = new FormData();
     formData.append("title", data.title);
     formData.append("category", data.category);
@@ -153,7 +150,6 @@ const ContentLibrary = () => {
   };
 
   const handleAddItemToPlaylist = async (item) => {
-    console.log(item, "adding item to playlist...");
     const { id, duration, mediaUri, title } = item;
 
     await addItemToPlaylist(

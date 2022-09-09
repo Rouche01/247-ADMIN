@@ -39,7 +39,7 @@ const loginAdmin =
         email,
         password,
       });
-      console.log(response);
+
       const token = response.data.token;
       dispatch({
         type: "signin",
@@ -47,7 +47,6 @@ const loginAdmin =
       });
       history.push(redirectPath);
     } catch (err) {
-      console.log(err.response);
       if (err.response) {
         dispatch({
           type: "set_error",

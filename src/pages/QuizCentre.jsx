@@ -85,8 +85,6 @@ const QuizCentre = () => {
     quizzesCount
   );
 
-  console.log(quizzes);
-
   const toggleQuizCheck = (idx) => {
     if (checkedQuizItems.includes(idx)) {
       const index = checkedQuizItems.indexOf(idx);

@@ -111,7 +111,6 @@ const settleBulkPayoutRequest =
         { headers: { Authorization: `Bearer ${resolveToken()}` } }
       );
 
-      console.log(response.data);
       dispatch({ type: BULK_PAYOUT_SUCCESS, payload: response.data.message });
       dispatch({ type: SETTLING_BULK_PAYOUT, payload: false });
 
@@ -146,7 +145,6 @@ const settleSinglePayoutRequest =
         params: { requestId },
       });
 
-      console.log(response.data);
       dispatch({ type: SINGLE_PAYOUT_SUCCESS, payload: response.data.message });
       dispatch({ type: SETTLING_SINGLE_PAYOUT, payload: false });
       onSuccess();
@@ -185,7 +183,6 @@ const getTotalSettledPayouts = (dispatch) => async () => {
     const totalSettled = response.data.payouts
       .map((payout) => payout.amount)
       .reduce((prev, curr) => prev + curr, 0);
-    console.log(response.data.payouts);
 
     dispatch({ type: FETCHING_TOTAL_SETTLED, payload: false });
     dispatch({ type: SET_TOTAL_SETTLED, payload: totalSettled });

@@ -72,7 +72,6 @@ const AddPlaylistModal = ({
           };
           return newItem;
         });
-      console.log(preparedPayload);
       onMultipleAdd({ items: preparedPayload }, () => {
         toast.success("Items added to playlist successfully");
         setCheckedContentItem([]);

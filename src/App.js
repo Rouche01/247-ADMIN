@@ -32,7 +32,6 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
   const location = useLocation();
-  console.log(location);
   return (
     <div className="App">
       <Switch>

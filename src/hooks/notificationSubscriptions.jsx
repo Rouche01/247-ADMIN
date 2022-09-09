@@ -61,14 +61,12 @@ export const NotificationProvider = ({ children }) => {
   const socketRef = useRef();
 
   const onPayoutRequested = (data) => {
-    console.log(data);
     const newNotifications = [data, ...notificationsRef.current];
     setNotifications(newNotifications);
     setNotificationCount(notificationCountRef.current + 1);
   };
 
   const onDriverApproveRequest = (data) => {
-    console.log(data);
     const newNotifications = [data, ...notificationsRef.current];
     setNotifications(newNotifications);
     setNotificationCount(notificationCountRef.current + 1);
@@ -83,7 +81,7 @@ export const NotificationProvider = ({ children }) => {
 
     socketRef.current.on("connect", () => {
       console.log("connected");
-      socketRef.current.emit(NOTIFICATION_EVENTS.JOIN, { userId: user.id });
+      socketRef.current.emit(NOTIFICATION_EVENTS.JOIN, { userId: user?.id });
     });
 
     socketRef.current.on(

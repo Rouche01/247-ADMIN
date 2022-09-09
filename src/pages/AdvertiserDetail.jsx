@@ -217,7 +217,6 @@ const AdvertiserDetail = () => {
             goToPrevPage={() => history.push("/advertisers")}
             advertiserName={advertiser?.companyName}
             handleReportDownload={() => {
-              console.log("downloading advertiser report");
               generateAdvertiserReport(advertiser.id, advertiser.companyName);
             }}
           />

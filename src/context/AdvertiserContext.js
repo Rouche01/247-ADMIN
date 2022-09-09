@@ -64,11 +64,10 @@ const createAdvertiser = (dispatch) => async (createData) => {
   dispatch({ type: SET_CREATE_ERROR, payload: null });
 
   try {
-    const response = await adverts247Api.post("/advertisers", createData, {
+    const _response = await adverts247Api.post("/advertisers", createData, {
       headers: { Authorization: `Bearer ${resolveToken()}` },
     });
 
-    console.log(response.data);
     dispatch({ type: CREATING_ADVERTISER, payload: false });
   } catch (err) {
     if (err.response) {
@@ -181,7 +180,6 @@ const fetchTotalAdvertisersSize = (dispatch) => async () => {
 };
 
 const fetchAdvertiserById = (dispatch) => async (advertiserId) => {
-  console.log(advertiserId);
   dispatch({ type: SET_LOADING_STATE, payload: true });
   dispatch({ type: SET_FETCH_BY_ID_ERROR, payload: null });
 
@@ -230,8 +228,6 @@ const generateAdvertiserReport =
       const nowTimestamp = new Date().getTime();
       link.download = `${advertiserName}_AdReport_${nowTimestamp}`;
       link.click();
-
-      console.log(response.data);
 
       dispatch({ type: GENERATING_REPORT, payload: false });
       dispatch({

@@ -101,8 +101,6 @@ const PendingPayouts = () => {
     payoutsListSize
   );
 
-  console.log(payoutRequests, payoutsListSize);
-
   useEffect(() => {
     (async () => {
       await Promise.all([

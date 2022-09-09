@@ -17,8 +17,6 @@ const InputField = (props) => {
     isNumeric
       ? registerFn(props.name, {
           onChange: (e) => {
-            console.log(e.target.value.replace(/\D/g, ""));
-
             const value = parseFloat(
               e.target.value.replace(/\D/g, "").replace(/,/g, "")
             );

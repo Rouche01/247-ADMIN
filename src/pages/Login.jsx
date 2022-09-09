@@ -16,8 +16,6 @@ const Login = () => {
   const { validationSchema } = useLoginValidation();
   const { state } = useLocation();
 
-  console.log(state);
-
   const {
     state: { loading: authLoading, error: authError, loggedIn },
     loginAdmin,
@@ -38,7 +36,7 @@ const Login = () => {
   };
 
   if (loggedIn) {
-    return <Redirect to={OVERVIEW_PAGE} />
+    return <Redirect to={OVERVIEW_PAGE} />;
   }
 
   return (

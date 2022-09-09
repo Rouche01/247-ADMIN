@@ -72,7 +72,6 @@ const fetchQuizzes = (dispatch) => async (params) => {
 };
 
 const createNewQuiz = (dispatch) => async (createData, cb) => {
-  console.log("working");
   dispatch({ type: CREATING_QUIZ, payload: true });
   dispatch({ type: CREATE_QUIZ_ERROR, payload: null });
 
@@ -106,11 +105,10 @@ const deleteQuiz = (dispatch) => async (quizId, cb) => {
   dispatch({ type: DELETE_QUIZ_ERROR, payload: null });
 
   try {
-    const response = await adverts247Api.delete(`/quiz/${quizId}`, {
+    await adverts247Api.delete(`/quiz/${quizId}`, {
       headers: { Authorization: `Bearer ${resolveToken()}` },
     });
 
-    console.log(response.data);
     dispatch({ type: DELETING_QUIZ, payload: false });
     cb && cb();
   } catch (err) {

@@ -38,12 +38,10 @@ const getCampaignAuditLogs = (dispatch) => async (campaignId, actions) => {
       }
     );
 
-    console.log(response.data);
     dispatch({ type: SET_CAMPAIGN_AUDIT_LOGS, payload: response.data });
     dispatch({ type: FETCHING_CAMPAIGN_AUDIT_LOGS, payload: false });
   } catch (err) {
     if (err.response) {
-      console.log(err.response.data);
       dispatch({
         type: FETCH_CAMPAIGN_AUDITS_ERROR,
         payload:
