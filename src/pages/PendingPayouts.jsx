@@ -113,13 +113,11 @@ const PendingPayouts = () => {
   }, []);
 
   const handlePayoutBtn = (data) => {
-    console.log(data, "confirming payout");
     setSettleModalOpen(false);
     setConfirmModalOpen(true);
   };
 
   const payoutDriver = () => {
-    console.log("paying driver...");
     setConfirmModalOpen(false);
   };
 

@@ -182,7 +182,6 @@ const PlaylistManager = () => {
       return fetchPlaylistAndMediaItems();
     });
     setConfirmRemoveOpen(false);
-    console.log("removing item from playlist...");
   };
 
   return (
